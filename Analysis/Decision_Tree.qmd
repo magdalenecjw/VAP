@@ -1,5 +1,5 @@
 ---
-title: "Regression"
+title: "Decision Tree"
 author: "Habari Tanzania"
 date: 11 Mar 2023
 date-modified: "`r Sys.Date()`"

@@ -33,8 +33,8 @@ website:
         text: "Confirmatory Data Analysis"
       - href: "Analysis/Clustering.html"
         text: "Clustering Analysis"
-      - href: "Analysis/Regression.html"
-        text: "Regression Analysis"
+      - href: "Analysis/Decision_Tree.html"
+        text: "Decision Tree Analysis"
 
 format:
   html:
