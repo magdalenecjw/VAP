@@ -231,7 +231,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="installing-and-launching-required-r-packages" class="level3">
 <h3 class="anchored" data-anchor-id="installing-and-launching-required-r-packages">1. Installing and launching required R packages</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"ExPanDaR"</span>, <span class="st">"kableExtra"</span>, <span class="st">"tidyverse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"ExPanDaR"</span>, <span class="st">"countrycode"</span>, <span class="st">"kableExtra"</span>, <span class="st">"tidyverse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="loading-the-data" class="level3">
@@ -296,18 +296,79 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="dataset-overview" class="level3">
 <h3 class="anchored" data-anchor-id="dataset-overview">3. Dataset overview</h3>
-<section id="missing-values" class="level4">
-<h4 class="anchored" data-anchor-id="missing-values">3.1 Missing values</h4>
+<section id="unique-countries" class="level4">
+<h4 class="anchored" data-anchor-id="unique-countries">3.1 Unique Countries</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>missing.values <span class="ot">&lt;-</span> touristdata <span class="sc">%&gt;%</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">"key"</span>, <span class="at">value =</span> <span class="st">"val"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">is.missing =</span> <span class="fu">is.na</span>(val)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key, is.missing) <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">num.missing =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(is.missing<span class="sc">==</span>T) <span class="sc">%&gt;%</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>is.missing) <span class="sc">%&gt;%</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(num.missing)) </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>missing.values <span class="sc">%&gt;%</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(touristdata<span class="sc">$</span>country)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "SWIZERLAND"               "UNITED KINGDOM"          
+  [3] "CHINA"                    "SOUTH AFRICA"            
+  [5] "UNITED STATES OF AMERICA" "NIGERIA"                 
+  [7] "INDIA"                    "BRAZIL"                  
+  [9] "CANADA"                   "MALT"                    
+ [11] "MOZAMBIQUE"               "RWANDA"                  
+ [13] "AUSTRIA"                  "MYANMAR"                 
+ [15] "GERMANY"                  "KENYA"                   
+ [17] "ALGERIA"                  "IRELAND"                 
+ [19] "DENMARK"                  "SPAIN"                   
+ [21] "FRANCE"                   "ITALY"                   
+ [23] "EGYPT"                    "QATAR"                   
+ [25] "MALAWI"                   "JAPAN"                   
+ [27] "SWEDEN"                   "NETHERLANDS"             
+ [29] "UAE"                      "UGANDA"                  
+ [31] "AUSTRALIA"                "YEMEN"                   
+ [33] "NEW ZEALAND"              "BELGIUM"                 
+ [35] "NORWAY"                   "ZIMBABWE"                
+ [37] "ZAMBIA"                   "CONGO"                   
+ [39] "BURGARIA"                 "PAKISTAN"                
+ [41] "GREECE"                   "MAURITIUS"               
+ [43] "DRC"                      "OMAN"                    
+ [45] "PORTUGAL"                 "KOREA"                   
+ [47] "SWAZILAND"                "TUNISIA"                 
+ [49] "KUWAIT"                   "DOMINICA"                
+ [51] "ISRAEL"                   "FINLAND"                 
+ [53] "CZECH REPUBLIC"           "UKRAIN"                  
+ [55] "ETHIOPIA"                 "BURUNDI"                 
+ [57] "SCOTLAND"                 "RUSSIA"                  
+ [59] "GHANA"                    "NIGER"                   
+ [61] "MALAYSIA"                 "COLOMBIA"                
+ [63] "LUXEMBOURG"               "NEPAL"                   
+ [65] "POLAND"                   "SINGAPORE"               
+ [67] "LITHUANIA"                "HUNGARY"                 
+ [69] "INDONESIA"                "TURKEY"                  
+ [71] "TRINIDAD TOBACCO"         "IRAQ"                    
+ [73] "SLOVENIA"                 "UNITED ARAB EMIRATES"    
+ [75] "COMORO"                   "SRI LANKA"               
+ [77] "IRAN"                     "MONTENEGRO"              
+ [79] "ANGOLA"                   "LEBANON"                 
+ [81] "SLOVAKIA"                 "ROMANIA"                 
+ [83] "MEXICO"                   "LATVIA"                  
+ [85] "CROATIA"                  "CAPE VERDE"              
+ [87] "SUDAN"                    "COSTARICA"               
+ [89] "CHILE"                    "NAMIBIA"                 
+ [91] "TAIWAN"                   "SERBIA"                  
+ [93] "LESOTHO"                  "GEORGIA"                 
+ [95] "PHILIPINES"               "IVORY COAST"             
+ [97] "MADAGASCAR"               "DJIBOUT"                 
+ [99] "CYPRUS"                   "ARGENTINA"               
+[101] "URUGUAY"                  "MORROCO"                 
+[103] "THAILAND"                 "BERMUDA"                 
+[105] "ESTONIA"                 </code></pre>
+</div>
+</div>
+</section>
+<section id="missing-values" class="level4">
+<h4 class="anchored" data-anchor-id="missing-values">3.2 Missing values</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>missing.values <span class="ot">&lt;-</span> touristdata <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">"key"</span>, <span class="at">value =</span> <span class="st">"val"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">is.missing =</span> <span class="fu">is.na</span>(val)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key, is.missing) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">num.missing =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(is.missing<span class="sc">==</span>T) <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>is.missing) <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(num.missing)) </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>missing.values <span class="sc">%&gt;%</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table>
@@ -341,44 +402,54 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Visualising missing values</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>missing_values <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">vari =</span> <span class="st">"country"</span>){</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prepare_missing_values_graph</span>(touristdata, <span class="at">ts_id =</span> vari)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>missing_values <span class="ot">&lt;-</span> <span class="cf">function</span>(origin, <span class="at">vari =</span> <span class="st">"country"</span>){</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prepare_missing_values_graph</span>(origin, <span class="at">ts_id =</span> vari)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">missing_values</span>(<span class="st">"country"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">missing_values</span>(touristdata, <span class="st">"country"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="DataPrep_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="960"></p>
+<p><img src="DataPrep_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">missing_values</span>(<span class="st">"age_group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">missing_values</span>(touristdata, <span class="st">"age_group"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="DataPrep_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="DataPrep_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="treating-missing-values" class="level4">
-<h4 class="anchored" data-anchor-id="treating-missing-values">3.2 Treating Missing values</h4>
+<h4 class="anchored" data-anchor-id="treating-missing-values">3.3 Treating Missing values</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>touristdata_clean <span class="ot">&lt;-</span> touristdata <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_tourist =</span> total_male <span class="sc">+</span> total_female,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> total_male) <span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">travel_with =</span> <span class="fu">case_when</span>(total_tourist <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Alone"</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                 <span class="cn">TRUE</span> <span class="sc">~</span> travel_with)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">most_impressing =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(most_impressing) <span class="sc">~</span> <span class="st">"No comments"</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                     <span class="cn">TRUE</span> <span class="sc">~</span> most_impressing)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>convertbinary <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(x<span class="sc">==</span><span class="st">"Yes"</span>, <span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>missing.values.clean <span class="ot">&lt;-</span> touristdata_clean <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">"key"</span>, <span class="at">value =</span> <span class="st">"val"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">is.missing =</span> <span class="fu">is.na</span>(val)) <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key, is.missing) <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">num.missing =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(is.missing<span class="sc">==</span>T) <span class="sc">%&gt;%</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>is.missing) <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(num.missing)) </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>missing.values.clean <span class="sc">%&gt;%</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>touristdata_min_na <span class="ot">&lt;-</span> touristdata <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_tourist =</span> total_male <span class="sc">+</span> total_female,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> total_male) <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_night_spent =</span> night_mainland <span class="sc">+</span> night_zanzibar,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">prop_night_spent_mainland =</span> <span class="fu">round</span>(night_mainland<span class="sc">/</span>total_night_spent,<span class="dv">2</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> night_zanzibar) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">travel_with =</span> <span class="fu">case_when</span>(total_tourist <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Alone"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="cn">TRUE</span> <span class="sc">~</span> travel_with)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">most_impressing =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(most_impressing) <span class="sc">~</span> <span class="st">"No comments"</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="cn">TRUE</span> <span class="sc">~</span> most_impressing)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(package_transport_int<span class="sc">:</span>package_insurance, convertbinary)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(first_trip_tz, convertbinary))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>missing.values.clean <span class="ot">&lt;-</span> touristdata_min_na <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(<span class="at">key =</span> <span class="st">"key"</span>, <span class="at">value =</span> <span class="st">"val"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">is.missing =</span> <span class="fu">is.na</span>(val)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key, is.missing) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">num.missing =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(is.missing<span class="sc">==</span>T) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>is.missing) <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(num.missing)) </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>missing.values.clean <span class="sc">%&gt;%</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table>
@@ -411,10 +482,160 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>touristdata_clean <span class="ot">&lt;-</span> touristdata_clean <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">missing_values</span>(touristdata_min_na, <span class="st">"country"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="DataPrep_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="960"></p>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write_csv(touristdata_clean,'C:/michaeldjo/VAP/DataPrep/data/touristdata_clean.csv')</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>touristdata_min_na <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"CHILE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 26
+  ID     country age_g…¹ trave…² total…³ total…⁴ total…⁵ purpose main_…⁶ info_…⁷
+  &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  
+1 tour_… CHILE   25-44   Friend…       1       1       2 Leisur… Wildli… Friend…
+2 tour_… CHILE   25-44   Alone         0       1       1 Leisur… Wildli… Travel…
+# … with 16 more variables: tour_arrangement &lt;chr&gt;,
+#   package_transport_int &lt;fct&gt;, package_accomodation &lt;fct&gt;,
+#   package_food &lt;fct&gt;, package_transport_tz &lt;fct&gt;, package_sightseeing &lt;fct&gt;,
+#   package_guided_tour &lt;fct&gt;, package_insurance &lt;fct&gt;, night_mainland &lt;dbl&gt;,
+#   night_zanzibar &lt;dbl&gt;, total_night_spent &lt;dbl&gt;,
+#   prop_night_spent_mainland &lt;dbl&gt;, payment_mode &lt;chr&gt;, first_trip_tz &lt;fct&gt;,
+#   most_impressing &lt;chr&gt;, total_cost &lt;dbl&gt;, and abbreviated variable names …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>touristdata_no_na <span class="ot">&lt;-</span> touristdata_min_na <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>touristdata_no_na</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4,762 × 26
+   ID    country age_g…¹ trave…² total…³ total…⁴ total…⁵ purpose main_…⁶ info_…⁷
+   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  
+ 1 tour… SWIZER… 45-64   Friend…       1       1       2 Leisur… Wildli… Friend…
+ 2 tour… UNITED… 25-44   Alone         1       0       1 Leisur… Cultur… others 
+ 3 tour… UNITED… 25-44   Alone         0       1       1 Visiti… Cultur… Friend…
+ 4 tour… UNITED… 25-44   Spouse        1       1       2 Leisur… Wildli… Travel…
+ 5 tour… CHINA   1-24    Alone         1       0       1 Leisur… Wildli… Travel…
+ 6 tour… UNITED… 25-44   Alone         0       1       1 Leisur… Wildli… Travel…
+ 7 tour… SOUTH … 45-64   Alone         0       1       1 Busine… Mounta… Friend…
+ 8 tour… UNITED… 45-64   Friend…       1       1       2 Leisur… Wildli… Travel…
+ 9 tour… NIGERIA 25-44   Alone         0       1       1 Leisur… Cultur… Travel…
+10 tour… INDIA   25-44   Alone         1       0       1 Busine… Wildli… Travel…
+# … with 4,752 more rows, 16 more variables: tour_arrangement &lt;chr&gt;,
+#   package_transport_int &lt;fct&gt;, package_accomodation &lt;fct&gt;,
+#   package_food &lt;fct&gt;, package_transport_tz &lt;fct&gt;, package_sightseeing &lt;fct&gt;,
+#   package_guided_tour &lt;fct&gt;, package_insurance &lt;fct&gt;, night_mainland &lt;dbl&gt;,
+#   night_zanzibar &lt;dbl&gt;, total_night_spent &lt;dbl&gt;,
+#   prop_night_spent_mainland &lt;dbl&gt;, payment_mode &lt;chr&gt;, first_trip_tz &lt;fct&gt;,
+#   most_impressing &lt;chr&gt;, total_cost &lt;dbl&gt;, and abbreviated variable names …</code></pre>
+</div>
+</div>
+</section>
+<section id="matching-countries-to-continent" class="level4">
+<h4 class="anchored" data-anchor-id="matching-countries-to-continent">3.4 Matching countries to continent</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(touristdata_no_na<span class="sc">$</span>country) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "SWIZERLAND"               "UNITED KINGDOM"          
+  [3] "CHINA"                    "SOUTH AFRICA"            
+  [5] "UNITED STATES OF AMERICA" "NIGERIA"                 
+  [7] "INDIA"                    "BRAZIL"                  
+  [9] "CANADA"                   "MALT"                    
+ [11] "MOZAMBIQUE"               "RWANDA"                  
+ [13] "AUSTRIA"                  "MYANMAR"                 
+ [15] "GERMANY"                  "KENYA"                   
+ [17] "ALGERIA"                  "IRELAND"                 
+ [19] "DENMARK"                  "SPAIN"                   
+ [21] "FRANCE"                   "ITALY"                   
+ [23] "EGYPT"                    "QATAR"                   
+ [25] "MALAWI"                   "JAPAN"                   
+ [27] "SWEDEN"                   "NETHERLANDS"             
+ [29] "UAE"                      "UGANDA"                  
+ [31] "AUSTRALIA"                "YEMEN"                   
+ [33] "NEW ZEALAND"              "BELGIUM"                 
+ [35] "NORWAY"                   "ZIMBABWE"                
+ [37] "ZAMBIA"                   "CONGO"                   
+ [39] "BURGARIA"                 "PAKISTAN"                
+ [41] "GREECE"                   "MAURITIUS"               
+ [43] "DRC"                      "OMAN"                    
+ [45] "PORTUGAL"                 "KOREA"                   
+ [47] "SWAZILAND"                "TUNISIA"                 
+ [49] "KUWAIT"                   "DOMINICA"                
+ [51] "ISRAEL"                   "FINLAND"                 
+ [53] "CZECH REPUBLIC"           "UKRAIN"                  
+ [55] "ETHIOPIA"                 "BURUNDI"                 
+ [57] "SCOTLAND"                 "RUSSIA"                  
+ [59] "GHANA"                    "NIGER"                   
+ [61] "MALAYSIA"                 "COLOMBIA"                
+ [63] "LUXEMBOURG"               "NEPAL"                   
+ [65] "POLAND"                   "SINGAPORE"               
+ [67] "LITHUANIA"                "HUNGARY"                 
+ [69] "INDONESIA"                "TURKEY"                  
+ [71] "TRINIDAD TOBACCO"         "IRAQ"                    
+ [73] "SLOVENIA"                 "UNITED ARAB EMIRATES"    
+ [75] "COMORO"                   "SRI LANKA"               
+ [77] "IRAN"                     "MONTENEGRO"              
+ [79] "ANGOLA"                   "LEBANON"                 
+ [81] "SLOVAKIA"                 "ROMANIA"                 
+ [83] "MEXICO"                   "LATVIA"                  
+ [85] "CROATIA"                  "CAPE VERDE"              
+ [87] "SUDAN"                    "COSTARICA"               
+ [89] "NAMIBIA"                  "TAIWAN"                  
+ [91] "SERBIA"                   "LESOTHO"                 
+ [93] "GEORGIA"                  "PHILIPINES"              
+ [95] "IVORY COAST"              "MADAGASCAR"              
+ [97] "DJIBOUT"                  "CYPRUS"                  
+ [99] "ARGENTINA"                "URUGUAY"                 
+[101] "MORROCO"                  "THAILAND"                
+[103] "CHILE"                    "BERMUDA"                 
+[105] "ESTONIA"                 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>touristdata_clean <span class="ot">&lt;-</span> touristdata_no_na <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">country =</span> <span class="fu">case_when</span>(country <span class="sc">==</span> <span class="st">"BURGARIA"</span> <span class="sc">~</span> <span class="st">"BULGARIA"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"DJIBOUT"</span> <span class="sc">~</span> <span class="st">"DJIBOUTI"</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"MALT"</span> <span class="sc">~</span> <span class="st">"MALTA"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"MORROCO"</span> <span class="sc">~</span> <span class="st">"MOROCCO"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"PHILIPINES"</span> <span class="sc">~</span> <span class="st">"PHILIPPINES"</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"SCOTLAND"</span> <span class="sc">~</span> <span class="st">"UNITED KINGDOM"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                             country <span class="sc">==</span> <span class="st">"SWIZERLAND"</span> <span class="sc">~</span> <span class="st">"SWITZERLAND"</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                             <span class="cn">TRUE</span> <span class="sc">~</span> country)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">region =</span> <span class="fu">countrycode</span>(<span class="at">sourcevar =</span> country,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>                              <span class="at">origin =</span> <span class="st">"country.name"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                              <span class="at">destination =</span> <span class="st">"continent"</span>),</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">code =</span> <span class="fu">countrycode</span>(<span class="at">sourcevar =</span> country,</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">origin =</span> <span class="st">"country.name"</span>,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">destination =</span> <span class="st">"iso3c"</span>),</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> country)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>touristdata_clean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4,762 × 28
+   ID       country region code  age_g…¹ trave…² total…³ total…⁴ total…⁵ purpose
+   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;  
+ 1 tour_0   SWITZE… Europe CHE   45-64   Friend…       1       1       2 Leisur…
+ 2 tour_10  UNITED… Europe GBR   25-44   Alone         1       0       1 Leisur…
+ 3 tour_10… UNITED… Europe GBR   25-44   Alone         0       1       1 Visiti…
+ 4 tour_10… UNITED… Europe GBR   25-44   Spouse        1       1       2 Leisur…
+ 5 tour_10… CHINA   Asia   CHN   1-24    Alone         1       0       1 Leisur…
+ 6 tour_10… UNITED… Europe GBR   25-44   Alone         0       1       1 Leisur…
+ 7 tour_10… SOUTH … Africa ZAF   45-64   Alone         0       1       1 Busine…
+ 8 tour_10… UNITED… Ameri… USA   45-64   Friend…       1       1       2 Leisur…
+ 9 tour_101 NIGERIA Africa NGA   25-44   Alone         0       1       1 Leisur…
+10 tour_10… INDIA   Asia   IND   25-44   Alone         1       0       1 Busine…
+# … with 4,752 more rows, 18 more variables: main_activity &lt;chr&gt;,
+#   info_source &lt;chr&gt;, tour_arrangement &lt;chr&gt;, package_transport_int &lt;fct&gt;,
+#   package_accomodation &lt;fct&gt;, package_food &lt;fct&gt;, package_transport_tz &lt;fct&gt;,
+#   package_sightseeing &lt;fct&gt;, package_guided_tour &lt;fct&gt;,
+#   package_insurance &lt;fct&gt;, night_mainland &lt;dbl&gt;, night_zanzibar &lt;dbl&gt;,
+#   total_night_spent &lt;dbl&gt;, prop_night_spent_mainland &lt;dbl&gt;,
+#   payment_mode &lt;chr&gt;, first_trip_tz &lt;fct&gt;, most_impressing &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write_csv(touristdata_clean,'C:/michaeldjo/VAP/DataPrep/data/touristdata_clean.csv')</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

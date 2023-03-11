@@ -16,7 +16,7 @@ editor: visual
 ### 1. Installing and launching required R packages
 
 ```{r}
-pacman::p_load("ExPanDaR", "kableExtra", "tidyverse")
+pacman::p_load("ExPanDaR", "countrycode", "kableExtra", "tidyverse")
 ```
 
 ### 2. Loading the data
@@ -27,7 +27,14 @@ str(touristdata)
 ```
 ### 3. Dataset overview
 
-#### 3.1 Missing values
+#### 3.1 Unique Countries
+```{r}
+unique(touristdata$country)
+```
+
+
+
+#### 3.2 Missing values
 ```{r}
 missing.values <- touristdata %>%
     gather(key = "key", value = "val") %>%
@@ -42,34 +49,46 @@ missing.values %>% kable()
 
 Visualising missing values
 ```{r}
-missing_values <- function(vari = "country"){
-prepare_missing_values_graph(touristdata, ts_id = vari)
+missing_values <- function(origin, vari = "country"){
+prepare_missing_values_graph(origin, ts_id = vari)
 }
 ```
 
 ```{r}
 #| fig-height: 15
 #| fig-width: 10
-missing_values("country")
+missing_values(touristdata, "country")
 ```
 ```{r}
-missing_values("age_group")
+missing_values(touristdata, "age_group")
 ```
 
-#### 3.2 Treating Missing values
+#### 3.3 Treating Missing values
 
 ```{r}
-touristdata_clean <- touristdata %>%
+convertbinary <- function(x){
+    as.factor(ifelse(x=="Yes", 1,0))
+}
+```
+
+
+```{r}
+touristdata_min_na <- touristdata %>%
   mutate(total_tourist = total_male + total_female,
          .after = total_male) %>%
+  mutate(total_night_spent = night_mainland + night_zanzibar,
+         prop_night_spent_mainland = round(night_mainland/total_night_spent,2),
+         .after = night_zanzibar) %>%
   mutate(travel_with = case_when(total_tourist == 1 ~ "Alone",
                                  TRUE ~ travel_with)) %>%
   mutate(most_impressing = case_when(is.na(most_impressing) ~ "No comments",
-                                     TRUE ~ most_impressing)) 
+                                     TRUE ~ most_impressing)) %>%
+  mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+  mutate(across(first_trip_tz, convertbinary))
 ```
 
 ```{r}
-missing.values.clean <- touristdata_clean %>%
+missing.values.clean <- touristdata_min_na %>%
     gather(key = "key", value = "val") %>%
     mutate(is.missing = is.na(val)) %>%
     group_by(key, is.missing) %>%
@@ -79,8 +98,49 @@ missing.values.clean <- touristdata_clean %>%
     arrange(desc(num.missing)) 
 missing.values.clean %>% kable()
 ```
+
 ```{r}
-touristdata_clean <- touristdata_clean %>% drop_na()
+#| fig-height: 15
+#| fig-width: 10
+missing_values(touristdata_min_na, "country")
+```
+```{r}
+touristdata_min_na %>%
+  filter(country == "CHILE")
+```
+
+
+```{r}
+touristdata_no_na <- touristdata_min_na %>% drop_na()
+touristdata_no_na
+```
+
+#### 3.4 Matching countries to continent
+
+```{r}
+unique(touristdata_no_na$country) 
+```
+
+
+```{r}
+touristdata_clean <- touristdata_no_na %>% 
+  mutate(country = case_when(country == "BURGARIA" ~ "BULGARIA",
+                             country == "DJIBOUT" ~ "DJIBOUTI",
+                             country == "MALT" ~ "MALTA",
+                             country == "MORROCO" ~ "MOROCCO",
+                             country == "PHILIPINES" ~ "PHILIPPINES",
+                             country == "SCOTLAND" ~ "UNITED KINGDOM",
+                             country == "SWIZERLAND" ~ "SWITZERLAND",
+                             TRUE ~ country)) %>%
+  mutate(region = countrycode(sourcevar = country,
+                              origin = "country.name",
+                              destination = "continent"),
+         code = countrycode(sourcevar = country,
+                            origin = "country.name",
+                            destination = "iso3c"),
+         .after = country)
+
+touristdata_clean
 ```
 
 
