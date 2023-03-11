@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://habaritanzania.netlify.app/index.html</loc>
-    <lastmod>2023-03-11T05:30:30.095Z</lastmod>
+    <lastmod>2023-03-11T07:24:46.300Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/about.html</loc>
@@ -10,6 +10,10 @@
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/DataPrep/DataPrep.html</loc>
-    <lastmod>2023-03-11T07:18:55.083Z</lastmod>
+    <lastmod>2023-03-11T07:25:00.019Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/EDA/EDA.html</loc>
+    <lastmod>2023-03-11T07:25:04.654Z</lastmod>
   </url>
 </urlset>
