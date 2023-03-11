@@ -2,16 +2,37 @@ project:
   type: website
 
 website:
-  title: "VAP"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+  title: "Habari Tanzania"
+  site-url: "https://habaritanzania.netlify.app/"
+  sidebar:
+    background: "#100C1A"
+    logo: "images/icon2.png"
+    pinned: true
+    align: center
+    tools:
+      - icon: house-fill
+        href: "https://habaritanzania.netlify.app/"
+        text: "Home"
+      - icon: github
+        href: "https://github.com/magdalenecjw/VAP"
+        text: "GitHub"
+    
+    style: "docked"
+    search: true
+    collapse-level: 1
+    contents:
+      - href: "index.qmd"
+        text: "Home"
+      #- href: "Proposal/ProposalPage.html"
+      #  text: "Proposal"
+      #- href: "DataPrep/DataPrep.html"
+      #  text: "Data Preparation"
+      #- href: "EDA/EDA_Overview.html"
+      #  text: "EDA Overview"
 
 format:
   html:
-    theme: cosmo
+    theme: minty
     css: styles.css
     toc: true
 
