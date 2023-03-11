@@ -6,7 +6,7 @@ website:
   site-url: "https://habaritanzania.netlify.app/"
   sidebar:
     background: "#100C1A"
-    logo: "images/icon2.png"
+    logo: "images/tanzanialogo.jpg"
     pinned: true
     align: center
     tools:

@@ -1,11 +1,8 @@
 ---
-title: "VAP"
+title: "Visual Analytics of Tanzania Tourist Spending"
+author: "Habari Tanzania"
 ---
 
-This is a Quarto website.
+Habari Tanzania
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
-```{r}
-1 + 1
-```
