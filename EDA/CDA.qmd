@@ -1,7 +1,7 @@
 ---
 title: "Confirmatory Data Analysis"
-author: "Habari Tanzania"
-date: 14 Feb 2023
+author: "Michael Djohan"
+date: 11 Mar 2023
 date-modified: "`r Sys.Date()`"
 execute: 
   echo: true
@@ -10,3 +10,141 @@ execute:
 format: html
 editor: visual
 ---
+
+## 1. Installing and launching the required R packages
+
+```{r}
+pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales","tidyverse")
+
+```
+
+## 2. Loading the data
+
+```{r}
+touristdata_clean <- read_csv("data/touristdata_clean.csv")
+```
+
+## 3. Data overview
+
+### 3.1 Desriptive Statistics
+
+```{r}
+descr <- prepare_descriptive_table(touristdata_clean %>%
+                                       select(!c(14,15,16,17,18,19,20,26))
+                                   ) 
+
+
+datatable(descr$df, class= "hover") %>%
+  formatRound(column = c("Mean", "Std. dev.", "Median"), digits=2)
+```
+
+### 3.2 Distribution of numerical variables
+
+```{r}
+plot <- touristdata_clean %>% 
+  select(c(7,8,9,21,22,23,24,28)) %>% 
+  gather() %>%
+  ggplot(aes(value)) +
+  facet_wrap( ~key, ncol=3, scales="free") +
+  geom_histogram()
+
+ggplotly(plot)
+```
+
+Note:
+
+1.  Majority spent on mainland
+2.  Mostly travel \<5 people
+3.  Spent 5 days on median
+
+### 3.3 Distribution of categorical variables
+
+```{r}
+#| fig-height: 20
+#| fig-width: 10
+plot <- touristdata_clean %>% 
+  select(c(3,5,6,10,11,12,13,14,15,16,17,18,19,20,25,26,27)) %>% 
+  gather() %>%
+  ggplot(aes(value)) +
+  facet_wrap( ~key, ncol=3, scales="free") +
+  geom_bar()
+
+ggplotly(plot)
+```
+
+Note:
+
+1.  Many younger tourist (25-44)
+2.  Info mainly comes from friends and travel agents
+3.  Many comes for wildlife tourism and beach tourism
+4.  Many European and African Tourists
+5.  Many travel alone
+6.  Many comes for leisure and holidays
+
+## 4. Exploring by Countries
+
+### 4.1 Plotting the choropleth map
+
+The object World is a spatial object of class sf from the sf package; it is a data.frame with a special column that contains a geometry for each row, in this case polygons
+
+Reference - https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html
+
+```{r}
+data("World")
+```
+
+```{r}
+touristdata_clean_country <- touristdata_clean %>%
+  group_by(country,code) %>%
+  summarise(total_female = sum(total_female),
+            total_male = sum(total_male),
+            total_tourist = sum(total_tourist),
+            total_cost = round(sum(total_cost),0)) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0))
+```
+
+Joining the two dataframes together
+
+```{r}
+touristdata_clean_map <- left_join(World, 
+                                 touristdata_clean_country, 
+                          by = c("iso_a3" = "code")) %>%
+  select(-c(2:15)) %>%
+  na.omit()
+```
+
+```{r}
+plot_map_eda <- function(metric = "total_tourist", style = "jenks", classes = 5, visitors = 30){
+
+metric_text = case_when(metric == "total_female" ~ "Number of Female Visitors",
+                        metric == "total_male" ~ "Number of Male Visitors",
+                        metric == "total_tourist" ~ "Number of Visitors",
+                        metric == "total_cost" ~ "Total Spending (TZS)",
+                        metric == "cost_per_pax" ~ "Average Individual Spending (TZS)")
+  
+tmap_mode("view")
+
+tm_shape(touristdata_clean_map %>%
+           filter(total_tourist >= visitors))+
+  tm_fill(metric, 
+          n = classes,
+          style = style, 
+          palette="YlOrBr", 
+          id = "country",
+          title = metric_text
+          ) +
+  
+  tm_borders(col = "grey20",
+             alpha = 0.5) 
+
+}
+```
+
+```{r}
+plot_map_eda(metric = "cost_per_pax", style = "jenks", classes = 6, visitors = 20)
+```
+
+Note:
+
+1.  Majority of tourists come from US, Western Europe, and South Africa
+2.  Many outliers in individual average spending, so only focus on countries with at least 20 visitors, then it's revealed that Australians spend the highest, followed by Americans and Canadians.

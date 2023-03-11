@@ -33,5 +33,33 @@
     "title": "Decision Tree",
     "section": "",
     "text": "Test"
+  },
+  {
+    "objectID": "EDA/CDA.html",
+    "href": "EDA/CDA.html",
+    "title": "Confirmatory Data Analysis",
+    "section": "",
+    "text": "pacman::p_load(\"tmap\", \"ExPanDaR\", \"kableExtra\", \"ggstatsplot\", \"plotly\", \"DT\", \"scales\",\"tidyverse\")"
+  },
+  {
+    "objectID": "EDA/CDA.html#loading-the-data",
+    "href": "EDA/CDA.html#loading-the-data",
+    "title": "Confirmatory Data Analysis",
+    "section": "2. Loading the data",
+    "text": "2. Loading the data\n\ntouristdata_clean <- read_csv(\"data/touristdata_clean.csv\")"
+  },
+  {
+    "objectID": "EDA/CDA.html#data-overview",
+    "href": "EDA/CDA.html#data-overview",
+    "title": "Confirmatory Data Analysis",
+    "section": "3. Data overview",
+    "text": "3. Data overview\n\n3.1 Desriptive Statistics\n\ndescr <- prepare_descriptive_table(touristdata_clean %>%\n                                       select(!c(14,15,16,17,18,19,20,26))\n                                   ) \n\n\ndatatable(descr$df, class= \"hover\") %>%\n  formatRound(column = c(\"Mean\", \"Std. dev.\", \"Median\"), digits=2)\n\n\n\n\n\n\n\n\n3.2 Distribution of numerical variables\n\nplot <- touristdata_clean %>% \n  select(c(7,8,9,21,22,23,24,28)) %>% \n  gather() %>%\n  ggplot(aes(value)) +\n  facet_wrap( ~key, ncol=3, scales=\"free\") +\n  geom_histogram()\n\nggplotly(plot)\n\n\n\n\n\nNote:\n\nMajority spent on mainland\nMostly travel <5 people\nSpent 5 days on median\n\n\n\n3.3 Distribution of categorical variables\n\nplot <- touristdata_clean %>% \n  select(c(3,5,6,10,11,12,13,14,15,16,17,18,19,20,25,26,27)) %>% \n  gather() %>%\n  ggplot(aes(value)) +\n  facet_wrap( ~key, ncol=3, scales=\"free\") +\n  geom_bar()\n\nggplotly(plot)\n\n\n\n\n\nNote:\n\nMany younger tourist (25-44)\nInfo mainly comes from friends and travel agents\nMany comes for wildlife tourism and beach tourism\nMany European and African Tourists\nMany travel alone\nMany comes for leisure and holidays"
+  },
+  {
+    "objectID": "EDA/CDA.html#exploring-by-countries",
+    "href": "EDA/CDA.html#exploring-by-countries",
+    "title": "Confirmatory Data Analysis",
+    "section": "4. Exploring by Countries",
+    "text": "4. Exploring by Countries\n\n4.1 Plotting the choropleth map\nThe object World is a spatial object of class sf from the sf package; it is a data.frame with a special column that contains a geometry for each row, in this case polygons\nReference - https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html\n\ndata(\"World\")\n\n\ntouristdata_clean_country <- touristdata_clean %>%\n  group_by(country,code) %>%\n  summarise(total_female = sum(total_female),\n            total_male = sum(total_male),\n            total_tourist = sum(total_tourist),\n            total_cost = round(sum(total_cost),0)) %>%\n  mutate(cost_per_pax = round(total_cost/total_tourist,0))\n\nJoining the two dataframes together\n\ntouristdata_clean_map <- left_join(World, \n                                 touristdata_clean_country, \n                          by = c(\"iso_a3\" = \"code\")) %>%\n  select(-c(2:15)) %>%\n  na.omit()\n\n\nplot_map_eda <- function(metric = \"total_tourist\", style = \"jenks\", classes = 5, visitors = 30){\n\nmetric_text = case_when(metric == \"total_female\" ~ \"Number of Female Visitors\",\n                        metric == \"total_male\" ~ \"Number of Male Visitors\",\n                        metric == \"total_tourist\" ~ \"Number of Visitors\",\n                        metric == \"total_cost\" ~ \"Total Spending (TZS)\",\n                        metric == \"cost_per_pax\" ~ \"Average Individual Spending (TZS)\")\n  \ntmap_mode(\"view\")\n\ntm_shape(touristdata_clean_map %>%\n           filter(total_tourist >= visitors))+\n  tm_fill(metric, \n          n = classes,\n          style = style, \n          palette=\"YlOrBr\", \n          id = \"country\",\n          title = metric_text\n          ) +\n  \n  tm_borders(col = \"grey20\",\n             alpha = 0.5) \n\n}\n\n\nplot_map_eda(metric = \"cost_per_pax\", style = \"jenks\", classes = 6, visitors = 20)\n\n\n\n\n\n\nNote:\n\nMajority of tourists come from US, Western Europe, and South Africa\nMany outliers in individual average spending, so only focus on countries with at least 20 visitors, then it’s revealed that Australians spend the highest, followed by Americans and Canadians."
   }
 ]
