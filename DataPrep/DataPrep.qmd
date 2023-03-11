@@ -1,0 +1,90 @@
+---
+title: "Data Preparation"
+author: "Habari Tanzania"
+date: 14 Feb 2023
+date-modified: "`r Sys.Date()`"
+execute: 
+  echo: true
+  eval: true
+  warning: false
+format: html
+editor: visual
+---
+
+## Step-by-Step Data Preparation
+
+### 1. Installing and launching required R packages
+
+```{r}
+pacman::p_load("ExPanDaR", "kableExtra", "tidyverse")
+```
+
+### 2. Loading the data
+
+```{r}
+touristdata <- read_csv("data/Train.csv")
+str(touristdata)
+```
+### 3. Dataset overview
+
+#### 3.1 Missing values
+```{r}
+missing.values <- touristdata %>%
+    gather(key = "key", value = "val") %>%
+    mutate(is.missing = is.na(val)) %>%
+    group_by(key, is.missing) %>%
+    summarise(num.missing = n()) %>%
+    filter(is.missing==T) %>%
+    select(-is.missing) %>%
+    arrange(desc(num.missing)) 
+missing.values %>% kable()
+```
+
+Visualising missing values
+```{r}
+missing_values <- function(vari = "country"){
+prepare_missing_values_graph(touristdata, ts_id = vari)
+}
+```
+
+```{r}
+#| fig-height: 15
+#| fig-width: 10
+missing_values("country")
+```
+```{r}
+missing_values("age_group")
+```
+
+#### 3.2 Treating Missing values
+
+```{r}
+touristdata_clean <- touristdata %>%
+  mutate(total_tourist = total_male + total_female,
+         .after = total_male) %>%
+  mutate(travel_with = case_when(total_tourist == 1 ~ "Alone",
+                                 TRUE ~ travel_with)) %>%
+  mutate(most_impressing = case_when(is.na(most_impressing) ~ "No comments",
+                                     TRUE ~ most_impressing)) 
+```
+
+```{r}
+missing.values.clean <- touristdata_clean %>%
+    gather(key = "key", value = "val") %>%
+    mutate(is.missing = is.na(val)) %>%
+    group_by(key, is.missing) %>%
+    summarise(num.missing = n()) %>%
+    filter(is.missing==T) %>%
+    select(-is.missing) %>%
+    arrange(desc(num.missing)) 
+missing.values.clean %>% kable()
+```
+```{r}
+touristdata_clean <- touristdata_clean %>% drop_na()
+```
+
+
+```{r}
+#write_csv(touristdata_clean,'C:/michaeldjo/VAP/DataPrep/data/touristdata_clean.csv')
+```
+
