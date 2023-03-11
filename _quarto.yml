@@ -29,6 +29,8 @@ website:
         text: "Data Preparation"
       - href: "EDA/EDA.html"
         text: "Exploratory Data Analysis"
+      - href: "EDA/CDA.html"
+        text: "Confirmatory Data Analysis"
 
 format:
   html:
