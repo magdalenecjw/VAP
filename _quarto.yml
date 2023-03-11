@@ -31,6 +31,10 @@ website:
         text: "Exploratory Data Analysis"
       - href: "EDA/CDA.html"
         text: "Confirmatory Data Analysis"
+      - href: "Analysis/Clustering.html"
+        text: "Clustering Analysis"
+      - href: "Analysis/Regression.html"
+        text: "Regression Analysis"
 
 format:
   html:
