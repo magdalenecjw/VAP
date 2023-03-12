@@ -19,22 +19,30 @@ touristdata_clean <- touristdata_clean %>%
 ###### Custom Theme ######
 #========================#
 
+# Create dashboard theme using fresh package ----------------------------------------------------
 mytheme <- create_theme(
   adminlte_color(
-    light_blue = "#2a2d34"
+    light_blue = "#030708"
   ),
   adminlte_sidebar(
-    width = "300px",
+    width = "200px",
     dark_bg = "#80C2AF",
     dark_hover_bg = "#5C946E",
-    dark_color = "#2a2d34"
+    dark_color = "#030708"
   ),
   adminlte_global(
-    content_bg = "#A0DDE6",
+    content_bg = "#FFF",
     box_bg = "#80C2AF", 
     info_box_bg = "#80C2AF"
   )
 )
+
+# Title Logo ----------------------------------------------------
+titlelogo <- tags$a(
+  tags$img(
+    src="tanzanialogo.jpg",
+    height = '49.5',
+    width = '100'))
 
 #========================#
 ###### Shiny UI ######
@@ -42,10 +50,15 @@ mytheme <- create_theme(
 
 # Dashboard Header ----------------------------------------------------
 header <- dashboardHeader(
-  title = "Tanzania Tourism")
+  tags$li(class = "dropdown",
+          tags$style(".main-header {max-height: 60px}"),
+          tags$style(".main-header .logo {height: 60px}")
+  ),
+  title = titlelogo)
 
 # Dashboard Sidebar ----------------------------------------------------
 sidebar <- dashboardSidebar(
+  tags$style(".left-side, .main-sidebar {padding-top: 60px}"),
   sidebarMenu(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard"))
@@ -61,11 +74,11 @@ body <- dashboardBody(
   # Dashboard Body Tabs  ----------------------------------------------------
   tabItems(
     tabItem(tabName = "information",
-            h2("About the app")
+            h2("About the app", style = "font-family: sans-serif;")
             ),
     
     tabItem(tabName = "tab_dashboard",
-            h2("Tanzania Tourism at a Glance")
+            h2("Tanzania Tourism at a Glance", style = "font-family: sans-serif;")
             )
     )
   )
