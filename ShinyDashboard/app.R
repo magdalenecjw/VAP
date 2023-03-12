@@ -1,51 +1,83 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
-library(shiny)
+#==============================#
+###### Importing Packages ######
+#==============================#
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
+pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "tidyverse")
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+#==============================#
+###### Data Manipulation ######
+#==============================#
+touristdata_clean <- read_csv("data/touristdata_clean.csv")
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
+touristdata_clean <- touristdata_clean %>%
+  filter(total_cost > 0,
+         total_tourist > 0) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0))
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
+#========================#
+###### Custom Theme ######
+#========================#
+
+mytheme <- create_theme(
+  adminlte_color(
+    light_blue = "#2a2d34"
+  ),
+  adminlte_sidebar(
+    width = "300px",
+    dark_bg = "#80C2AF",
+    dark_hover_bg = "#5C946E",
+    dark_color = "#2a2d34"
+  ),
+  adminlte_global(
+    content_bg = "#A0DDE6",
+    box_bg = "#80C2AF", 
+    info_box_bg = "#80C2AF"
+  )
 )
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
+#========================#
+###### Shiny UI ######
+#========================#
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+# Dashboard Header ----------------------------------------------------
+header <- dashboardHeader(
+  title = "Tanzania Tourism")
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
-}
+# Dashboard Sidebar ----------------------------------------------------
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    menuItem("Information", tabName = "information", icon = icon("info")),
+    menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard"))
+    )
+  )
+
+# Dashboard Body ----------------------------------------------------
+body <- dashboardBody(
+  
+  # Setting theme  ----------------------------------------------------
+  use_theme(mytheme),
+
+  # Dashboard Body Tabs  ----------------------------------------------------
+  tabItems(
+    tabItem(tabName = "information",
+            h2("About the app")
+            ),
+    
+    tabItem(tabName = "tab_dashboard",
+            h2("Tanzania Tourism at a Glance")
+            )
+    )
+  )
+
+# User Interface  ----------------------------------------------------
+ui <- dashboardPage(header, sidebar, body)
+
+
+#========================#
+###### Shiny Server ######
+#========================#
+server <- function(input, output) {}
 
 # Run the application 
 shinyApp(ui = ui, server = server)
