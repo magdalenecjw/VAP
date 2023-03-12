@@ -14,8 +14,10 @@ touristdata_clean <- read_csv("data/touristdata_clean.csv")
 
 touristdata_clean <- touristdata_clean %>%
   filter(total_cost > 0,
-         total_tourist > 0) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0))
+         total_tourist > 0,
+         total_night_spent > 0) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0),
+         cost_per_night = round(total_cost/total_night_spent,0))
 
 # Map Data and Joining ----------------------------------------------------
 data("World")
@@ -25,14 +27,20 @@ touristdata_clean_country <- touristdata_clean %>%
   summarise(total_female = sum(total_female),
             total_male = sum(total_male),
             total_tourist = sum(total_tourist),
-            total_cost = round(sum(total_cost),0)) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0))
+            total_cost = round(sum(total_cost),0),
+            total_night_spent = round(sum(total_night_spent),0)) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0),
+         cost_per_night = round(total_cost/total_night_spent,0))
 
 touristdata_clean_map <- left_join(World, 
                                    touristdata_clean_country, 
                                    by = c("iso_a3" = "code")) %>%
   select(-c(2:15)) %>%
   na.omit()
+
+# Aggregation and sorting by total cost ----------------------------------------------------
+touristdata_clean_country_sorted <- touristdata_clean_country %>%
+  arrange(desc(total_cost))
 
 #========================#
 ###### Custom Theme ######

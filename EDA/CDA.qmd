@@ -28,8 +28,10 @@ touristdata_clean <- read_csv("data/touristdata_clean.csv")
 ```{r}
 touristdata_clean <- touristdata_clean %>%
   filter(total_cost > 0,
-         total_tourist > 0) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0))
+         total_tourist > 0,
+         total_night_spent > 0) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0),
+         cost_per_night = round(total_cost/total_night_spent,0))
 ```
 
 
@@ -52,10 +54,10 @@ datatable(descr$df, class= "hover") %>%
 
 ```{r}
 plot <- touristdata_clean %>% 
-  select(c(7,8,9,21,22,23,24,28,29)) %>% 
+  select(c(7,8,9,21,22,23,24,28,29,30)) %>% 
   gather() %>%
   ggplot(aes(value)) +
-  facet_wrap( ~key, ncol=3, scales="free") +
+  facet_wrap( ~key, ncol=4, scales="free") +
   geom_histogram()
 
 ggplotly(plot)
@@ -109,8 +111,10 @@ touristdata_clean_country <- touristdata_clean %>%
   summarise(total_female = sum(total_female),
             total_male = sum(total_male),
             total_tourist = sum(total_tourist),
-            total_cost = round(sum(total_cost),0)) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0))
+            total_cost = round(sum(total_cost),0),
+            total_night_spent = round(sum(total_night_spent),0)) %>%
+  mutate(cost_per_pax = round(total_cost/total_tourist,0),
+         cost_per_night = round(total_cost/total_night_spent,0))
 ```
 
 Joining the two dataframes together
@@ -130,7 +134,8 @@ metric_text = case_when(metric == "total_female" ~ "Number of Female Visitors",
                         metric == "total_male" ~ "Number of Male Visitors",
                         metric == "total_tourist" ~ "Number of Visitors",
                         metric == "total_cost" ~ "Total Spending (TZS)",
-                        metric == "cost_per_pax" ~ "Individual Spending (TZS)")
+                        metric == "cost_per_pax" ~ "Average Individual Spending (TZS)",
+                        metric == "cost_per_night" ~ "Average Spending per Night (TZS)")
   
 tmap_mode("view")
 
@@ -151,7 +156,7 @@ tm_shape(touristdata_clean_map %>%
 ```
 
 ```{r}
-plot_map_eda(metric = "cost_per_pax", style = "jenks", classes = 6, minvisitors = 20)
+plot_map_eda(metric = "total_cost", style = "jenks", classes = 6, minvisitors = 0)
 ```
 
 Note:
