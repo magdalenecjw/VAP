@@ -31,7 +31,8 @@ touristdata_clean <- touristdata_clean %>%
          total_tourist > 0,
          total_night_spent > 0) %>%
   mutate(cost_per_pax = round(total_cost/total_tourist,0),
-         cost_per_night = round(total_cost/total_night_spent,0))
+         cost_per_night = round(total_cost/total_night_spent,0),
+         cost_per_pax_night = round(total_cost/total_tourist/total_night_spent,0))
 ```
 
 
@@ -54,7 +55,7 @@ datatable(descr$df, class= "hover") %>%
 
 ```{r}
 plot <- touristdata_clean %>% 
-  select(c(7,8,9,21,22,23,24,28,29,30)) %>% 
+  select(c(7,8,9,21,22,23,24,28,29,30,31)) %>% 
   gather() %>%
   ggplot(aes(value)) +
   facet_wrap( ~key, ncol=4, scales="free") +
@@ -112,9 +113,10 @@ touristdata_clean_country <- touristdata_clean %>%
             total_male = sum(total_male),
             total_tourist = sum(total_tourist),
             total_cost = round(sum(total_cost),0),
-            total_night_spent = round(sum(total_night_spent),0)) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0),
-         cost_per_night = round(total_cost/total_night_spent,0))
+            total_night_spent = round(sum(total_night_spent),0),
+            cost_per_pax = round(mean(cost_per_pax),0),
+            cost_per_night = round(mean(cost_per_night),0),
+            cost_per_pax_night = round(mean(cost_per_pax_night),0))
 ```
 
 Joining the two dataframes together
@@ -135,7 +137,8 @@ metric_text = case_when(metric == "total_female" ~ "Number of Female Visitors",
                         metric == "total_tourist" ~ "Number of Visitors",
                         metric == "total_cost" ~ "Total Spending (TZS)",
                         metric == "cost_per_pax" ~ "Average Individual Spending (TZS)",
-                        metric == "cost_per_night" ~ "Average Spending per Night (TZS)")
+                        metric == "cost_per_night" ~ "Average Spending per Night (TZS)",
+                        metric == "cost_per_pax_night" ~ "Average Individual Spending per Night (TZS)")
   
 tmap_mode("view")
 
@@ -156,7 +159,7 @@ tm_shape(touristdata_clean_map %>%
 ```
 
 ```{r}
-plot_map_eda(metric = "total_cost", style = "jenks", classes = 6, minvisitors = 0)
+plot_map_eda(metric = "cost_per_pax_night", style = "jenks", classes = 6, minvisitors = 20)
 ```
 
 Note:
@@ -169,13 +172,15 @@ Note:
 #### 4.2.1 For Numerical Variables
 
 ```{r}
-plot_ANOVA_region <- function(metric = "cost_per_pax", minvisitors = 30, testtype = "np", pair = "ns",conf = 0.95) {
+plot_ANOVA_region <- function(metric = "cost_per_pax_night", minvisitors = 30, testtype = "np", pair = "ns", compare = T, conf = 0.95, nooutliers = T) {
   
 metric_text = case_when(metric == "total_female" ~ "Number of Female Visitors",
                         metric == "total_male" ~ "Number of Male Visitors",
                         metric == "total_tourist" ~ "Number of Visitors",
                         metric == "total_cost" ~ "Total Spending (TZS)",
                         metric == "cost_per_pax" ~ "Individual Spending (TZS)",
+                        metric == "cost_per_night" ~ "Spending per Night (TZS)",
+                        metric == "cost_per_pax_night" ~ "Individual Spending per Night (TZS)",
                         metric == "prop_night_spent_mainland" ~ "Proportion of Night spent in Mainland Tanzania",
                         TRUE ~ metric)
 
@@ -195,6 +200,11 @@ touristdata_ANOVA <- touristdata_clean %>%
   mutate(region = fct_reorder(region, !!sym(metric), median, .desc = TRUE)) %>%
   drop_na()
 
+if(nooutliers == T){
+  touristdata_ANOVA <- touristdata_ANOVA %>%
+      treat_outliers() 
+}
+
 touristdata_ANOVA %>% 
   ggbetweenstats(x = region, y = !!sym(metric),
                  xlab = "Region", ylab = metric_text,
@@ -207,11 +217,11 @@ touristdata_ANOVA %>%
 ```
 
 ```{r}
-plot_ANOVA_region(metric = "cost_per_pax", minvisitors = 30, testtype = "np", pair = "ns", conf = 0.95)
+plot_ANOVA_region(metric = "cost_per_pax_night", minvisitors = 30, testtype = "np", pair = "ns", compare = T, conf = 0.95, nooutliers = T)
 ```
 
 Note:
-
+Outliers can be treated
 Ability to exclude countries with less than minvisitors limit
 
 1.  Oceania visitors spend the most while African visitors tends to spend the least
@@ -285,7 +295,7 @@ Examining the largest spender by country
 touristdata_clean_country_sorted <- touristdata_clean_country %>%
   filter(total_cost > 0,
          total_tourist >= 60) %>%
-  arrange(desc(cost_per_pax))
+  arrange(desc(cost_per_pax_night))
 
 top8 <- touristdata_clean_country_sorted$country[1:8]
 
@@ -295,13 +305,15 @@ touristdata_clean_country_sorted
 #### 4.3.1 For Numerical Variables
 
 ```{r}
-plot_ANOVA_country <- function(metric = "cost_per_pax", selected_countries, testtype = "np", pair = "ns",conf = 0.95) {
+plot_ANOVA_country <- function(metric = "cost_per_pax_night", selected_countries, testtype = "np", pair = "ns", compare = T, conf = 0.95, nooutliers = T) {
   
 metric_text = case_when(metric == "total_female" ~ "Number of Female Visitors",
                         metric == "total_male" ~ "Number of Male Visitors",
                         metric == "total_tourist" ~ "Number of Visitors",
                         metric == "total_cost" ~ "Total Spending (TZS)",
                         metric == "cost_per_pax" ~ "Individual Spending (TZS)",
+                        metric == "cost_per_night" ~ "Spending per Night (TZS)",
+                        metric == "cost_per_pax_night" ~ "Individual Spending per Night (TZS)",
                         metric == "prop_night_spent_mainland" ~ "Proportion of Night spent in Mainland Tanzania",
                         TRUE ~ metric)
 
@@ -316,10 +328,15 @@ touristdata_ANOVA <- touristdata_clean %>%
   mutate(country = fct_reorder(country, !!sym(metric), median, .desc = TRUE)) %>%
   drop_na()
 
+if(nooutliers == T){
+  touristdata_ANOVA <- touristdata_ANOVA %>%
+      treat_outliers() 
+}
+
 touristdata_ANOVA %>% 
   ggbetweenstats(x = country, y = !!sym(metric),
                  xlab = "Country", ylab = metric_text,
-                 type = testtype, pairwise.comparisons = T, pairwise.display = pair, 
+                 type = testtype, pairwise.comparisons = compare, pairwise.display = pair, 
                  mean.ci = T, p.adjust.method = "fdr",  conf.level = conf,
                  title = paste0("Comparison of ",paratext," ",metric_text, " across Countries"),
                  package = "ggthemes", palette = "Tableau_10")
@@ -328,7 +345,7 @@ touristdata_ANOVA %>%
 ```
 
 ```{r}
-plot_ANOVA_country(metric = "cost_per_pax", selected_countries = top8, testtype = "np", pair = "s", conf = 0.95)
+plot_ANOVA_country(metric = "cost_per_pax_night", selected_countries = top8, testtype = "np", pair = "ns", compare = F, conf = 0.95, nooutliers = T)
 ```
 Majority of big spender indeed comes from Australia, followed by US, Canada, New Zealand, Denmark, and South Africa.
 However, it is noted that there is no statistically significant difference among many of them
@@ -394,7 +411,7 @@ plot_barstats_country(metric = "first_trip_tz", selected_countries = top8, testt
 ### 5.1 For Numerical Variables
 
 ```{r}
-plot_scatter <- function(xaxis = "prop_night_spent_mainland", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), max_xaxis, testtype = "np", conf = 0.95) {
+plot_scatter <- function(xaxis = "prop_night_spent_mainland", yaxis = "cost_per_pax_night", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), max_xaxis, testtype = "np", conf = 0.95, nooutliers = T) {
   
 xaxis_text = case_when(xaxis == "total_female" ~ "Number of Female Visitors",
                        xaxis == "total_male" ~ "Number of Male Visitors",
@@ -405,7 +422,14 @@ xaxis_text = case_when(xaxis == "total_female" ~ "Number of Female Visitors",
 
 yaxis_text = case_when(yaxis == "total_cost" ~ "Total Spending (TZS)",
                        yaxis == "cost_per_pax" ~ "Individual Spending (TZS)",
+                       yaxis == "cost_per_night" ~ "Spending per Night (TZS)",
+                       yaxis == "cost_per_pax_night" ~ "Individual Spending per Night (TZS)",
                        TRUE ~ yaxis)
+
+if(nooutliers == T){
+  touristdata_clean <- touristdata_clean %>%
+      treat_outliers() 
+}
 
 touristdata_clean %>%
   filter(region %in% regionlist,
@@ -419,12 +443,12 @@ touristdata_clean %>%
 ```
 
 ```{r}
-plot_scatter(xaxis = "total_tourist", yaxis = "total_cost", regionlist = c("Europe","Americas","Oceania"), max_xaxis = 100, testtype = "np", conf = 0.95)
+plot_scatter(xaxis = "total_tourist", yaxis = "total_cost", regionlist = c("Europe","Americas","Oceania"), max_xaxis = 100, testtype = "np", conf = 0.95, nooutliers = T)
 ```
 
 ### 5.2 For Categorical Variables
 ```{r}
-plot_ANOVA <- function(xaxis = "age_group", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95) {
+plot_ANOVA <- function(xaxis = "age_group", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95, nooutliers = T) {
   
 xaxis_text = case_when(xaxis == "age_group" ~ "Age Group",
                         xaxis == "travel_with" ~ "Travelling Companion",
@@ -446,12 +470,19 @@ xaxis_text = case_when(xaxis == "age_group" ~ "Age Group",
 
 yaxis_text = case_when(yaxis == "total_cost" ~ "Total Spending (TZS)",
                        yaxis == "cost_per_pax" ~ "Individual Spending (TZS)",
+                       yaxis == "cost_per_night" ~ "Spending per Night (TZS)",
+                       yaxis == "cost_per_pax_night" ~ "Individual Spending per Night (TZS)",
                        TRUE ~ yaxis)
 
 
 touristdata_ANOVA <- touristdata_clean %>%
   filter(region %in% regionlist) %>%
   drop_na()
+
+if(nooutliers == T){
+  touristdata_ANOVA <- touristdata_ANOVA %>%
+      treat_outliers() 
+}
 
 touristdata_ANOVA %>% 
   ggbetweenstats(x = !!sym(xaxis), y = !!sym(yaxis),
@@ -464,12 +495,13 @@ touristdata_ANOVA %>%
 ```
 
 ```{r}
-plot_ANOVA(xaxis = "travel_with", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95)
+plot_ANOVA(xaxis = "travel_with", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95, nooutliers = T)
 ```
 
 ```{r}
 plot_ANOVA(xaxis = "age_group", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95)
 ```
+
 ```{r}
 plot_ANOVA(xaxis = "purpose", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95)
 ```

@@ -17,7 +17,8 @@ touristdata_clean <- touristdata_clean %>%
          total_tourist > 0,
          total_night_spent > 0) %>%
   mutate(cost_per_pax = round(total_cost/total_tourist,0),
-         cost_per_night = round(total_cost/total_night_spent,0))
+         cost_per_night = round(total_cost/total_night_spent,0),
+         cost_per_pax_night = round(total_cost/total_tourist/total_night_spent,0))
 
 # Map Data and Joining ----------------------------------------------------
 data("World")
@@ -28,9 +29,10 @@ touristdata_clean_country <- touristdata_clean %>%
             total_male = sum(total_male),
             total_tourist = sum(total_tourist),
             total_cost = round(sum(total_cost),0),
-            total_night_spent = round(sum(total_night_spent),0)) %>%
-  mutate(cost_per_pax = round(total_cost/total_tourist,0),
-         cost_per_night = round(total_cost/total_night_spent,0))
+            total_night_spent = round(sum(total_night_spent),0),
+            cost_per_pax = round(mean(cost_per_pax),0),
+            cost_per_night = round(mean(cost_per_night),0),
+            cost_per_pax_night = round(mean(cost_per_pax_night),0))
 
 touristdata_clean_map <- left_join(World, 
                                    touristdata_clean_country, 
