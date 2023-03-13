@@ -62,7 +62,7 @@ mytheme <- create_theme(
   ),
   adminlte_sidebar(
     width = "200px",
-    dark_bg = "#80C2AF",
+    dark_bg = "#E7E8EC",
     dark_hover_bg = "#5C946E",
     dark_color = "#030708"
   ),
@@ -110,7 +110,10 @@ body <- dashboardBody(
   tags$style(".small-box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".box-header h3.box-title{ color: #2A2D34; font-weight: bold }"),
   tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
-  tags$style(".box { font-size: 12px }"),
+  tags$style(".box { font-size: 90%}"),
+  tags$style(".fa-dollar-sign {font-size:80%}"),
+  tags$style(".fa-people-group {font-size:80%}"),
+  tags$style(".fa-bed {font-size:80%}"),
   
   # Setting theme  ----------------------------------------------------
   use_theme(mytheme),
@@ -130,7 +133,7 @@ body <- dashboardBody(
             fluidRow(
               
               ### First Column  ----------------------------------------------------
-              column(width = 6,
+              column(width = 7,
                      #### First Value Boxes  ----------------------------------------------------
                      fluidRow(
                        valueBoxOutput("topspender_", width = 4),
@@ -145,51 +148,53 @@ body <- dashboardBody(
                      ),
                      #### Interactive Map  ----------------------------------------------------
                      fluidRow(
-                       box(
-                         title = "Filter Panel", background = "aqua",
-                         width = 2,
-                         selectInput(inputId = "mapmetric_",
-                                     label = "Select Metrics:",
-                                     choices = c("Total Visitors" = "total_tourist",
-                                                 "Total Spending" = "total_cost",
-                                                 "Average Spending per Trip" = "avg_cost",
-                                                 "Average Night Spent" = "avg_night_spent",
-                                                 "Average Spending per Night" = "cost_per_night",
-                                                 "Average Individual Spending per Night" = "cost_per_pax_night"),
-                                     selected = "total_tourist"),
-                         selectInput(inputId = "mapclassification_",
-                                     label = "Classification method:",
-                                     choices = list("sd" = "sd", 
-                                                    "equal" = "equal", 
-                                                    "pretty" = "pretty", 
-                                                    "quantile" = "quantile", 
-                                                    "kmeans" = "kmeans", 
-                                                    "hclust" = "hclust", 
-                                                    "bclust" = "bclust", 
-                                                    "fisher" = "fisher", 
-                                                    "jenks" = "jenks"),
-                                     selected = "jenks"),
-                         sliderInput(inputId = "mapclasses_",
-                                     label = "Number of classes:",
-                                     min = 5,
-                                     max = 12,
-                                     value = c(5)),
-                         numericInput(inputId = "minvisitors_",
-                                      label = "Min Total Visitors:",
-                                      min = 0,
-                                      max = 100,
-                                      value = 20)
+                       div(style = "margin-right:0%",
+                           box(
+                             title = "Filter Panel", background = "aqua",
+                             width = 3,
+                             selectInput(inputId = "mapmetric_",
+                                         label = "Select Metrics:",
+                                         choices = c("Total Visitors" = "total_tourist",
+                                                     "Total Spending" = "total_cost",
+                                                     "Average Spending per Trip" = "avg_cost",
+                                                     "Average Night Spent" = "avg_night_spent",
+                                                     "Average Spending per Night" = "cost_per_night",
+                                                     "Average Individual Spending per Night" = "cost_per_pax_night"),
+                                         selected = "total_tourist"),
+                             selectInput(inputId = "mapclassification_",
+                                         label = "Classification method:",
+                                         choices = list("sd" = "sd", 
+                                                        "equal" = "equal", 
+                                                        "pretty" = "pretty", 
+                                                        "quantile" = "quantile", 
+                                                        "kmeans" = "kmeans", 
+                                                        "hclust" = "hclust", 
+                                                        "bclust" = "bclust", 
+                                                        "fisher" = "fisher", 
+                                                        "jenks" = "jenks"),
+                                         selected = "jenks"),
+                             sliderInput(inputId = "mapclasses_",
+                                         label = "Number of classes:",
+                                         min = 5,
+                                         max = 12,
+                                         value = c(5)),
+                             numericInput(inputId = "minvisitors_",
+                                          label = "Min Total Visitors:",
+                                          min = 0,
+                                          max = 100,
+                                          value = 20)
+                           )
                        ),
-                       column(width = 10,
+                       column(width = 9,
                               tmapOutput("map_", 
                                          width = "100%",
                                          height = 430)
-                              )
+                       )
                      ),
               ),
               
-              ### Second COlumn  ----------------------------------------------------
-              column(width = 6,
+              ### Second Column  ----------------------------------------------------
+              column(width = 5,
                      #### Data Table  ----------------------------------------------------
                      fluidRow(
                        box(
@@ -259,8 +264,8 @@ server <- function(input, output) {
   
   output$topspender_ <- renderValueBox({
     valueBox(
-      value = paste0(top_value(), "M TZS"), 
-      subtitle = paste0("Top Spending Country: ",top_country()), 
+      value = tags$p(paste0(top_value(), "M TZS"), style = "font-size: 60%;"),
+      subtitle = tags$p(paste0("Top Spending Country: ",top_country()), style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
     )
@@ -268,8 +273,8 @@ server <- function(input, output) {
   
   output$avgspenttrip_ <- renderValueBox({
     valueBox(
-      value = paste0(scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "K TZS"), 
-      subtitle = "Average Spending per Trip", 
+      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "K TZS"), style = "font-size: 60%;"), 
+      subtitle = tags$p("Average Spending per Trip", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
     )
@@ -277,8 +282,8 @@ server <- function(input, output) {
   
   output$avgspentnight_ <- renderValueBox({
     valueBox(
-      value = paste0(scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "K TZS"), 
-      subtitle = "Average Spending per Night", 
+      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "K TZS"), style = "font-size: 60%;"), 
+      subtitle = tags$p("Average Spending per Night", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
     )
@@ -286,8 +291,8 @@ server <- function(input, output) {
   
   output$totalvisitors_ <- renderValueBox({
     valueBox(
-      value = paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), 
-      subtitle = "Total Visitors in dataset", 
+      value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
+      subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
       icon = icon("people-group"),
       color = "aqua"
     )
@@ -295,8 +300,8 @@ server <- function(input, output) {
   
   output$avgnight_ <- renderValueBox({
     valueBox(
-      value = paste0(scales::comma(round(mean(touristdata_clean$total_night_spent),0))), 
-      subtitle = "Average Night Spent by Tourist", 
+      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_night_spent),0))), style = "font-size: 60%;"), 
+      subtitle = tags$p("Average Night Spent by Tourist", style = "font-size: 80%;"), 
       icon = icon("bed"),
       color = "aqua"
     )
@@ -304,8 +309,8 @@ server <- function(input, output) {
   
   output$avgpartysize_ <- renderValueBox({
     valueBox(
-      value = paste0(scales::comma(round(mean(touristdata_clean$total_tourist),0))), 
-      subtitle = "Average Party Size", 
+      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
+      subtitle = tags$p("Average Party Size", style = "font-size: 80%;"), 
       icon = icon("people-group"),
       color = "aqua"
     )
@@ -333,7 +338,8 @@ server <- function(input, output) {
                 class = "compact",
                 options = list(
                   pageLength = 5, 
-                  autoWidth = TRUE)),
+                  autoWidth = TRUE,
+                  scrollX = TRUE)),
       c(3,4,6,7), currency = 'TZS ', 
       interval = 3, 
       mark = ',', digits = 0
