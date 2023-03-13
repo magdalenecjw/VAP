@@ -15,7 +15,6 @@ editor: visual
 
 ```{r}
 pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales","tidyverse")
-
 ```
 
 ## 2. Loading the data
