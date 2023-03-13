@@ -36,6 +36,8 @@ touristdata_clean_country <- touristdata_clean %>%
             trips = n()) %>%
   mutate(avg_night_spent = round(total_night_spent/trips,0),
          .after = total_night_spent) %>%
+  mutate(avg_cost = round(total_cost/trips,0),
+         .after = total_cost) %>%
   ungroup()
 
 touristdata_clean_map <- left_join(World, 
@@ -144,13 +146,14 @@ body <- dashboardBody(
                      #### Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = "Map Panel", background = "aqua",
+                         title = "Filter Panel", background = "aqua",
                          width = 2,
                          selectInput(inputId = "mapmetric_",
                                      label = "Select Metrics:",
                                      choices = c("Total Visitors" = "total_tourist",
                                                  "Total Spending" = "total_cost",
-                                                 "Average Individual Spending" = "cost_per_pax",
+                                                 "Average Spending per Trip" = "avg_cost",
+                                                 "Average Night Spent" = "avg_night_spent",
                                                  "Average Spending per Night" = "cost_per_night",
                                                  "Average Individual Spending per Night" = "cost_per_pax_night"),
                                      selected = "total_tourist"),
@@ -172,7 +175,7 @@ body <- dashboardBody(
                                      max = 12,
                                      value = c(5)),
                          numericInput(inputId = "minvisitors_",
-                                      label = "Min Visitors:",
+                                      label = "Min Total Visitors:",
                                       min = 0,
                                       max = 100,
                                       value = 20)
@@ -190,7 +193,8 @@ body <- dashboardBody(
                      #### Data Table  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = "Top Spending Country", status = "primary",
+                         title = "Top Spending Country",
+                         status = "primary",
                          width = 12,
                          dataTableOutput("datatable_")
                        )),
@@ -229,12 +233,13 @@ server <- function(input, output) {
   
   touristdatatable <- reactive({
     touristdata_clean_country_sorted %>%
-      select(!c(2,3,4,5,8,13)) %>%
+      filter(total_tourist >= input$minvisitors_) %>%
+      select(!c(2,3,4,5,9,11,14)) %>%
       rename("Country of Origin" = "country",
              "Total Visitors" = "total_tourist",
              "Total Spending" = "total_cost",
              "Average Night Spent" = "avg_night_spent",
-             "Average Individual Spending per Trip" = "cost_per_pax",
+             "Average Spending per Trip" = "avg_cost",
              "Average Spending per Night" = "cost_per_night",
              "Average Individual Spending per Night" = "cost_per_pax_night"
              )
@@ -244,7 +249,8 @@ server <- function(input, output) {
     switch(input$mapmetric_,
            "total_tourist" = "Total Visitors",
            "total_cost" = "Total Spending (TZS)",
-           "cost_per_pax" = "Average Individual Spending per Trip (TZS)",
+           "avg_cost" = "Average Spending per Trip (TZS)",
+           "avg_night_spent" = "Average Night Spent",
            "cost_per_night" = "Average Spending per Night (TZS)",
            "cost_per_pax_night" = "Average Individual Spending per Night (TZS)")
   })
@@ -254,7 +260,7 @@ server <- function(input, output) {
   output$topspender_ <- renderValueBox({
     valueBox(
       value = paste0(top_value(), "M TZS"), 
-      subtitle = paste0("Top Spending Country -", top_country()), 
+      subtitle = paste0("Top Spending Country: ",top_country()), 
       icon = icon("dollar-sign"),
       color = "aqua"
     )
@@ -290,7 +296,7 @@ server <- function(input, output) {
   output$avgnight_ <- renderValueBox({
     valueBox(
       value = paste0(scales::comma(round(mean(touristdata_clean$total_night_spent),0))), 
-      subtitle = "Average Night Spent per Tourist", 
+      subtitle = "Average Night Spent by Tourist", 
       icon = icon("bed"),
       color = "aqua"
     )
@@ -328,7 +334,7 @@ server <- function(input, output) {
                 options = list(
                   pageLength = 5, 
                   autoWidth = TRUE)),
-      c(3,5,6,7), currency = 'TZS ', 
+      c(3,4,6,7), currency = 'TZS ', 
       interval = 3, 
       mark = ',', digits = 0
     )
