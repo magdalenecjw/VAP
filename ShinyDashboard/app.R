@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "tidyverse")
+pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
@@ -98,7 +98,8 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
-    menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"))
+    menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple")
+             )
   )
 )
 
@@ -132,24 +133,24 @@ body <- dashboardBody(
             #h2("Tanzania Tourism at a Glance", style = "font-family: sans-serif;"),
             fluidRow(
               
-              ### First Column  ----------------------------------------------------
+              ### Dashboard First Column  ----------------------------------------------------
               column(width = 7,
-                     #### First Value Boxes  ----------------------------------------------------
+                     #### Dashboard First Value Boxes  ----------------------------------------------------
                      fluidRow(
-                       valueBoxOutput("topspender_", width = 4),
-                       valueBoxOutput("avgspenttrip_", width = 4),
-                       valueBoxOutput("avgspentnight_", width = 4)
+                       valueBoxOutput("dash_topspender_", width = 4),
+                       valueBoxOutput("dash_avgspenttrip_", width = 4),
+                       valueBoxOutput("dash_avgspentnight_", width = 4)
                      ),
-                     #### Second Value Boxes  ----------------------------------------------------
+                     #### Dashboard Second Value Boxes  ----------------------------------------------------
                      div(style = "padding = 0em; margin-top: 0em",
                          fluidRow(
-                           valueBoxOutput("totalvisitors_", width = 4),
-                           valueBoxOutput("avgnight_", width = 4),
-                           valueBoxOutput("avgpartysize_", width = 4)
+                           valueBoxOutput("dash_totalvisitors_", width = 4),
+                           valueBoxOutput("dash_avgnight_", width = 4),
+                           valueBoxOutput("dash_avgpartysize_", width = 4)
                          )),
                      
                      
-                     #### Interactive Map  ----------------------------------------------------
+                     #### Dashboard Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
                          title = tags$p("Control Panel", style = "color: #FFF; font-weight: bold;"),
@@ -159,7 +160,7 @@ body <- dashboardBody(
                          collapsible = TRUE,
                          width = 3,
                          div(style = "padding = 0em; margin-top: -0.5em",
-                             selectInput(inputId = "mapmetric_",
+                             selectInput(inputId = "dash_mapmetric_",
                                          label = "Select Metrics:",
                                          choices = c("Total Visitors" = "total_tourist",
                                                      "Total Spending" = "total_cost",
@@ -169,7 +170,7 @@ body <- dashboardBody(
                                                      "Average Individual Spending per Night" = "cost_per_pax_night"),
                                          selected = "total_tourist")),
                          div(style = "padding = 0em; margin-top: -1em",
-                             selectInput(inputId = "mapclassification_",
+                             selectInput(inputId = "dash_mapclassification_",
                                          label = "Classification method:",
                                          choices = list("sd" = "sd", 
                                                         "equal" = "equal", 
@@ -182,13 +183,13 @@ body <- dashboardBody(
                                                         "jenks" = "jenks"),
                                          selected = "jenks")),
                          div(style = "padding = 0em; margin-top: -1em",
-                             sliderInput(inputId = "mapclasses_",
+                             sliderInput(inputId = "dash_mapclasses_",
                                          label = "Number of classes:",
                                          min = 5,
                                          max = 10,
                                          value = c(5))),
                          div(style = "padding = 0em; margin-top: -1em",
-                             numericInput(inputId = "minvisitors_",
+                             numericInput(inputId = "dash_minvisitors_",
                                           label = "Min Total Visitors:",
                                           min = 0,
                                           max = 100,
@@ -196,7 +197,7 @@ body <- dashboardBody(
                        ),
                        column(width = 9,
                               div(style = "padding = 0em; margin-left: -1.5em",
-                                  tmapOutput("map_", 
+                                  tmapOutput("dash_map_", 
                                              width = "100%",
                                              height = 450)
                               )
@@ -204,9 +205,9 @@ body <- dashboardBody(
                      ),
               ),
               
-              ### Second Column  ----------------------------------------------------
+              ### Dashboard Second Column  ----------------------------------------------------
               column(width = 5,
-                     #### Data Table  ----------------------------------------------------
+                     #### Dashboard Data Table  ----------------------------------------------------
                      div(style = "padding = 0em; margin-left: -1em; margin-right: -0.5em",
                          fluidRow(
                            box(
@@ -214,7 +215,7 @@ body <- dashboardBody(
                              status = "primary",
                              width = 12,
                              collapsible = T,
-                             dataTableOutput("datatable_")
+                             dataTableOutput("dash_datatable_")
                            ))
                      ),
                      
@@ -241,7 +242,7 @@ ui <- dashboardPage(header, sidebar, body)
 #========================#
 server <- function(input, output) {
   
-  # Data Manipulation  ----------------------------------------------------
+  # Global Data Manipulation  ----------------------------------------------------
   top_country <- reactive({
     touristdata_clean_country_sorted$country[1]
   })
@@ -250,9 +251,10 @@ server <- function(input, output) {
     scales::comma(touristdata_clean_country_sorted$total_cost[1]/1000000)
   })
   
-  touristdatatable <- reactive({
+  # Dashboard Data Manipulation  ----------------------------------------------------
+  dash_touristdatatable <- reactive({
     touristdata_clean_country_sorted %>%
-      filter(total_tourist >= input$minvisitors_) %>%
+      filter(total_tourist >= input$dash_minvisitors_) %>%
       select(!c(2,3,4,5,9,11,14)) %>%
       rename("Country of Origin" = "country",
              "Total Visitors" = "total_tourist",
@@ -264,8 +266,8 @@ server <- function(input, output) {
       )
   })
   
-  map_metrics_text <- reactive({
-    switch(input$mapmetric_,
+  dash_map_metrics_text <- reactive({
+    switch(input$dash_mapmetric_,
            "total_tourist" = "Total Visitors",
            "total_cost" = "Total Spending (TZS)",
            "avg_cost" = "Average Spending per Trip (TZS)",
@@ -275,8 +277,7 @@ server <- function(input, output) {
   })
   
   # Dashboard Server  ----------------------------------------------------
-  
-  output$topspender_ <- renderValueBox({
+  output$dash_topspender_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",top_value(), "m"), style = "font-size: 60%;"),
       subtitle = tags$p(paste0("Top Spending Country: ",top_country()), style = "font-size: 80%;"), 
@@ -285,7 +286,7 @@ server <- function(input, output) {
     )
   })
   
-  output$avgspenttrip_ <- renderValueBox({
+  output$dash_avgspenttrip_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "k"), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Spending per Trip", style = "font-size: 80%;"), 
@@ -294,7 +295,7 @@ server <- function(input, output) {
     )
   })
   
-  output$avgspentnight_ <- renderValueBox({
+  output$dash_avgspentnight_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "k"), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Spending per Night", style = "font-size: 80%;"), 
@@ -303,7 +304,7 @@ server <- function(input, output) {
     )
   })
   
-  output$totalvisitors_ <- renderValueBox({
+  output$dash_totalvisitors_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
       subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
@@ -312,7 +313,7 @@ server <- function(input, output) {
     )
   })
   
-  output$avgnight_ <- renderValueBox({
+  output$dash_avgnight_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_night_spent),0))), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Night Spent by Tourist", style = "font-size: 80%;"), 
@@ -321,7 +322,7 @@ server <- function(input, output) {
     )
   })
   
-  output$avgpartysize_ <- renderValueBox({
+  output$dash_avgpartysize_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Party Size", style = "font-size: 80%;"), 
@@ -330,24 +331,24 @@ server <- function(input, output) {
     )
   })
   
-  output$map_ <- renderTmap({
+  output$dash_map_ <- renderTmap({
     tmap_mode("view")
     tm_shape(touristdata_clean_map %>%
-               filter(total_tourist >= input$minvisitors_))+
-      tm_fill(input$mapmetric_, 
-              n = input$mapclasses_,
-              style = input$mapclassification_, 
+               filter(total_tourist >= input$dash_minvisitors_))+
+      tm_fill(input$dash_mapmetric_, 
+              n = input$dash_mapclasses_,
+              style = input$dash_mapclassification_, 
               palette="Blues", 
               id = "country",
-              title = map_metrics_text()
+              title = dash_map_metrics_text()
       ) +
       tm_borders(col = "grey20",
                  alpha = 0.5) 
   })
   
-  output$datatable_ <- renderDataTable({
+  output$dash_datatable_ <- renderDataTable({
     formatCurrency(
-      datatable(touristdatatable(),
+      datatable(dash_touristdatatable(),
                 rownames = FALSE,
                 class = "compact",
                 options = list(
@@ -358,8 +359,6 @@ server <- function(input, output) {
       interval = 3, 
       mark = ',', digits = 0
     )
-    
-    
   })
   
   
