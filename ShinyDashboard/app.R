@@ -65,8 +65,8 @@ mytheme <- create_theme(
     dark_color = "#030708"
   ),
   adminlte_global(
-    content_bg = "#FFF",
-    box_bg = "#A0DDE6", 
+    content_bg = "#E7E8EC",
+    box_bg = "#FFF", 
     info_box_bg = "#A0DDE6"
   )
 )
@@ -106,7 +106,8 @@ body <- dashboardBody(
   # CSS style  ----------------------------------------------------
   tags$style("h2 { font-weight: bold }"),
   tags$style(".small-box.bg-aqua { color: #2A2D34 !important; }"),
-  tags$style(".box-header h3.box-title{ font-weight: bold }"),
+  tags$style(".box-header h3.box-title{ color: #2A2D34; font-weight: bold }"),
+  tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".box { font-size: 12px }"),
   
   # Setting theme  ----------------------------------------------------
@@ -143,7 +144,7 @@ body <- dashboardBody(
                      #### Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = "Map Panel", status = "primary",
+                         title = "Map Panel", background = "aqua",
                          width = 2,
                          selectInput(inputId = "mapmetric_",
                                      label = "Select Metrics:",
@@ -188,8 +189,11 @@ body <- dashboardBody(
               column(width = 6,
                      #### Data Table  ----------------------------------------------------
                      fluidRow(
-                       dataTableOutput("datatable_")
-                     ),
+                       box(
+                         title = "Top Spending Country", status = "primary",
+                         width = 12,
+                         dataTableOutput("datatable_")
+                       )),
                      
                      fluidRow()
                      
@@ -319,12 +323,14 @@ server <- function(input, output) {
   output$datatable_ <- renderDataTable({
     formatCurrency(
       datatable(touristdatatable(),
+                rownames = FALSE,
+                class = "compact",
                 options = list(
                   pageLength = 5, 
                   autoWidth = TRUE)),
       c(3,5,6,7), currency = 'TZS ', 
       interval = 3, 
-      mark = ','
+      mark = ',', digits = 0
     )
     
     
