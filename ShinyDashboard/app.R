@@ -141,17 +141,18 @@ body <- dashboardBody(
                        valueBoxOutput("avgspentnight_", width = 4)
                      ),
                      #### Second Value Boxes  ----------------------------------------------------
-                     fluidRow(
-                       valueBoxOutput("totalvisitors_", width = 4),
-                       valueBoxOutput("avgnight_", width = 4),
-                       valueBoxOutput("avgpartysize_", width = 4)
-                     ),
+                     div(style = "padding = 0em; margin-top: 0em",
+                         fluidRow(
+                           valueBoxOutput("totalvisitors_", width = 4),
+                           valueBoxOutput("avgnight_", width = 4),
+                           valueBoxOutput("avgpartysize_", width = 4)
+                         )),
                      #### Interactive Map  ----------------------------------------------------
                      fluidRow(
-                       div(style = "margin-right:0%",
-                           box(
-                             title = "Filter Panel", background = "aqua",
-                             width = 3,
+                       box(
+                         title = "Filter Panel", background = "aqua",
+                         width = 3,
+                         div(style = "padding = 0em; margin-top: -1em",
                              selectInput(inputId = "mapmetric_",
                                          label = "Select Metrics:",
                                          choices = c("Total Visitors" = "total_tourist",
@@ -160,7 +161,8 @@ body <- dashboardBody(
                                                      "Average Night Spent" = "avg_night_spent",
                                                      "Average Spending per Night" = "cost_per_night",
                                                      "Average Individual Spending per Night" = "cost_per_pax_night"),
-                                         selected = "total_tourist"),
+                                         selected = "total_tourist")),
+                         div(style = "padding = 0em; margin-top: -1em",
                              selectInput(inputId = "mapclassification_",
                                          label = "Classification method:",
                                          choices = list("sd" = "sd", 
@@ -172,23 +174,26 @@ body <- dashboardBody(
                                                         "bclust" = "bclust", 
                                                         "fisher" = "fisher", 
                                                         "jenks" = "jenks"),
-                                         selected = "jenks"),
+                                         selected = "jenks")),
+                         div(style = "padding = 0em; margin-top: -1em",
                              sliderInput(inputId = "mapclasses_",
                                          label = "Number of classes:",
                                          min = 5,
-                                         max = 12,
-                                         value = c(5)),
+                                         max = 10,
+                                         value = c(5))),
+                         div(style = "padding = 0em; margin-top: -1em",
                              numericInput(inputId = "minvisitors_",
                                           label = "Min Total Visitors:",
                                           min = 0,
                                           max = 100,
-                                          value = 20)
-                           )
+                                          value = 20))
                        ),
                        column(width = 9,
-                              tmapOutput("map_", 
-                                         width = "100%",
-                                         height = 430)
+                              div(style = "padding = 0em; margin-left: -1.5em",
+                                  tmapOutput("map_", 
+                                             width = "100%",
+                                             height = 340)
+                              )
                        )
                      ),
               ),
@@ -196,17 +201,20 @@ body <- dashboardBody(
               ### Second Column  ----------------------------------------------------
               column(width = 5,
                      #### Data Table  ----------------------------------------------------
-                     fluidRow(
-                       box(
-                         title = "Top Spending Country",
-                         status = "primary",
-                         width = 12,
-                         dataTableOutput("datatable_")
-                       )),
+                     div(style = "padding = 0em; margin-left: -1em; margin-right: -0.5em",
+                         fluidRow(
+                           box(
+                             title = "Top Spending Country",
+                             status = "primary",
+                             width = 12,
+                             collapsible = T,
+                             dataTableOutput("datatable_")
+                           ))
+                     ),
                      
                      fluidRow()
                      
-                     )
+              )
             )
     ),
     
@@ -247,7 +255,7 @@ server <- function(input, output) {
              "Average Spending per Trip" = "avg_cost",
              "Average Spending per Night" = "cost_per_night",
              "Average Individual Spending per Night" = "cost_per_pax_night"
-             )
+      )
   })
   
   map_metrics_text <- reactive({
