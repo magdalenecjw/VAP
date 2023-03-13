@@ -106,11 +106,11 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   
   # CSS style  ----------------------------------------------------
-  tags$style("h2 { font-weight: bold }"),
+  tags$style("h2 { font-family: sans-serif; font-weight: bold; }"),
   tags$style(".small-box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".box-header h3.box-title{ color: #2A2D34; font-weight: bold }"),
-  tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".box { font-size: 90%}"),
+  tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".fa-dollar-sign {font-size:80%}"),
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
@@ -124,12 +124,12 @@ body <- dashboardBody(
     
     ## Information  ----------------------------------------------------
     tabItem(tabName = "information",
-            h2("About the app", style = "font-family: sans-serif;")
+            h2("About the app")
     ),
     
     ## Dashboard  ----------------------------------------------------
     tabItem(tabName = "tab_dashboard",
-            h2("Tanzania Tourism at a Glance", style = "font-family: sans-serif;"),
+            #h2("Tanzania Tourism at a Glance", style = "font-family: sans-serif;"),
             fluidRow(
               
               ### First Column  ----------------------------------------------------
@@ -147,12 +147,18 @@ body <- dashboardBody(
                            valueBoxOutput("avgnight_", width = 4),
                            valueBoxOutput("avgpartysize_", width = 4)
                          )),
+                     
+                     
                      #### Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = "Filter Panel", background = "aqua",
+                         title = tags$p("Control Panel", style = "color: #FFF; font-weight: bold;"),
+                         status = "primary",
+                         background = "aqua",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
                          width = 3,
-                         div(style = "padding = 0em; margin-top: -1em",
+                         div(style = "padding = 0em; margin-top: -0.5em",
                              selectInput(inputId = "mapmetric_",
                                          label = "Select Metrics:",
                                          choices = c("Total Visitors" = "total_tourist",
@@ -192,7 +198,7 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-left: -1.5em",
                                   tmapOutput("map_", 
                                              width = "100%",
-                                             height = 340)
+                                             height = 450)
                               )
                        )
                      ),
@@ -220,7 +226,7 @@ body <- dashboardBody(
     
     ## Analysis  ----------------------------------------------------
     tabItem(tabName = "tab_analysis",
-            h2("Exploratory and Confirmatory Data Analysis", style = "font-family: sans-serif;")
+            h2("Exploratory and Confirmatory Data Analysis")
     )
     
   )
@@ -272,7 +278,7 @@ server <- function(input, output) {
   
   output$topspender_ <- renderValueBox({
     valueBox(
-      value = tags$p(paste0(top_value(), "M TZS"), style = "font-size: 60%;"),
+      value = tags$p(paste0("TSZ ",top_value(), "m"), style = "font-size: 60%;"),
       subtitle = tags$p(paste0("Top Spending Country: ",top_country()), style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
@@ -281,7 +287,7 @@ server <- function(input, output) {
   
   output$avgspenttrip_ <- renderValueBox({
     valueBox(
-      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "K TZS"), style = "font-size: 60%;"), 
+      value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "k"), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Spending per Trip", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
@@ -290,7 +296,7 @@ server <- function(input, output) {
   
   output$avgspentnight_ <- renderValueBox({
     valueBox(
-      value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "K TZS"), style = "font-size: 60%;"), 
+      value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "k"), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Spending per Night", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "aqua"
