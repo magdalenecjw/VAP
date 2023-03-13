@@ -115,7 +115,10 @@ touristdata_clean_country <- touristdata_clean %>%
             total_night_spent = round(sum(total_night_spent),0),
             cost_per_pax = round(mean(cost_per_pax),0),
             cost_per_night = round(mean(cost_per_night),0),
-            cost_per_pax_night = round(mean(cost_per_pax_night),0))
+            cost_per_pax_night = round(mean(cost_per_pax_night),0),
+            trips = n()) %>%
+  mutate(avg_night_spent = round(total_night_spent/trips,0)) %>%
+  ungroup()
 ```
 
 Joining the two dataframes together

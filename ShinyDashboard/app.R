@@ -32,7 +32,10 @@ touristdata_clean_country <- touristdata_clean %>%
             total_night_spent = round(sum(total_night_spent),0),
             cost_per_pax = round(mean(cost_per_pax),0),
             cost_per_night = round(mean(cost_per_night),0),
-            cost_per_pax_night = round(mean(cost_per_pax_night),0))
+            cost_per_pax_night = round(mean(cost_per_pax_night),0),
+            trips = n()) %>%
+  mutate(avg_night_spent = round(total_night_spent/trips,0)) %>%
+  ungroup()
 
 touristdata_clean_map <- left_join(World, 
                                    touristdata_clean_country, 
@@ -178,12 +181,18 @@ body <- dashboardBody(
                                          height = 430)
                               )
                      ),
-                     
-                     
               ),
               
               ### Second COlumn  ----------------------------------------------------
-              column(width = 6)
+              column(width = 6,
+                     #### Data Table  ----------------------------------------------------
+                     fluidRow(
+                       dataTableOutput("datatable_")
+                     ),
+                     
+                     fluidRow()
+                     
+                     )
             )
     ),
     
@@ -213,11 +222,23 @@ server <- function(input, output) {
     scales::comma(touristdata_clean_country_sorted$total_cost[1]/1000000)
   })
   
+  touristdatatable <- reactive({
+    touristdata_clean_country_sorted %>%
+      select(!c(2,3,4,5,6,8)) %>%
+      rename("Country of Origin" = "country",
+             "Total Spending (TZS)" = "total_cost",
+             "Average Night Spent" = "avg_night_spent",
+             "Average Individual Spending per Trip (TZS)" = "cost_per_pax",
+             "Average Spending per Night (TZS)" = "cost_per_night",
+             "Average Individual Spending per Night (TZS)" = "cost_per_pax_night"
+             )
+  })
+  
   map_metrics_text <- reactive({
     switch(input$mapmetric_,
            "total_tourist" = "Total Visitors",
            "total_cost" = "Total Spending (TZS)",
-           "cost_per_pax" = "Average Individual Spending (TZS)",
+           "cost_per_pax" = "Average Individual Spending per Trip (TZS)",
            "cost_per_night" = "Average Spending per Night (TZS)",
            "cost_per_pax_night" = "Average Individual Spending per Night (TZS)")
   })
@@ -293,6 +314,9 @@ server <- function(input, output) {
                  alpha = 0.5) 
   })
   
+  output$datatable_ <- renderDataTable({
+    datatable(touristdatatable())
+  })
   
   
 }
