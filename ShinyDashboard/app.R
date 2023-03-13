@@ -34,7 +34,8 @@ touristdata_clean_country <- touristdata_clean %>%
             cost_per_night = round(mean(cost_per_night),0),
             cost_per_pax_night = round(mean(cost_per_pax_night),0),
             trips = n()) %>%
-  mutate(avg_night_spent = round(total_night_spent/trips,0)) %>%
+  mutate(avg_night_spent = round(total_night_spent/trips,0),
+         .after = total_night_spent) %>%
   ungroup()
 
 touristdata_clean_map <- left_join(World, 
@@ -224,13 +225,14 @@ server <- function(input, output) {
   
   touristdatatable <- reactive({
     touristdata_clean_country_sorted %>%
-      select(!c(2,3,4,5,6,8)) %>%
+      select(!c(2,3,4,5,8,13)) %>%
       rename("Country of Origin" = "country",
-             "Total Spending (TZS)" = "total_cost",
+             "Total Visitors" = "total_tourist",
+             "Total Spending" = "total_cost",
              "Average Night Spent" = "avg_night_spent",
-             "Average Individual Spending per Trip (TZS)" = "cost_per_pax",
-             "Average Spending per Night (TZS)" = "cost_per_night",
-             "Average Individual Spending per Night (TZS)" = "cost_per_pax_night"
+             "Average Individual Spending per Trip" = "cost_per_pax",
+             "Average Spending per Night" = "cost_per_night",
+             "Average Individual Spending per Night" = "cost_per_pax_night"
              )
   })
   
@@ -315,7 +317,17 @@ server <- function(input, output) {
   })
   
   output$datatable_ <- renderDataTable({
-    datatable(touristdatatable())
+    formatCurrency(
+      datatable(touristdatatable(),
+                options = list(
+                  pageLength = 5, 
+                  autoWidth = TRUE)),
+      c(3,5,6,7), currency = 'TZS ', 
+      interval = 3, 
+      mark = ','
+    )
+    
+    
   })
   
   
