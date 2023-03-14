@@ -46,9 +46,40 @@ touristdata_clean_map <- left_join(World,
   select(-c(2:15)) %>%
   na.omit()
 
-# Aggregation and sorting by total cost ----------------------------------------------------
+# Aggregation and sorting by total_cost ----------------------------------------------------
 touristdata_clean_country_sorted <- touristdata_clean_country %>%
   arrange(desc(total_cost))
+
+# Finding Top Countries by total_cost ----------------------------------------------------
+
+top_world_data <- touristdata_clean_country_sorted %>%
+  filter(total_tourist >= 20) %>%
+  arrange(desc(total_cost))
+
+top_europe_data <- touristdata_clean_country_sorted %>%
+  filter(total_tourist >= 20,
+         region == "Europe") %>%
+  arrange(desc(total_cost))
+
+top_americas_data <- touristdata_clean_country_sorted %>%
+  filter(total_tourist >= 20,
+         region == "Americas") %>%
+  arrange(desc(total_cost))
+
+top_africa_data <- touristdata_clean_country_sorted %>%
+  filter(total_tourist >= 20,
+         region == "Africa") %>%
+  arrange(desc(total_cost))
+
+top_asia_data <- touristdata_clean_country_sorted %>%
+  filter(total_tourist >= 20,
+         region == "Asia") %>%
+  arrange(desc(total_cost))
+
+top_oceania_data <- touristdata_clean_country_sorted %>%
+  filter(region == "Oceania") %>%
+  arrange(desc(total_cost))
+
 
 #========================#
 ###### Custom Theme ######
@@ -64,7 +95,10 @@ mytheme <- create_theme(
     width = "200px",
     dark_bg = "#E7E8EC",
     dark_hover_bg = "#5C946E",
-    dark_color = "#030708"
+    dark_color = "#030708",
+    dark_submenu_bg = "#80C2AF",
+    dark_submenu_color = "#030708",
+    dark_submenu_hover_color = "#FFF"
   ),
   adminlte_global(
     content_bg = "#E7E8EC",
@@ -98,8 +132,12 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
-    menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple")
-             )
+    menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
+             menuSubItem("Analysis by Region/Country", tabName = "tab_country",
+             ),
+             menuSubItem("Analysis by Others", tabName = "tab_others")
+    ),
+    menuItem("Clustering", tabName = "tab_cluster")
   )
 )
 
@@ -108,6 +146,7 @@ body <- dashboardBody(
   
   # CSS style  ----------------------------------------------------
   tags$style("h2 { font-family: sans-serif; font-weight: bold; }"),
+  tags$style("h3 { font-family: sans-serif; font-weight: bold; }"),
   tags$style(".small-box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".box-header h3.box-title{ color: #2A2D34; font-weight: bold }"),
   tags$style(".box { font-size: 90%}"),
@@ -118,6 +157,8 @@ body <- dashboardBody(
   
   # Setting theme  ----------------------------------------------------
   use_theme(mytheme),
+  
+  useShinyjs(),
   
   # Dashboard Body Tabs  ----------------------------------------------------
   
@@ -149,7 +190,6 @@ body <- dashboardBody(
                            valueBoxOutput("dash_avgpartysize_", width = 4)
                          )),
                      
-                     
                      #### Dashboard Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
@@ -157,7 +197,7 @@ body <- dashboardBody(
                          status = "primary",
                          background = "aqua",
                          solidHeader = TRUE,
-                         collapsible = TRUE,
+                         collapsible = FALSE,
                          width = 3,
                          div(style = "padding = 0em; margin-top: -0.5em",
                              selectInput(inputId = "dash_mapmetric_",
@@ -195,6 +235,7 @@ body <- dashboardBody(
                                           max = 100,
                                           value = 20))
                        ),
+                       
                        column(width = 9,
                               div(style = "padding = 0em; margin-left: -1.5em",
                                   tmapOutput("dash_map_", 
@@ -215,7 +256,7 @@ body <- dashboardBody(
                              status = "primary",
                              width = 12,
                              collapsible = T,
-                             dataTableOutput("dash_datatable_")
+                             DT::dataTableOutput("dash_datatable_")
                            ))
                      ),
                      
@@ -225,9 +266,147 @@ body <- dashboardBody(
             )
     ),
     
-    ## Analysis  ----------------------------------------------------
-    tabItem(tabName = "tab_analysis",
-            h2("Exploratory and Confirmatory Data Analysis")
+    ## Analysis by Country  ----------------------------------------------------
+    tabItem(tabName = "tab_country",
+            #h2("Data Analysis by Country"),
+            fluidRow(
+              ### Analysis_Country First Column  ----------------------------------------------------
+              column(width = 2,
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = FALSE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               radioButtons(inputId = "acou_reg_cou_", 
+                                            label = "Analysed by:", 
+                                            choices = c("Region" = "region",
+                                                        "Country" = "country"),
+                                            selected = "region")),
+                           disabled(div(style = "padding = 0em; margin-top: -1em",
+                                        selectInput(inputId = "acou_cou_",
+                                                    label = "Select Country (max 5):",
+                                                    choices = list("Top (World)" = "top_world",
+                                                                   "Top (Europe)" = "top_europe",
+                                                                   "Top (Americas)" = "top_americas",
+                                                                   "Top (Africa)" = "top_africa",
+                                                                   "Top (Asia)" = "top_asia",
+                                                                   "Top (Oceania)" = "top_oceania"),
+                                                    selected = "top_world"))),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               selectInput(inputId = "acou_test_",
+                                           label = "Test Type:",
+                                           choices = list("parametric" = "p", 
+                                                          "non-parametric" = "np", 
+                                                          "robust" = "r", 
+                                                          "Bayes Factor" = "bf"),
+                                           selected = "np")),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               radioButtons(inputId = "acou_cf_",
+                                            label = "Confidence Level:",
+                                            choices = c("95%" = 0.95,
+                                                        "99%" = 0.99),
+                                            selected = 0.95)),
+                           div(style = "padding = 0em; margin-top: 0em",
+                               tags$p("Refer to second panel to continue plotting", style = "font-style: italic;")),
+                         ))
+              ),
+              
+              
+              ### Analysis_Country Second Column  ----------------------------------------------------
+              column(width = 10,
+                     tabBox(
+                       title = h3("Hypothesis Testing"),
+                       width = 12,
+                       
+                       #### Analysis_Country Numerical ----------------------------------------------------
+                       tabPanel(
+                         title = tags$p("Numerical Variables"),
+                         fluidRow(
+                           
+                           #### Analysis_Country Control Panel ----------------------------------------------------
+                           column(width = 3,
+                                  box(
+                                    title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                    status = "primary",
+                                    background = "aqua",
+                                    solidHeader = TRUE,
+                                    collapsible = FALSE,
+                                    width = 12,
+                                    div(style = "padding = 0em; margin-top: -0.5em",
+                                        selectInput(inputId = "acou_numvar_",
+                                                    label = "Select y-axis:",
+                                                    choices = list("Spending per Trip" = "total_cost", 
+                                                                   "Individual Spending per Trip" = "cost_per_pax", 
+                                                                   "Spending per Night" = "cost_per_night",
+                                                                   "Individual Spending per Night" = "cost_per_pax_night",
+                                                                   "Night Spent per Trip" = "total_night_spent",
+                                                                   "Prop Night Spent in Mainland" = "prop_night_spent_mainland"),
+                                                    selected = "total_cost")),
+                                    div(style = "padding = 0em; margin-top: -0em",
+                                        selectInput(inputId = "acou_plottype_",
+                                                    label = "Plot Type:",
+                                                    choices = list("Box" = "box", 
+                                                                   "Violin" = "violin", 
+                                                                   "Box Violin" = "boxviolin"),
+                                                    selected = "boxviolin")),
+                                    div(style = "padding = 0em; margin-top: 0em",
+                                        checkboxInput(inputId = "acou_compare_", 
+                                                      label = "Show Pairwise Comparison",
+                                                      value = TRUE)),
+                                    div(style = "padding = 0em; margin-top: 0em",
+                                        radioButtons(inputId = "acou_w_compare_", 
+                                                     label = "Display Comparions:", 
+                                                     choices = c("significant" = "s",
+                                                                 "non-significant" = "ns"),
+                                                     selected = "ns")),
+                                    div(style = "padding = 0em; margin-top: 0em",
+                                        checkboxInput(inputId = "acou_outliers_", 
+                                                      label = "Treat Outliers",
+                                                      value = TRUE)),
+                                    div(style = "padding = 0em; margin-top: 0em",
+                                        tags$p("Press button below to show graph", style = "font-style: italic;")),
+                                    div(style = "padding = 0em; margin-top: -0.5em",
+                                        actionButton(inputId = "acou_action_", 
+                                                     label = "Update Plot"))
+                                    
+                                  )
+                                  
+                                  
+                           ),
+                           
+                           #### Analysis_Country Graph ----------------------------------------------------
+                           column(width = 9,
+                                  plotOutput("acou_num_plot_")),
+                           
+                         )
+                       ),
+                       
+                       tabPanel(
+                         title = tags$p("Categorical Variables"),
+                       )
+                       
+                       
+                     )
+                     
+              )
+              
+              
+              
+            )
+    ),
+    
+    ## Analysis by Others  ----------------------------------------------------
+    tabItem(tabName = "tab_others",
+            h2("Data Analysis by Others")
+    ),
+    
+    ## Clustering  ----------------------------------------------------
+    tabItem(tabName = "tab_cluster",
+            h2("Clustering Analysis")
     )
     
   )
@@ -333,6 +512,7 @@ server <- function(input, output) {
   
   output$dash_map_ <- renderTmap({
     tmap_mode("view")
+    tmap_options(check.and.fix = TRUE) +
     tm_shape(touristdata_clean_map %>%
                filter(total_tourist >= input$dash_minvisitors_))+
       tm_fill(input$dash_mapmetric_, 
@@ -346,7 +526,7 @@ server <- function(input, output) {
                  alpha = 0.5) 
   })
   
-  output$dash_datatable_ <- renderDataTable({
+  output$dash_datatable_ <- DT::renderDataTable({
     formatCurrency(
       datatable(dash_touristdatatable(),
                 rownames = FALSE,
@@ -360,6 +540,73 @@ server <- function(input, output) {
       mark = ',', digits = 0
     )
   })
+  
+  
+  # Analysis_Country Data Manipulation  ----------------------------------------------------
+  
+  countrylist <- reactive({
+      if(input$acou_reg_cou_ == "region"){
+        unique(touristdata_clean$country)
+      } else {
+        switch(input$acou_cou_,
+               "top_world" = unique(top_world_data$country[1:5]),
+               "top_europe" = unique(top_europe_data$country[1:5]),
+               "top_americas" = unique(top_americas_data$country[1:2]),
+               "top_africa" = unique(top_africa_data$country[1:5]),
+               "top_asia" = unique(top_asia_data$country[1:5]),
+               "top_oceania" = unique(top_oceania_data$country[1:2]))
+      }
+    })
+  
+  
+  acou_ANOVA <- reactive({
+    touristdata_clean %>%
+      filter(country %in% countrylist()) %>%
+      mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+      mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+      drop_na()
+  })
+  
+  acou_ANOVA_nooutlier <- reactive({
+    touristdata_clean %>%
+      filter(country %in% countrylist()) %>%
+      mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+      mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+      drop_na() %>%
+      treat_outliers() 
+  })
+  
+  acou_ANOVA_metrics_text <- reactive({
+    switch(input$acou_numvar_,
+           "total_cost" = "Spending per Trip (TZS)",
+           "cost_per_pax" = "Individual Spending per Trip (TZS)",
+           "cost_per_night" = "Spending per Night (TZS)",
+           "cost_per_pax_night" = "Individual Spending per Night (TZS)",
+           "total_night_spent" = "Night Spent per Trip",
+           "prop_night_spent_mainland" = "Proportion of Night Spent in Mainland")
+  })
+  
+  # Analysis_Country Server  ----------------------------------------------------
+  
+  observe({
+    toggleState(id = "acou_cou_", condition = input$acou_reg_cou_ == "country")
+  })
+  
+  acou_num_plotreact <- eventReactive(
+    input$acou_action_, {
+      ggbetweenstats(data = if(input$acou_outliers_){acou_ANOVA_nooutlier()}else{acou_ANOVA()},
+                     x = !!sym(input$acou_reg_cou_), y = !!sym(input$acou_numvar_),
+                     plot.type = input$acou_plottype_,
+                     xlab = str_to_title(input$acou_reg_cou_), ylab = acou_ANOVA_metrics_text(),
+                     type = input$acou_test_, pairwise.comparisons = input$acou_compare_, pairwise.display = input$acou_w_compare_, 
+                     mean.ci = T, p.adjust.method = "fdr",  conf.level = input$acou_cf_,
+                     package = "ggthemes", palette = "Tableau_10")
+    })
+  
+  output$acou_num_plot_ <- renderPlot({
+    acou_num_plotreact()
+  })
+  
   
   
 }
