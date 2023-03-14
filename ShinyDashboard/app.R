@@ -133,11 +133,11 @@ sidebar <- dashboardSidebar(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
-             menuSubItem("Analysis by Region/Country", tabName = "tab_country",
-             ),
-             menuSubItem("Analysis by Others", tabName = "tab_others")
+             menuSubItem("Analysis by Country", tabName = "tab_country",icon = icon("earth-africa")),
+             menuSubItem("Impact of Other Factors", tabName = "tab_others")
     ),
-    menuItem("Clustering", tabName = "tab_cluster")
+    menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
+    menuItem("Predictive Decision Tree", tabName = "tab_dt", icon = icon("network-wired"))
   )
 )
 
@@ -268,7 +268,7 @@ body <- dashboardBody(
     
     ## Analysis by Country  ----------------------------------------------------
     tabItem(tabName = "tab_country",
-            #h2("Data Analysis by Country"),
+            h3("Comparison among Regions and Countries"),
             fluidRow(
               ### Analysis_Country First Column  ----------------------------------------------------
               column(width = 2,
@@ -318,78 +318,77 @@ body <- dashboardBody(
               
               ### Analysis_Country Second Column  ----------------------------------------------------
               column(width = 10,
-                     tabBox(
-                       title = h3("Hypothesis Testing"),
-                       width = 12,
-                       
-                       #### Analysis_Country Numerical ----------------------------------------------------
-                       tabPanel(
-                         title = tags$p("Numerical Variables", style = "font-weight: bold;"),
-                         fluidRow(
+                     div(style = "padding = 0em; margin-left: -2em",
+                         tabBox(
+                           title = h3("Hypothesis Testing"),
+                           width = 12,
                            
-                           #### Analysis_Country Numerical Control Panel ----------------------------------------------------
-                           column(width = 3,
-                                  box(
-                                    title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
-                                    status = "primary",
-                                    background = "aqua",
-                                    solidHeader = TRUE,
-                                    collapsible = FALSE,
-                                    width = 12,
-                                    div(style = "padding = 0em; margin-top: -0.5em",
-                                        selectInput(inputId = "acou_numvar_",
-                                                    label = "Select y-axis:",
-                                                    choices = list("Spending per Trip" = "total_cost", 
-                                                                   "Individual Spending per Trip" = "cost_per_pax", 
-                                                                   "Spending per Night" = "cost_per_night",
-                                                                   "Individual Spending per Night" = "cost_per_pax_night",
-                                                                   "Night Spent per Trip" = "total_night_spent",
-                                                                   "Prop Night Spent in Mainland" = "prop_night_spent_mainland"),
-                                                    selected = "total_cost")),
-                                    div(style = "padding = 0em; margin-top: -0em",
-                                        selectInput(inputId = "acou_plottype_",
-                                                    label = "Plot Type:",
-                                                    choices = list("Box" = "box", 
-                                                                   "Violin" = "violin", 
-                                                                   "Box Violin" = "boxviolin"),
-                                                    selected = "boxviolin")),
-                                    div(style = "padding = 0em; margin-top: 0em",
-                                        checkboxInput(inputId = "acou_compare_", 
-                                                      label = "Show Pairwise Comparison",
-                                                      value = TRUE)),
-                                    div(style = "padding = 0em; margin-top: 0em",
-                                        radioButtons(inputId = "acou_w_compare_", 
-                                                     label = "Display Comparions:", 
-                                                     choices = c("significant" = "s",
-                                                                 "non-significant" = "ns"),
-                                                     selected = "ns")),
-                                    div(style = "padding = 0em; margin-top: 0em",
-                                        checkboxInput(inputId = "acou_outliers_", 
-                                                      label = "Treat Outliers",
-                                                      value = TRUE)),
-                                    div(style = "padding = 0em; margin-top: 0em",
-                                        tags$p("Press button below to show graph", style = "font-style: italic;")),
-                                    div(style = "padding = 0em; margin-top: -0.5em",
-                                        actionButton(inputId = "acou_action_", 
-                                                     label = "Update Plot"))
-                                    
-                                  )
-                                  
-                                  
+                           #### Analysis_Country Numerical ----------------------------------------------------
+                           tabPanel(
+                             title = tags$p("Numerical Variables", style = "font-weight: bold;"),
+                             fluidRow(
+                               
+                               #### Analysis_Country Numerical Control Panel ----------------------------------------------------
+                               column(width = 3,
+                                      box(
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        status = "primary",
+                                        background = "aqua",
+                                        solidHeader = TRUE,
+                                        collapsible = FALSE,
+                                        width = 12,
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            selectInput(inputId = "acou_numvar_",
+                                                        label = "Select y-axis:",
+                                                        choices = list("Spending per Trip" = "total_cost", 
+                                                                       "Individual Spending per Trip" = "cost_per_pax", 
+                                                                       "Spending per Night" = "cost_per_night",
+                                                                       "Individual Spending per Night" = "cost_per_pax_night",
+                                                                       "Night Spent per Trip" = "total_night_spent",
+                                                                       "Prop Night Spent in Mainland" = "prop_night_spent_mainland"),
+                                                        selected = "total_cost")),
+                                        div(style = "padding = 0em; margin-top: -0em",
+                                            selectInput(inputId = "acou_plottype_",
+                                                        label = "Plot Type:",
+                                                        choices = list("Box" = "box", 
+                                                                       "Violin" = "violin", 
+                                                                       "Box Violin" = "boxviolin"),
+                                                        selected = "boxviolin")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            checkboxInput(inputId = "acou_compare_", 
+                                                          label = "Show Pairwise Comparison",
+                                                          value = TRUE)),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            radioButtons(inputId = "acou_w_compare_", 
+                                                         label = "Display Comparions:", 
+                                                         choices = c("significant" = "s",
+                                                                     "non-significant" = "ns"),
+                                                         selected = "ns")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            checkboxInput(inputId = "acou_outliers_", 
+                                                          label = "Treat Outliers",
+                                                          value = TRUE)),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            tags$p("Press button below to show graph", style = "font-style: italic;")),
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            actionButton(inputId = "acou_action_", 
+                                                         label = "Update Plot"))
+                                      )
+                               ),
+                               
+                               #### Analysis_Country Numerical Plot ----------------------------------------------------
+                               column(width = 9,
+                                      plotOutput("acou_num_plot_")),
+                               
+                             )
                            ),
                            
-                           #### Analysis_Country Numerical Plot ----------------------------------------------------
-                           column(width = 9,
-                                  plotOutput("acou_num_plot_")),
-                           
+                           tabPanel(
+                             title = tags$p("Categorical Variables", style = "font-weight: bold;"),
+                           )
                          )
-                       ),
-                       
-                       tabPanel(
-                         title = tags$p("Categorical Variables", style = "font-weight: bold;"),
-                       )
-                       
-                       
+                         
+                         
                      )
                      
               )
@@ -401,12 +400,17 @@ body <- dashboardBody(
     
     ## Analysis by Others  ----------------------------------------------------
     tabItem(tabName = "tab_others",
-            h2("Data Analysis by Others")
+            h2("Impact of Other Factors")
     ),
     
     ## Clustering  ----------------------------------------------------
     tabItem(tabName = "tab_cluster",
             h2("Clustering Analysis")
+    ),
+    
+    ## Decision Tree  ----------------------------------------------------
+    tabItem(tabName = "tab_dt",
+            h2("Prediction by Decision Tree")
     )
     
   )
@@ -544,6 +548,7 @@ server <- function(input, output) {
   
   # Analysis_Country Data Manipulation  ----------------------------------------------------
   
+    ## Select countrylist based on Region or Country Selection
   countrylist <- reactive({
     if(input$acou_reg_cou_ == "region"){
       unique(touristdata_clean$country)
@@ -558,7 +563,7 @@ server <- function(input, output) {
     }
   })
   
-  
+    ## Dataset selection for no outlier treatment
   acou_ANOVA <- reactive({
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
@@ -567,6 +572,7 @@ server <- function(input, output) {
       drop_na()
   })
   
+    ## Dataset selection for outlier treatment
   acou_ANOVA_nooutlier <- reactive({
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
@@ -576,6 +582,7 @@ server <- function(input, output) {
       treat_outliers() 
   })
   
+    ## Metrics text
   acou_ANOVA_metrics_text <- reactive({
     switch(input$acou_numvar_,
            "total_cost" = "Spending per Trip (TZS)",
@@ -588,10 +595,12 @@ server <- function(input, output) {
   
   # Analysis_Country Server  ----------------------------------------------------
   
+    ## Enable country selection when Country radio button is selected
   observe({
     toggleState(id = "acou_cou_", condition = input$acou_reg_cou_ == "country")
   })
   
+    ## Wrap the numerical plot in eventReactive based on Update Plot Button
   acou_num_plotreact <- eventReactive(
     input$acou_action_, {
       ggbetweenstats(data = if(input$acou_outliers_){acou_ANOVA_nooutlier()}else{acou_ANOVA()},
@@ -603,6 +612,7 @@ server <- function(input, output) {
                      package = "ggthemes", palette = "Tableau_10")
     })
   
+    ## Render the numerical plot
   output$acou_num_plot_ <- renderPlot({
     acou_num_plotreact()
   })
