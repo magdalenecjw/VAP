@@ -324,10 +324,10 @@ body <- dashboardBody(
                        
                        #### Analysis_Country Numerical ----------------------------------------------------
                        tabPanel(
-                         title = tags$p("Numerical Variables"),
+                         title = tags$p("Numerical Variables", style = "font-weight: bold;"),
                          fluidRow(
                            
-                           #### Analysis_Country Control Panel ----------------------------------------------------
+                           #### Analysis_Country Numerical Control Panel ----------------------------------------------------
                            column(width = 3,
                                   box(
                                     title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
@@ -378,7 +378,7 @@ body <- dashboardBody(
                                   
                            ),
                            
-                           #### Analysis_Country Graph ----------------------------------------------------
+                           #### Analysis_Country Numerical Plot ----------------------------------------------------
                            column(width = 9,
                                   plotOutput("acou_num_plot_")),
                            
@@ -386,7 +386,7 @@ body <- dashboardBody(
                        ),
                        
                        tabPanel(
-                         title = tags$p("Categorical Variables"),
+                         title = tags$p("Categorical Variables", style = "font-weight: bold;"),
                        )
                        
                        
@@ -513,8 +513,8 @@ server <- function(input, output) {
   output$dash_map_ <- renderTmap({
     tmap_mode("view")
     tmap_options(check.and.fix = TRUE) +
-    tm_shape(touristdata_clean_map %>%
-               filter(total_tourist >= input$dash_minvisitors_))+
+      tm_shape(touristdata_clean_map %>%
+                 filter(total_tourist >= input$dash_minvisitors_))+
       tm_fill(input$dash_mapmetric_, 
               n = input$dash_mapclasses_,
               style = input$dash_mapclassification_, 
@@ -545,18 +545,18 @@ server <- function(input, output) {
   # Analysis_Country Data Manipulation  ----------------------------------------------------
   
   countrylist <- reactive({
-      if(input$acou_reg_cou_ == "region"){
-        unique(touristdata_clean$country)
-      } else {
-        switch(input$acou_cou_,
-               "top_world" = unique(top_world_data$country[1:5]),
-               "top_europe" = unique(top_europe_data$country[1:5]),
-               "top_americas" = unique(top_americas_data$country[1:2]),
-               "top_africa" = unique(top_africa_data$country[1:5]),
-               "top_asia" = unique(top_asia_data$country[1:5]),
-               "top_oceania" = unique(top_oceania_data$country[1:2]))
-      }
-    })
+    if(input$acou_reg_cou_ == "region"){
+      unique(touristdata_clean$country)
+    } else {
+      switch(input$acou_cou_,
+             "top_world" = unique(top_world_data$country[1:5]),
+             "top_europe" = unique(top_europe_data$country[1:5]),
+             "top_americas" = unique(top_americas_data$country[1:2]),
+             "top_africa" = unique(top_africa_data$country[1:5]),
+             "top_asia" = unique(top_asia_data$country[1:5]),
+             "top_oceania" = unique(top_oceania_data$country[1:2]))
+    }
+  })
   
   
   acou_ANOVA <- reactive({
