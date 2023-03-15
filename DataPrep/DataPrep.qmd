@@ -25,16 +25,17 @@ pacman::p_load("ExPanDaR", "countrycode", "kableExtra", "tidyverse")
 touristdata <- read_csv("data/Train.csv")
 str(touristdata)
 ```
+
 ### 3. Dataset overview
 
 #### 3.1 Unique Countries
+
 ```{r}
 unique(touristdata$country)
 ```
 
-
-
 #### 3.2 Missing values
+
 ```{r}
 missing.values <- touristdata %>%
     gather(key = "key", value = "val") %>%
@@ -48,6 +49,7 @@ missing.values %>% kable()
 ```
 
 Visualising missing values
+
 ```{r}
 missing_values <- function(origin, vari = "country"){
 prepare_missing_values_graph(origin, ts_id = vari)
@@ -59,6 +61,7 @@ prepare_missing_values_graph(origin, ts_id = vari)
 #| fig-width: 10
 missing_values(touristdata, "country")
 ```
+
 ```{r}
 missing_values(touristdata, "age_group")
 ```
@@ -70,7 +73,6 @@ convertbinary <- function(x){
     as.factor(ifelse(x=="Yes", 1,0))
 }
 ```
-
 
 ```{r}
 touristdata_min_na <- touristdata %>%
@@ -104,11 +106,11 @@ missing.values.clean %>% kable()
 #| fig-width: 10
 missing_values(touristdata_min_na, "country")
 ```
+
 ```{r}
 touristdata_min_na %>%
   filter(country == "CHILE")
 ```
-
 
 ```{r}
 touristdata_no_na <- touristdata_min_na %>% drop_na()
@@ -120,7 +122,6 @@ touristdata_no_na
 ```{r}
 unique(touristdata_no_na$country) 
 ```
-
 
 ```{r}
 touristdata_clean <- touristdata_no_na %>% 
@@ -143,8 +144,6 @@ touristdata_clean <- touristdata_no_na %>%
 touristdata_clean
 ```
 
-
 ```{r}
 #write_csv(touristdata_clean,'C:/michaeldjo/VAP/DataPrep/data/touristdata_clean.csv')
 ```
-

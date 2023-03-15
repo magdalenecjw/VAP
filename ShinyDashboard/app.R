@@ -80,6 +80,11 @@ top_oceania_data <- touristdata_clean_country_sorted %>%
   filter(region == "Oceania") %>%
   arrange(desc(total_cost))
 
+# Convert binary function  ----------------------------------------------------
+
+convertbinary <- function(x){
+  ifelse(x==1,"Yes","No")
+}
 
 #========================#
 ###### Custom Theme ######
@@ -322,6 +327,7 @@ body <- dashboardBody(
                          tabBox(
                            title = h3("Hypothesis Testing"),
                            width = 12,
+                           height = "80vh",
                            
                            #### Analysis_Country Numerical ----------------------------------------------------
                            tabPanel(
@@ -378,13 +384,67 @@ body <- dashboardBody(
                                
                                #### Analysis_Country Numerical Plot ----------------------------------------------------
                                column(width = 9,
-                                      plotOutput("acou_num_plot_")),
+                                      plotOutput("acou_num_plot_",
+                                                 height = "65vh")
+                               ),
                                
                              )
                            ),
                            
                            tabPanel(
                              title = tags$p("Categorical Variables", style = "font-weight: bold;"),
+                             fluidRow(
+                               
+                               #### Analysis_Country Categorical Control Panel ----------------------------------------------------
+                               column(width = 3,
+                                      box(
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        status = "primary",
+                                        background = "aqua",
+                                        solidHeader = TRUE,
+                                        collapsible = FALSE,
+                                        width = 12,
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            selectInput(inputId = "acou_catvar_",
+                                                        label = "Select y-axis:",
+                                                        choices = list("Age group" = "age_group", 
+                                                                       "Travelling with" = "travel_with", 
+                                                                       "Trip purpose" = "purpose",
+                                                                       "Main activity" = "main_activity",
+                                                                       "Source of information" = "info_source",
+                                                                       "Tour arrangement" = "tour_arrangement",
+                                                                       "Incl. int'l. transport?" = "package_transport_int",
+                                                                       "Incl. accom?" = "package_accomodation",
+                                                                       "Incl. food?" = "package_food",
+                                                                       "Incl. dom. transport?" = "package_transport_tz",
+                                                                       "Incl. sightseeing?" = "package_sightseeing",
+                                                                       "Incl. guided tour?" = "package_guided_tour",
+                                                                       "Incl. insurance?" = "package_insurance",
+                                                                       "Mode of payment" = "payment_mode",
+                                                                       "First trip to TZA?" = "first_trip_tz",
+                                                                       "Most impressive attr." = "most_impressing"),
+                                                        selected = "age_group")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            selectInput(inputId = "acou_catlabel_",
+                                                        label = "Label:",
+                                                        choices = list("Percentage" = "percentage", 
+                                                                       "Counts" = "counts"),
+                                                        selected = "percentage")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            actionButton(inputId = "acou_cat_action_", 
+                                                         label = "Update plot"))
+                                        
+                                      )
+                               ),
+                               
+                               #### Analysis_Country Categorical Plot ----------------------------------------------------
+                               column(width = 9,
+                                      plotOutput("acou_cat_plot_",
+                                                 height = "65vh")
+                               )
+                             )
                            )
                          )
                          
@@ -548,7 +608,7 @@ server <- function(input, output) {
   
   # Analysis_Country Data Manipulation  ----------------------------------------------------
   
-    ## Select countrylist based on Region or Country Selection
+  ## Select countrylist based on Region or Country Selection
   countrylist <- reactive({
     if(input$acou_reg_cou_ == "region"){
       unique(touristdata_clean$country)
@@ -563,7 +623,7 @@ server <- function(input, output) {
     }
   })
   
-    ## Dataset selection for no outlier treatment
+  ## Dataset selection for no outlier treatment
   acou_ANOVA <- reactive({
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
@@ -572,7 +632,7 @@ server <- function(input, output) {
       drop_na()
   })
   
-    ## Dataset selection for outlier treatment
+  ## Dataset selection for outlier treatment
   acou_ANOVA_nooutlier <- reactive({
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
@@ -582,7 +642,16 @@ server <- function(input, output) {
       treat_outliers() 
   })
   
-    ## Metrics text
+  ## Dataset selection categorical
+  acou_barstats <- reactive({
+    touristdata_clean %>%
+      filter(country %in% countrylist()) %>%
+      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+      mutate(across(first_trip_tz, convertbinary)) %>%
+      drop_na()
+  })
+  
+  ## Numerical Metrics text
   acou_ANOVA_metrics_text <- reactive({
     switch(input$acou_numvar_,
            "total_cost" = "Spending per Trip (TZS)",
@@ -593,14 +662,37 @@ server <- function(input, output) {
            "prop_night_spent_mainland" = "Proportion of Night Spent in Mainland")
   })
   
+  ## Categorical Metrics text
+  acou_bar_metrics_text <- reactive({
+    switch(input$acou_catvar_,
+           "age_group" = "Age group",
+           "travel_with" = "Travelling with",
+           "purpose" = "Trip purpose",
+           "main_activity" = "Main activity",
+           "info_source" = "Source of information",
+           "tour_arrangement" = "Tour arrangement",
+           "package_transport_int" = "Incl. int'l. transport?",
+           "package_accomodation" = "Incl. accom?",
+           "package_food" = "Incl. food?",
+           "package_transport_tz" = "Incl. dom. transport?",
+           "package_sightseeing" = "Incl. sightseeing?",
+           "package_guided_tour" = "Incl. guided tour?",
+           "package_insurance" = "Incl. insurance?",
+           "payment_mode" = "Mode of payment",
+           "first_trip_tz" = "First trip to TZA?",
+           "most_impressing" = "Most impressive attr."
+    )
+  })
+  
+  
   # Analysis_Country Server  ----------------------------------------------------
   
-    ## Enable country selection when Country radio button is selected
+  ## Enable country selection when Country radio button is selected
   observe({
     toggleState(id = "acou_cou_", condition = input$acou_reg_cou_ == "country")
   })
   
-    ## Wrap the numerical plot in eventReactive based on Update Plot Button
+  ## Wrap the numerical plot in eventReactive based on Update Plot Button
   acou_num_plotreact <- eventReactive(
     input$acou_action_, {
       ggbetweenstats(data = if(input$acou_outliers_){acou_ANOVA_nooutlier()}else{acou_ANOVA()},
@@ -612,9 +704,25 @@ server <- function(input, output) {
                      package = "ggthemes", palette = "Tableau_10")
     })
   
-    ## Render the numerical plot
+  ## Wrap the categorical plot in eventReactive based on Update Plot Button
+  acou_cat_plotreact <- eventReactive(
+    input$acou_cat_action_, {
+      ggbarstats(data = acou_barstats(),
+                 x = !!sym(input$acou_catvar_), y = !!sym(input$acou_reg_cou_),
+                 xlab = str_to_title(input$acou_reg_cou_), ylab = acou_bar_metrics_text(),
+                 legend.title = acou_bar_metrics_text(),
+                 type = input$acou_test_, conf.level = input$acou_cf_, label = input$acou_catlabel_,
+                 package = "ggthemes", palette = "Tableau_10")
+    })
+  
+  ## Render the numerical plot
   output$acou_num_plot_ <- renderPlot({
     acou_num_plotreact()
+  })
+  
+  ## Render the categorical plot
+  output$acou_cat_plot_ <- renderPlot({
+    acou_cat_plotreact()
   })
   
   
