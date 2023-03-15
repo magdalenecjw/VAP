@@ -426,7 +426,7 @@ body <- dashboardBody(
                                                         selected = "age_group")),
                                         div(style = "padding = 0em; margin-top: 0em",
                                             selectInput(inputId = "acou_catlabel_",
-                                                        label = "Label:",
+                                                        label = "Select label:",
                                                         choices = list("Percentage" = "percentage", 
                                                                        "Counts" = "counts"),
                                                         selected = "percentage")),
