@@ -1,0 +1,37 @@
+---
+title: "Exploratory Data Analysis"
+author: "Habari Tanzania"
+date: 14 Feb 2023
+date-modified: "`r Sys.Date()`"
+execute: 
+  echo: true
+  eval: true
+  warning: false
+format: html
+editor: visual
+---
+
+```{r}
+pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales","tidyverse")
+```
+
+
+## 2. Loading the data
+
+
+```{r}
+touristdata_clean <- read_csv("data/touristdata_clean.csv")
+```
+
+
+## 3. Correlation
+
+
+
+```{r}
+plotcorrelation_costppvtn <- 
+  ggscatterstats(data = touristdata_clean)
+  
+  
+```
+

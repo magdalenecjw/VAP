@@ -24,6 +24,7 @@ touristdata_clean <- read_csv("data/touristdata_clean.csv")
 ```
 
 ### 2.1 Adding cost per pax
+
 ```{r}
 touristdata_clean <- touristdata_clean %>%
   filter(total_cost > 0,
@@ -33,8 +34,6 @@ touristdata_clean <- touristdata_clean %>%
          cost_per_night = round(total_cost/total_night_spent,0),
          cost_per_pax_night = round(total_cost/total_tourist/total_night_spent,0))
 ```
-
-
 
 ## 3. Data overview
 
@@ -149,7 +148,7 @@ tm_shape(touristdata_clean_map %>%
   tm_fill(metric, 
           n = classes,
           style = style, 
-          palette="YlOrBr", 
+          palette="YlGn", 
           id = "country",
           title = metric_text
           ) +
@@ -169,7 +168,7 @@ Note:
 1.  Majority of tourists come from US, Western Europe, and South Africa
 2.  Many outliers in individual average spending, so only focus on countries with at least 20 visitors, then it's revealed that Australians spend the highest, followed by Americans and Canadians.
 
-### 4.2 CDA by Regions 
+### 4.2 CDA by Regions
 
 #### 4.2.1 For Numerical Variables
 
@@ -222,18 +221,18 @@ touristdata_ANOVA %>%
 plot_ANOVA_region(metric = "cost_per_pax_night", minvisitors = 30, testtype = "np", pair = "ns", compare = T, conf = 0.95, nooutliers = T)
 ```
 
-Note:
-Outliers can be treated
-Ability to exclude countries with less than minvisitors limit
+Note: Outliers can be treated Ability to exclude countries with less than minvisitors limit
 
 1.  Oceania visitors spend the most while African visitors tends to spend the least
 
 ```{r}
 plot_ANOVA_region(metric = "prop_night_spent_mainland", minvisitors = 30, testtype = "np", pair = "ns", conf = 0.95)
 ```
+
 Note : European customers spend more time in Zanzibar
 
 #### 4.2.2 For Categorical Variables
+
 ```{r}
 plot_barstats_region <- function(metric = "purpose", minvisitors = 30, testtype = "np",conf = 0.95) {
   
@@ -289,10 +288,10 @@ plot_barstats_region(metric = "package_insurance", minvisitors = 30, testtype = 
 plot_barstats_region(metric = "first_trip_tz", minvisitors = 30, testtype = "np", conf = 0.95)
 ```
 
-
 ### 4.3 CDA by Selected Countries
 
 Examining the largest spender by country
+
 ```{r}
 touristdata_clean_country_sorted <- touristdata_clean_country %>%
   filter(total_cost > 0,
@@ -349,12 +348,13 @@ touristdata_ANOVA %>%
 ```{r}
 plot_ANOVA_country(metric = "cost_per_pax_night", selected_countries = top8, testtype = "np", pair = "ns", compare = F, conf = 0.95, nooutliers = T)
 ```
-Majority of big spender indeed comes from Australia, followed by US, Canada, New Zealand, Denmark, and South Africa.
-However, it is noted that there is no statistically significant difference among many of them
+
+Majority of big spender indeed comes from Australia, followed by US, Canada, New Zealand, Denmark, and South Africa. However, it is noted that there is no statistically significant difference among many of them
 
 ```{r}
 plot_ANOVA_country(metric = "prop_night_spent_mainland", selected_countries = top8, testtype = "np", pair = "ns", conf = 0.95)
 ```
+
 #### 4.3.2 For Categorical Variables
 
 ```{r}
@@ -449,6 +449,7 @@ plot_scatter(xaxis = "total_tourist", yaxis = "total_cost", regionlist = c("Euro
 ```
 
 ### 5.2 For Categorical Variables
+
 ```{r}
 plot_ANOVA <- function(xaxis = "age_group", yaxis = "total_cost", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np", pair = "ns",conf = 0.95, nooutliers = T) {
   
@@ -566,6 +567,7 @@ touristdata_barstats %>%
 ```{r}
 plot_barstats(xaxis = "age_group", yaxis = "purpose", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np",conf = 0.95)
 ```
+
 ```{r}
 plot_barstats(xaxis = "main_activity", yaxis = "tour_arrangement", regionlist = c("Asia", "Africa", "Europe", "Oceania", "Americas"), testtype = "np",conf = 0.95)
 ```
