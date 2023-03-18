@@ -109,6 +109,6 @@
     "href": "EDA/EDA.html#country-comparision",
     "title": "Exploratory Data Analysis",
     "section": "4. Country comparision",
-    "text": "4. Country comparision\n\noptions(scipen = 999)\n\np1 <- ggplot(data = touristdata_clean %>% filter(country == \"GERMANY\") %>% group_by(tour_arrangement),\n                 aes(y = total_cost, x = main_activity)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette=\"YlGnBu\") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))\n\np1"
+    "text": "4. Country comparision\n\noptions(scipen = 999)\n\np1 <- ggplot(data = touristdata_clean %>% filter(country == \"GERMANY\") %>% group_by(tour_arrangement),\n                 aes(y = total_cost, x = age_group)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette=\"YlGnBu\") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))\n\np1"
   }
 ]

@@ -71,7 +71,7 @@ plotcorrelation_costppvtn ("info_source")
 options(scipen = 999)
 
 p1 <- ggplot(data = touristdata_clean %>% filter(country == "GERMANY") %>% group_by(tour_arrangement),
-                 aes(y = total_cost, x = main_activity)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette="YlGnBu") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+                 aes(y = total_cost, x = age_group)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette="YlGnBu") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 p1
   
