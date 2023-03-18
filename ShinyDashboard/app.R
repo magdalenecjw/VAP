@@ -643,6 +643,9 @@ server <- function(input, output) {
                   pageLength = 5, 
                   lengthMenu = c(5, 10),
                   autoWidth = TRUE,
+                  columnDefs = list(
+                    list(className = 'dt-center', targets = "_all"),
+                    list(width = '10px', targets = c(1))),
                   info = FALSE,
                   scrollX = TRUE)),
       c(3,4,6,7), currency = '', 
