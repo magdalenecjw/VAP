@@ -810,7 +810,8 @@ server <- function(input, output) {
                      xlab = str_to_title(input$acou_reg_cou_), ylab = acou_ANOVA_metrics_text(),
                      type = input$acou_test_, pairwise.comparisons = input$acou_compare_, pairwise.display = input$acou_w_compare_, 
                      mean.ci = T, p.adjust.method = "fdr",  conf.level = input$acou_cf_,
-                     package = "ggthemes", palette = "Tableau_10")
+                     package = "ggthemes", palette = "Tableau_10") +
+        scale_y_continuous(labels = comma)
     })
   
   ## Wrap the categorical plot in eventReactive based on Update Plot Button
