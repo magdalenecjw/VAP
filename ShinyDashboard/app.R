@@ -379,13 +379,14 @@ body <- dashboardBody(
               column(width = 10,
                      div(style = "padding = 0em; margin-left: -2em",
                          tabBox(
-                           title = h3("Hypothesis Testing"),
+                           #title = h3("Hypothesis Testing"),
+                           title = htmlOutput("spend_title_"),
                            width = 12,
                            height = "80vh",
                            
                            #### Analysis_Spending Scatter ----------------------------------------------------
                            tabPanel(
-                             title = tags$p("Individual Spending vs Night Spent by Category", style = "font-weight: bold;"),
+                             title = tags$p("Ind. Spending vs Night Spent by Category", style = "font-weight: bold;"),
                              fluidRow(
                                
                                #### Analysis_Spending Scatterplot Control Panel ----------------------------------------------------
@@ -420,7 +421,7 @@ body <- dashboardBody(
                            
                            #### Analysis_Spending Box ----------------------------------------------------
                            tabPanel(
-                             title = tags$p("Spending by Other Factors", style = "font-weight: bold;"),
+                             title = tags$p("Spending by Category", style = "font-weight: bold;"),
                              fluidRow(
                                
                                #### Analysis_Spending Boxviolin Control Panel ----------------------------------------------------
@@ -1010,26 +1011,28 @@ server <- function(input, output) {
       treat_outliers() 
   })
   
-  spend_category_text <- reactive({
-    switch(input$spend_cat_,
-           "age_group" = "Age group",
-           "travel_with" = "Travelling with",
-           "purpose" = "Trip purpose",
-           "main_activity" = "Main activity",
-           "info_source" = "Source of information",
-           "tour_arrangement" = "Tour arrangement",
-           "package_transport_int" = "Incl. int'l. transport?",
-           "package_accomodation" = "Incl. accom?",
-           "package_food" = "Incl. food?",
-           "package_transport_tz" = "Incl. dom. transport?",
-           "package_sightseeing" = "Incl. sightseeing?",
-           "package_guided_tour" = "Incl. guided tour?",
-           "package_insurance" = "Incl. insurance?",
-           "payment_mode" = "Mode of payment",
-           "first_trip_tz" = "First trip to TZA?",
-           "most_impressing" = "Most impressive attr."
+  spend_category_text <- eventReactive(
+    c(input$spend_scatter_action_, input$spend_boxplot_action_),
+    ignoreInit = TRUE,
+    {switch(input$spend_cat_,
+            "age_group" = "Age group",
+            "travel_with" = "Travelling with",
+            "purpose" = "Trip purpose",
+            "main_activity" = "Main activity",
+            "info_source" = "Source of information",
+            "tour_arrangement" = "Tour arrangement",
+            "package_transport_int" = "Incl. int'l. transport?",
+            "package_accomodation" = "Incl. accom?",
+            "package_food" = "Incl. food?",
+            "package_transport_tz" = "Incl. dom. transport?",
+            "package_sightseeing" = "Incl. sightseeing?",
+            "package_guided_tour" = "Incl. guided tour?",
+            "package_insurance" = "Incl. insurance?",
+            "payment_mode" = "Mode of payment",
+            "first_trip_tz" = "First trip to TZA?",
+            "most_impressing" = "Most impressive attr."
     )
-  })
+    })
   
   ## Numerical Metrics text
   spend_yaxis_text <- reactive({
@@ -1042,6 +1045,12 @@ server <- function(input, output) {
   
   
   # Analysis_Spend Server  ----------------------------------------------------
+  
+  ## Title panel
+  output$spend_title_ <- renderText({
+    paste("<h3>by ", spend_category_text(),  "</h3>")
+    
+  })
   
   ## Wrap the scatter plot in eventReactive based on Update Plot Button
   spend_scatter_plotreact <- eventReactive(
