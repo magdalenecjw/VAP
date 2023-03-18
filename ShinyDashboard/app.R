@@ -157,7 +157,7 @@ sidebar <- dashboardSidebar(
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
              menuSubItem("Analysis by Region", tabName = "tab_country",icon = icon("earth-africa")),
-             menuSubItem("Spending by Country", tabName = "tab_country_compare"),
+             menuSubItem("Spending by Country", tabName = "tab_country_compare",icon = icon("earth-europe")),
              menuSubItem("Correlation on Spending", tabName = "tab_corr", icon = icon("sack-dollar"))
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
