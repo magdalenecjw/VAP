@@ -50,6 +50,24 @@ touristdata_clean_map <- left_join(World,
 touristdata_clean_country_sorted <- touristdata_clean_country %>%
   arrange(desc(total_cost))
 
+# Cumulative sum of total cost for Pareto Chart ----------------------------------------------------
+touristdata_clean_country_cum <- touristdata_clean_country_sorted %>%
+  select(country, code, total_cost) %>%
+  mutate(cumfreq = cumsum(total_cost)) %>%
+  mutate(cum = cumsum(total_cost)/sum(total_cost)) %>%
+  slice_head(n = 5)
+
+# Aggregation and sorting by total_tourist ----------------------------------------------------
+touristdata_clean_country_sorted_tourist <- touristdata_clean_country %>%
+  arrange(desc(total_tourist))
+
+# Cumulative sum of total visitor for Pareto Chart ----------------------------------------------------
+touristdata_clean_country_cum_tourist <- touristdata_clean_country_sorted_tourist %>%
+  select(country, code, total_tourist) %>%
+  mutate(cumfreq = cumsum(total_tourist)) %>%
+  mutate(cum = cumsum(total_tourist)/sum(total_tourist)) %>%
+  slice_head(n = 5)
+
 # Finding Top Countries by total_cost ----------------------------------------------------
 
 top_world_data <- touristdata_clean_country_sorted %>%
@@ -245,7 +263,7 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-left: -1.5em",
                                   tmapOutput("dash_map_", 
                                              width = "100%",
-                                             height = 450)
+                                             height = "57vh")
                               )
                        )
                      ),
@@ -265,7 +283,33 @@ body <- dashboardBody(
                            ))
                      ),
                      
-                     fluidRow()
+                     
+                     fluidRow(
+                       div(style = "padding = 0em; margin-top: -2em; margin-left: -1em; margin-right: -0.5em",
+                           tabBox(
+                             title = tags$p("Top 5 Countries", style = "font-family: sans-serif; font-weight: bold; font-size: 90%"),
+                             width = 12,
+                             
+                             tabPanel(
+                               title = tags$p("By spending", style = "font-weight: bold;"),
+                               plotlyOutput("dash_spending_pareto_",
+                                            height = "30vh",
+                                            width = "100%")
+                             ),
+                             
+                             tabPanel(
+                               title = tags$p("By visitors", style = "font-weight: bold;"),
+                               plotlyOutput("dash_visitor_pareto_",
+                                            height = "30vh",
+                                            width = "100%")
+                             )
+                             
+                             
+                             
+                           )
+                           
+                       )
+                     )
                      
               )
             )
@@ -498,14 +542,14 @@ server <- function(input, output) {
   dash_touristdatatable <- reactive({
     touristdata_clean_country_sorted %>%
       filter(total_tourist >= input$dash_minvisitors_) %>%
-      select(!c(2,3,4,5,9,11,14)) %>%
-      rename("Country of Origin" = "country",
+      select(!c(1,3,4,5,9,11,14)) %>%
+      rename("Country" = "code",
              "Total Visitors" = "total_tourist",
-             "Total Spending" = "total_cost",
-             "Average Night Spent" = "avg_night_spent",
-             "Average Spending per Trip" = "avg_cost",
-             "Average Spending per Night" = "cost_per_night",
-             "Average Individual Spending per Night" = "cost_per_pax_night"
+             "Total TZS" = "total_cost",
+             "Avg Nights" = "avg_night_spent",
+             "Avg TZS/Trip" = "avg_cost",
+             "Avg TZS/Night" = "cost_per_night",
+             "Avg TZS/pax/Night" = "cost_per_pax_night"
       )
   })
   
@@ -597,12 +641,60 @@ server <- function(input, output) {
                 class = "compact",
                 options = list(
                   pageLength = 5, 
+                  lengthMenu = c(5, 10),
                   autoWidth = TRUE,
+                  info = FALSE,
                   scrollX = TRUE)),
-      c(3,4,6,7), currency = 'TZS ', 
+      c(3,4,6,7), currency = '', 
       interval = 3, 
       mark = ',', digits = 0
     )
+  })
+  
+  output$dash_spending_pareto_ <- renderPlotly({
+    
+    t_spending_yaxis <- list(size = 12)
+    
+    plot_ly(touristdata_clean_country_cum) %>%
+      add_trace(x = ~reorder(`code`,-`total_cost`), 
+                y = ~`total_cost`, 
+                type = "bar", name = "Total Spending",
+                marker = list(color = "#A0DDE6"),
+                hovertemplate = paste(touristdata_clean_country_cum$country,": TZS",format(round(touristdata_clean_country_cum$total_cost / 1e9, 2), trim = TRUE), "B")) %>%
+      add_trace(x = ~reorder(`code`,-`total_cost`), 
+                y = ~`cum`*100,
+                type = "scatter", mode = "lines", 
+                yaxis = "y2", name = "Cum. %",
+                hovertemplate = paste(touristdata_clean_country_cum$country,": %{y:.2f}","%")) %>%
+      layout(autosize = TRUE,
+             xaxis = list(title = ""),
+             yaxis = list(title = list(text = "Total Spending", font = t_spending_yaxis), showgrid = F),
+             yaxis2 = list(overlaying = "y", side = "right", range = list(0, 100), showticklabels = FALSE),
+             legend = list(orientation="h", yanchor="bottom",y=0.9,xanchor="top",x=0.2)) 
+    
+  })
+  
+  output$dash_visitor_pareto_ <- renderPlotly({
+    
+    t_visitor_yaxis <- list(size = 12)
+    
+    plot_ly(touristdata_clean_country_cum_tourist) %>%
+      add_trace(x = ~reorder(`code`,-`total_tourist`), 
+                y = ~`total_tourist`, 
+                type = "bar", name = "Total Visitors",
+                marker = list(color = "#A0DDE6"),
+                hovertemplate = paste(touristdata_clean_country_cum_tourist$country,": ",touristdata_clean_country_cum_tourist$total_tourist)) %>%
+      add_trace(x = ~reorder(`code`,-`total_tourist`), 
+                y = ~`cum`*100,
+                type = "scatter", mode = "lines", 
+                yaxis = "y2", name = "Cum. %",
+                hovertemplate = paste(touristdata_clean_country_cum_tourist$country,": %{y:.2f}","%")) %>%
+      layout(autosize = TRUE,
+             xaxis = list(title = ""),
+             yaxis = list(title = list(text = "Total Visitors", font = t_visitor_yaxis), showgrid = F),
+             yaxis2 = list(overlaying = "y", side = "right", range = list(0, 100), showticklabels = FALSE),
+             legend = list(orientation="h", yanchor="bottom",y=0.9,xanchor="top",x=0.2)) 
+    
   })
   
   
@@ -695,6 +787,7 @@ server <- function(input, output) {
   ## Wrap the numerical plot in eventReactive based on Update Plot Button
   acou_num_plotreact <- eventReactive(
     input$acou_action_, {
+      options(scipen = 999)
       ggbetweenstats(data = if(input$acou_outliers_){acou_ANOVA_nooutlier()}else{acou_ANOVA()},
                      x = !!sym(input$acou_reg_cou_), y = !!sym(input$acou_numvar_),
                      plot.type = input$acou_plottype_,
