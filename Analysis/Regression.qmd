@@ -1,5 +1,5 @@
 ---
-title: "Regression"
+title: "Decision Tree"
 author: "Habari Tanzania"
 date: 11 Mar 2023
 date-modified: "`r Sys.Date()`"
@@ -11,4 +11,40 @@ format: html
 editor: visual
 ---
 
-Test
+# Load Packages and Data
+
+```{r}
+pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork)
+```
+
+```{r}
+df <- read_csv("data/touristdata_clean.csv")
+
+df_analysis <- df %>% 
+  select(!ID) %>% 
+  select(!code) %>% 
+  select(!country)
+```
+
+```{r}
+anova.model <- function(min_split, complexity_parameter, max_depth) {
+  rpart(total_cost ~ region + age_group + travel_with + total_tourist + purpose + main_activity + info_source + tour_arrangement + package_transport_int + package_accomodation + package_food + package_transport_tz + package_sightseeing + package_guided_tour + package_insurance + total_night_spent + prop_night_spent_mainland + payment_mode + first_trip_tz + most_impressing, data = df_analysis, 
+        method = "anova", 
+        control = rpart.control(minsplit = min_split, 
+                                cp = complexity_parameter, 
+                                maxdepth = max_depth))
+  }
+
+fit_tree <- anova.model(5, 0.002, 10)
+```
+
+```{r}
+printcp(fit_tree)
+```
+
+```{r}
+bestcp <- fit_tree$cptable[which.min(fit_tree$cptable[,"xerror"]),"CP"]
+pruned_tree <- prune(fit_tree, cp = bestcp)
+
+visTree(pruned_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
+```
