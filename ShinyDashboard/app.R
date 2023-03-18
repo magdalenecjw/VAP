@@ -61,6 +61,9 @@ touristdata_clean_country_cum <- touristdata_clean_country_sorted %>%
 touristdata_clean_country_sorted_tourist <- touristdata_clean_country %>%
   arrange(desc(total_tourist))
 
+top_world_data_tourist <- touristdata_clean_country_sorted_tourist %>%
+  filter(total_tourist >= 30)
+
 # Cumulative sum of total visitor for Pareto Chart ----------------------------------------------------
 touristdata_clean_country_cum_tourist <- touristdata_clean_country_sorted_tourist %>%
   select(country, code, total_tourist) %>%
@@ -551,7 +554,9 @@ body <- dashboardBody(
                                                           "Mode of payment" = "payment_mode",
                                                           "First trip to TZA?" = "first_trip_tz"),
                                            selected = "tour_arrangement")),
-                           div(style = "padding = 0em; margin-top: -1em",
+                           div(style = "padding = 0em; margin-top: 0em",
+                               tags$p("Press button below to update graph", style = "font-style: italic;")),
+                           div(style = "padding = 0em; margin-top: 0em",
                                actionButton(inputId = "acomp_eda_action_", 
                                             label = "Update plot"))
                          )
@@ -570,11 +575,13 @@ body <- dashboardBody(
                              column(width = 6,
                                     align = "center",
                                     fluidRow(
-                                      selectInput(inputId = "acomp_country1_",
-                                                  width = "60%",
-                                                  label = "Select country:",
-                                                  choices = unique(top_world_data$country),
-                                                  selected = "GERMANY")
+                                      selectizeInput(inputId = "acomp_country1_",
+                                                     width = "60%",
+                                                     label = "Select country:",
+                                                     choices = unique(top_world_data_tourist$country),
+                                                     selected = "GERMANY"),
+                                      div(style = "padding = 0em; margin-top: -1.5em",
+                                          tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
                                     ),
                                     fluidRow(
                                       plotlyOutput("acomp_eda_country1_",
@@ -587,11 +594,13 @@ body <- dashboardBody(
                              column(width = 6,
                                     align = "center",
                                     fluidRow(
-                                      selectInput(inputId = "acomp_country2_",
-                                                  width = "60%",
-                                                  label = "Select country:",
-                                                  choices = unique(top_world_data$country),
-                                                  selected = "AUSTRALIA")
+                                      selectizeInput(inputId = "acomp_country2_",
+                                                     width = "60%",
+                                                     label = "Select country:",
+                                                     choices = unique(top_world_data_tourist$country),
+                                                     selected = "AUSTRALIA"),
+                                      div(style = "padding = 0em; margin-top: -1.5em",
+                                          tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
                                     ),
                                     fluidRow(
                                       plotlyOutput("acomp_eda_country2_",
@@ -941,32 +950,32 @@ server <- function(input, output) {
   ## Boxplot1 data
   acomp_boxplot1_data <- eventReactive(
     input$acomp_eda_action_,{
-    touristdata_clean %>%
-      filter(country == input$acomp_country1_) %>%
-      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
-      mutate(across(first_trip_tz, convertbinary)) %>%
-      group_by(!!sym(input$acomp_grvar_)) %>%
-      drop_na()
-  })
+      touristdata_clean %>%
+        filter(country == input$acomp_country1_) %>%
+        mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+        mutate(across(first_trip_tz, convertbinary)) %>%
+        group_by(!!sym(input$acomp_grvar_)) %>%
+        drop_na()
+    })
   
   ## Boxplot2 data
   acomp_boxplot2_data <- eventReactive(
     input$acomp_eda_action_,{
-    touristdata_clean %>%
-      filter(country == input$acomp_country2_) %>%
-      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
-      mutate(across(first_trip_tz, convertbinary)) %>%
-      group_by(!!sym(input$acomp_grvar_)) %>%
-      drop_na()
-  })
+      touristdata_clean %>%
+        filter(country == input$acomp_country2_) %>%
+        mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+        mutate(across(first_trip_tz, convertbinary)) %>%
+        group_by(!!sym(input$acomp_grvar_)) %>%
+        drop_na()
+    })
   
   ## Calculating y-axis limit
   acomp_boxplot_summary <- eventReactive(
     input$acomp_eda_action_, {
-    touristdata_clean %>%
-      filter(country %in% c(input$acomp_country1_, input$acomp_country2_)) %>%
-      summarise(max = max(!!sym(input$acomp_yvar_)))
-  })
+      touristdata_clean %>%
+        filter(country %in% c(input$acomp_country1_, input$acomp_country2_)) %>%
+        summarise(max = max(!!sym(input$acomp_yvar_)))
+    })
   
   acomp_max_limit <- eventReactive(input$acomp_eda_action_,{acomp_boxplot_summary()$max})
   
