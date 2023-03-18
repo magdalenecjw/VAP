@@ -507,7 +507,108 @@ body <- dashboardBody(
     
     ## Comparison by Country  ----------------------------------------------------
     tabItem(tabName = "tab_country_compare",
-            h2("Comparing Spending by Country")
+            h3("Comparing Spending by Country"),
+            fluidRow(
+              ### Analysis_Compare First Column  ----------------------------------------------------
+              column(width = 2,
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("Panel", style = "color: #FFF; font-weight: bold;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = FALSE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               selectInput(inputId = "acomp_yvar_",
+                                           label = "Select y-axis:",
+                                           choices = list("Spending per Trip" = "total_cost", 
+                                                          "Individual Spending per Trip" = "cost_per_pax", 
+                                                          "Spending per Night" = "cost_per_night",
+                                                          "Individual Spending per Night" = "cost_per_pax_night"),
+                                           selected = "total_cost")),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               selectInput(inputId = "acomp_xvar_",
+                                           label = "Select x-axis:",
+                                           choices = list("Age group" = "age_group", 
+                                                          "Travelling with" = "travel_with", 
+                                                          "Trip purpose" = "purpose",
+                                                          "Main activity" = "main_activity",
+                                                          "Source of information" = "info_source",
+                                                          "Most impressive attr." = "most_impressing"),
+                                           selected = "age_group")),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               selectInput(inputId = "acomp_grvar_",
+                                           label = "Select group:",
+                                           choices = list("Tour arrangement" = "tour_arrangement",
+                                                          "Incl. int'l. transport?" = "package_transport_int",
+                                                          "Incl. accom?" = "package_accomodation",
+                                                          "Incl. food?" = "package_food",
+                                                          "Incl. dom. transport?" = "package_transport_tz",
+                                                          "Incl. sightseeing?" = "package_sightseeing",
+                                                          "Incl. guided tour?" = "package_guided_tour",
+                                                          "Incl. insurance?" = "package_insurance",
+                                                          "Mode of payment" = "payment_mode",
+                                                          "First trip to TZA?" = "first_trip_tz"),
+                                           selected = "tour_arrangement")),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               actionButton(inputId = "acomp_eda_action_", 
+                                            label = "Update plot"))
+                         )
+                     )
+              ),
+              
+              ### Analysis_Compare Second Column  ----------------------------------------------------
+              column(width = 10,
+                     div(style = "padding = 0em; margin-left: -2em",
+                         box(
+                           status = "primary",
+                           width = 12,
+                           collapsible = FALSE,
+                           fluidRow(
+                             ##### Analysis_Compare EDA First Country ----------------------------------------------------
+                             column(width = 6,
+                                    align = "center",
+                                    fluidRow(
+                                      selectInput(inputId = "acomp_country1_",
+                                                  width = "60%",
+                                                  label = "Select country:",
+                                                  choices = unique(top_world_data$country),
+                                                  selected = "GERMANY")
+                                    ),
+                                    fluidRow(
+                                      plotlyOutput("acomp_eda_country1_",
+                                                   height = "65vh",
+                                                   width = "90%")
+                                    )
+                             ),
+                             
+                             ##### Analysis_Compare EDA Second Country ----------------------------------------------------
+                             column(width = 6,
+                                    align = "center",
+                                    fluidRow(
+                                      selectInput(inputId = "acomp_country2_",
+                                                  width = "60%",
+                                                  label = "Select country:",
+                                                  choices = unique(top_world_data$country),
+                                                  selected = "AUSTRALIA")
+                                    ),
+                                    fluidRow(
+                                      plotlyOutput("acomp_eda_country2_",
+                                                   height = "65vh",
+                                                   width = "90%")
+                                    )
+                             )
+                           )
+                         )
+                         
+                         
+                         
+                     )
+                     
+              )
+              
+            )
     ),
     
     ## Analysis by Impact on Spending  ----------------------------------------------------
@@ -627,7 +728,7 @@ server <- function(input, output) {
   })
   
   output$dash_map_ <- renderTmap({
-
+    
     tmap_mode("view")
     tmap_options(check.and.fix = TRUE) +
       tm_shape(touristdata_clean_map %>%
@@ -643,8 +744,8 @@ server <- function(input, output) {
       tm_view(view.legend.position = c("left","bottom")) +
       tm_borders(col = "grey20",
                  alpha = 0.5) 
-      
-      
+    
+    
   })
   
   output$dash_datatable_ <- DT::renderDataTable({
@@ -835,7 +936,134 @@ server <- function(input, output) {
     acou_cat_plotreact()
   })
   
+  # Analysis_Compare Data Manipulation  ----------------------------------------------------
   
+  ## Boxplot1 data
+  acomp_boxplot1_data <- eventReactive(
+    input$acomp_eda_action_,{
+    touristdata_clean %>%
+      filter(country == input$acomp_country1_) %>%
+      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+      mutate(across(first_trip_tz, convertbinary)) %>%
+      group_by(!!sym(input$acomp_grvar_)) %>%
+      drop_na()
+  })
+  
+  ## Boxplot2 data
+  acomp_boxplot2_data <- eventReactive(
+    input$acomp_eda_action_,{
+    touristdata_clean %>%
+      filter(country == input$acomp_country2_) %>%
+      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+      mutate(across(first_trip_tz, convertbinary)) %>%
+      group_by(!!sym(input$acomp_grvar_)) %>%
+      drop_na()
+  })
+  
+  ## Calculating y-axis limit
+  acomp_boxplot_summary <- eventReactive(
+    input$acomp_eda_action_, {
+    touristdata_clean %>%
+      filter(country %in% c(input$acomp_country1_, input$acomp_country2_)) %>%
+      summarise(max = max(!!sym(input$acomp_yvar_)))
+  })
+  
+  acomp_max_limit <- eventReactive(input$acomp_eda_action_,{acomp_boxplot_summary()$max})
+  
+  ## y-axis text
+  acomp_box_yaxis_text <- eventReactive(input$acomp_eda_action_,{
+    switch(input$acomp_yvar_,
+           "total_cost" = "Spending per Trip (TZS)",
+           "cost_per_pax" = "Individual Spending per Trip (TZS)",
+           "cost_per_night" = "Spending per Night (TZS)",
+           "cost_per_pax_night" = "Individual Spending per Night (TZS)")
+  })
+  
+  ## x-axis text
+  acomp_box_xaxis_text <- eventReactive(input$acomp_eda_action_,{
+    switch(input$acomp_xvar_,
+           "age_group" = "Age group",
+           "travel_with" = "Travelling with",
+           "purpose" = "Trip purpose",
+           "main_activity" = "Main activity",
+           "info_source" = "Source of information",
+           "most_impressing" = "Most impressive attr.")
+  })
+  
+  # Analysis_Compare Server  ----------------------------------------------------
+  
+  acomp_boxplot1 <- eventReactive(
+    input$acomp_eda_action_, {
+      ggplot(acomp_boxplot1_data(),
+             aes(y = !!sym(input$acomp_yvar_), x = !!sym(input$acomp_xvar_))) + 
+        geom_boxplot(aes(fill = !!sym(input$acomp_grvar_))) + 
+        scale_fill_brewer(palette="YlGnBu") + 
+        scale_fill_discrete(name=NULL) +
+        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
+    })
+  
+  acomp_boxplot2 <- eventReactive(
+    input$acomp_eda_action_, {
+      ggplot(acomp_boxplot2_data(),
+             aes(y = !!sym(input$acomp_yvar_), x = !!sym(input$acomp_xvar_))) + 
+        geom_boxplot(aes(fill = !!sym(input$acomp_grvar_))) + 
+        scale_fill_brewer(palette="YlGnBu") + 
+        scale_fill_discrete(name=NULL) +
+        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
+    })
+  
+  ## Render the EDA country 1 plot
+  output$acomp_eda_country1_ <- renderPlotly({
+    
+    t_acomp_axis_boxplot1 <- list(size = 12)
+    t_acomp_tick_boxplot1 <- list(size = 10)
+    
+    acomp_boxplot1() %>%
+      ggplotly() %>%
+      layout(autosize = TRUE,
+             plot_bgcolor='#e5ecf6',
+             yaxis = list(title = list(text = acomp_box_yaxis_text(), font = t_acomp_axis_boxplot1),
+                          tickmode = "linear",
+                          dtick = 5000000, 
+                          tick0 = 0, 
+                          range = list(0, acomp_max_limit()*1.05),
+                          tickfont = t_acomp_tick_boxplot1),
+             xaxis = list(title = list(text = acomp_box_xaxis_text(), font = t_acomp_axis_boxplot1),
+                          tickfont = t_acomp_tick_boxplot1),
+             boxmode = "group",
+             legend = list(orientation = 'h',
+                           xanchor = "center",
+                           x = 0.5,
+                           yanchor = "top",
+                           y = 1.15)) 
+  })
+  
+  output$acomp_eda_country2_ <- renderPlotly({
+    
+    t_acomp_axis_boxplot2 <- list(size = 12)
+    t_acomp_tick_boxplot2 <- list(size = 10)
+    
+    acomp_boxplot2() %>%
+      ggplotly() %>%
+      layout(autosize = TRUE,
+             plot_bgcolor='#e5ecf6',
+             yaxis = list(title = "",
+                          tickmode = "linear",
+                          dtick = 5000000, 
+                          tick0 = 0, 
+                          range = list(0, acomp_max_limit()*1.05),
+                          tickfont = t_acomp_tick_boxplot2),
+             xaxis = list(title = list(text = acomp_box_xaxis_text(), font = t_acomp_axis_boxplot2),
+                          tickfont = t_acomp_tick_boxplot2),
+             boxmode = "group",
+             legend = list(orientation = 'h',
+                           xanchor = "center",
+                           x = 0.5,
+                           yanchor = "top",
+                           y = 1.15)) 
+  })
   
 }
 
