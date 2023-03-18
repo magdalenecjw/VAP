@@ -30,30 +30,10 @@ touristdata_clean <- touristdata_clean %>%
 
 ## 3. Correlation
 
+
+
 ```{r}
 options(scipen = 999)
-
-
-ggscatterstats(data = touristdata_clean,
-                 x = cost_per_pax, y = total_night_spent,
-                 type = "nonparametic") + facet_wrap(~main_activity)
-
-ggscatterstats(data = touristdata_clean,
-                 x = cost_per_pax, y = total_night_spent,
-                 type = "nonparametic") + facet_wrap(~travel_with)
-
-ggscatterstats(data = touristdata_clean,
-                 x = cost_per_pax, y = total_night_spent,
-                 type = "nonparametic") + facet_wrap(~age_group)
-
-ggscatterstats(data = touristdata_clean,
-                 x = cost_per_pax, y = total_night_spent,
-                 type = "nonparametic") + facet_wrap(~tour_arrangement)
-
-```
-
-```{r}
-
 plotcorrelation_costppvtn <- function (a) {
 ggscatterstats(data = touristdata_clean,
                  x = cost_per_pax, y = total_night_spent,
@@ -83,4 +63,16 @@ plotcorrelation_costppvtn ("purpose")
 
 ```{r}
 plotcorrelation_costppvtn ("info_source")
+```
+
+## 4. Country comparision
+
+```{r}
+options(scipen = 999)
+
+p1 <- ggplot(data = touristdata_clean %>% filter(country == "GERMANY") %>% group_by(tour_arrangement),
+                 aes(y = total_cost, x = main_activity)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette="YlGnBu") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+p1
+  
 ```
