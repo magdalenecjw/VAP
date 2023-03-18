@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
@@ -156,8 +156,9 @@ sidebar <- dashboardSidebar(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
-             menuSubItem("Analysis by Country", tabName = "tab_country",icon = icon("earth-africa")),
-             menuSubItem("Impact of Other Factors", tabName = "tab_others")
+             menuSubItem("Analysis by Region", tabName = "tab_country",icon = icon("earth-africa")),
+             menuSubItem("Spending by Country", tabName = "tab_country_compare"),
+             menuSubItem("Correlation on Spending", tabName = "tab_corr", icon = icon("sack-dollar"))
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
     menuItem("Predictive Decision Tree", tabName = "tab_dt", icon = icon("network-wired"))
@@ -283,13 +284,14 @@ body <- dashboardBody(
                            ))
                      ),
                      
-                     
+                     #### Dashboard Pareto Chart  ----------------------------------------------------
                      fluidRow(
                        div(style = "padding = 0em; margin-top: -2em; margin-left: -1em; margin-right: -0.5em",
                            tabBox(
                              title = tags$p("Top 5 Countries", style = "font-family: sans-serif; font-weight: bold; font-size: 90%"),
                              width = 12,
                              
+                             ##### Dashboard Spending Pareto ----------------------------------------------------
                              tabPanel(
                                title = tags$p("By spending", style = "font-weight: bold;"),
                                plotlyOutput("dash_spending_pareto_",
@@ -297,6 +299,7 @@ body <- dashboardBody(
                                             width = "100%")
                              ),
                              
+                             ##### Dashboard Visitor Pareto  ----------------------------------------------------
                              tabPanel(
                                title = tags$p("By visitors", style = "font-weight: bold;"),
                                plotlyOutput("dash_visitor_pareto_",
@@ -502,9 +505,14 @@ body <- dashboardBody(
             )
     ),
     
-    ## Analysis by Others  ----------------------------------------------------
-    tabItem(tabName = "tab_others",
-            h2("Impact of Other Factors")
+    ## Comparison by Country  ----------------------------------------------------
+    tabItem(tabName = "tab_country_compare",
+            h2("Comparing Spending by Country")
+    ),
+    
+    ## Analysis by Impact on Spending  ----------------------------------------------------
+    tabItem(tabName = "tab_corr",
+            h2("Correlation on Spending")
     ),
     
     ## Clustering  ----------------------------------------------------
@@ -619,10 +627,12 @@ server <- function(input, output) {
   })
   
   output$dash_map_ <- renderTmap({
+
     tmap_mode("view")
     tmap_options(check.and.fix = TRUE) +
       tm_shape(touristdata_clean_map %>%
-                 filter(total_tourist >= input$dash_minvisitors_))+
+                 filter(total_tourist >= input$dash_minvisitors_),
+               bbox = c(-150, -20, 150, 70))+
       tm_fill(input$dash_mapmetric_, 
               n = input$dash_mapclasses_,
               style = input$dash_mapclassification_, 
@@ -630,8 +640,11 @@ server <- function(input, output) {
               id = "country",
               title = dash_map_metrics_text()
       ) +
+      tm_view(view.legend.position = c("left","bottom")) +
       tm_borders(col = "grey20",
                  alpha = 0.5) 
+      
+      
   })
   
   output$dash_datatable_ <- DT::renderDataTable({
