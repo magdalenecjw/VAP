@@ -30,8 +30,6 @@ touristdata_clean <- touristdata_clean %>%
 
 ## 3. Correlation
 
-
-
 ```{r}
 options(scipen = 999)
 plotcorrelation_costppvtn <- function (a) {
@@ -45,7 +43,6 @@ plotcorrelation_costppvtn ("tour_arrangement")
   
 ```
 
-
 ```{r}
 plotcorrelation_costppvtn ("age_group")
 ```
@@ -53,6 +50,7 @@ plotcorrelation_costppvtn ("age_group")
 ```{r}
 plotcorrelation_costppvtn ("travel_with")
 ```
+
 ```{r}
 plotcorrelation_costppvtn ("main_activity")
 ```
@@ -71,8 +69,14 @@ plotcorrelation_costppvtn ("info_source")
 options(scipen = 999)
 
 p1 <- ggplot(data = touristdata_clean %>% filter(country == "GERMANY") %>% group_by(tour_arrangement),
-                 aes(y = total_cost, x = age_group)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette="YlGnBu") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+                 aes(y = total_cost, x = age_group)) + 
+  geom_boxplot(aes(fill = tour_arrangement)) + 
+  scale_fill_brewer(palette="YlGnBu") + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  scale_y_continuous(labels = comma)
 
-p1
+p1 %>%
+  ggplotly() %>%
+  layout(boxmode = "group") 
   
 ```
