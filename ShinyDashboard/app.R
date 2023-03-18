@@ -159,9 +159,9 @@ sidebar <- dashboardSidebar(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
+             menuSubItem("Factors affecting Spending", tabName = "tab_spend", icon = icon("sack-dollar")),
              menuSubItem("Analysis by Region", tabName = "tab_country",icon = icon("earth-africa")),
-             menuSubItem("Spending by Country", tabName = "tab_country_compare",icon = icon("earth-europe")),
-             menuSubItem("Correlation on Spending", tabName = "tab_corr", icon = icon("sack-dollar"))
+             menuSubItem("Spending by Country", tabName = "tab_country_compare",icon = icon("earth-europe"))
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
     menuItem("Predictive Decision Tree", tabName = "tab_dt", icon = icon("network-wired"))
@@ -318,6 +318,178 @@ body <- dashboardBody(
                      )
                      
               )
+            )
+    ),
+    
+    ## Analysis by Impact on Spending  ----------------------------------------------------
+    tabItem(tabName = "tab_spend",
+            h3("Factors affecting Spending"),
+            fluidRow(
+              
+              ### Analysis_Spending First Column  ----------------------------------------------------
+              column(width = 2,
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = FALSE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               selectInput(inputId = "spend_cat_",
+                                           label = "Select category:",
+                                           choices = list("Age group" = "age_group", 
+                                                          "Travelling with" = "travel_with", 
+                                                          "Trip purpose" = "purpose",
+                                                          "Main activity" = "main_activity",
+                                                          "Source of information" = "info_source",
+                                                          "Tour arrangement" = "tour_arrangement",
+                                                          "Incl. int'l. transport?" = "package_transport_int",
+                                                          "Incl. accom?" = "package_accomodation",
+                                                          "Incl. food?" = "package_food",
+                                                          "Incl. dom. transport?" = "package_transport_tz",
+                                                          "Incl. sightseeing?" = "package_sightseeing",
+                                                          "Incl. guided tour?" = "package_guided_tour",
+                                                          "Incl. insurance?" = "package_insurance",
+                                                          "Mode of payment" = "payment_mode",
+                                                          "First trip to TZA?" = "first_trip_tz",
+                                                          "Most impressive attr." = "most_impressing"),
+                                           selected = "tour_arrangement")),
+                           div(style = "padding = 0em; margin-top: -1em",
+                               selectInput(inputId = "spend_test_",
+                                           label = "Test type:",
+                                           choices = list("parametric" = "p", 
+                                                          "non-parametric" = "np", 
+                                                          "robust" = "r", 
+                                                          "Bayes Factor" = "bf"),
+                                           selected = "np")),
+                           div(style = "padding = 0em; margin-top: 0em",
+                               checkboxInput(inputId = "spend_outliers_", 
+                                             label = "Treat outliers",
+                                             value = TRUE)),
+                           div(style = "padding = 0em; margin-top: 0em",
+                               tags$p("Refer to second panel to continue plotting", style = "font-style: italic;")),
+                           
+                         )
+                     )
+              ),
+              
+              ### Analysis_Spending Second Column  ----------------------------------------------------
+              column(width = 10,
+                     div(style = "padding = 0em; margin-left: -2em",
+                         tabBox(
+                           title = h3("Hypothesis Testing"),
+                           width = 12,
+                           height = "80vh",
+                           
+                           #### Analysis_Spending Scatter ----------------------------------------------------
+                           tabPanel(
+                             title = tags$p("Individual Spending vs Night Spent by Category", style = "font-weight: bold;"),
+                             fluidRow(
+                               
+                               #### Analysis_Spending Scatterplot Control Panel ----------------------------------------------------
+                               column(width = 3,
+                                      box(
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        status = "primary",
+                                        background = "aqua",
+                                        solidHeader = TRUE,
+                                        collapsible = FALSE,
+                                        width = 12,
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            actionButton(inputId = "spend_scatter_action_", 
+                                                         label = "Update plot"))
+                                        
+                                      )
+                                      
+                               ),
+                               
+                               #### Analysis_Spending Scatterplot Plot ----------------------------------------------------
+                               column(width = 9,
+                                      plotOutput("spend_scatter_plot_",
+                                                 height = "65vh")
+                               )
+                               
+                               
+                             )
+                             
+                           ),
+                           
+                           #### Analysis_Spending Box ----------------------------------------------------
+                           tabPanel(
+                             title = tags$p("Spending by Other Factors", style = "font-weight: bold;"),
+                             fluidRow(
+                               
+                               #### Analysis_Spending Boxviolin Control Panel ----------------------------------------------------
+                               column(width = 3,
+                                      box(
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        status = "primary",
+                                        background = "aqua",
+                                        solidHeader = TRUE,
+                                        collapsible = FALSE,
+                                        width = 12,
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            selectInput(inputId = "spend_yaxis_",
+                                                        label = "Select y-axis:",
+                                                        choices = list("Spending per Trip" = "total_cost", 
+                                                                       "Individual Spending per Trip" = "cost_per_pax", 
+                                                                       "Spending per Night" = "cost_per_night",
+                                                                       "Individual Spending per Night" = "cost_per_pax_night"),
+                                                        selected = "cost_per_pax")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            selectInput(inputId = "spend_plottype_",
+                                                        label = "Plot type:",
+                                                        choices = list("Box" = "box", 
+                                                                       "Violin" = "violin", 
+                                                                       "Box Violin" = "boxviolin"),
+                                                        selected = "boxviolin")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            checkboxInput(inputId = "spend_compare_", 
+                                                          label = "Show pairwise comparison",
+                                                          value = TRUE)),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            radioButtons(inputId = "spend_w_compare_", 
+                                                         label = "Display comparison:", 
+                                                         choices = c("significant" = "s",
+                                                                     "non-significant" = "ns"),
+                                                         selected = "ns")),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            radioButtons(inputId = "spend_cf_",
+                                                         label = "Confidence level:",
+                                                         choices = c("95%" = 0.95,
+                                                                     "99%" = 0.99),
+                                                         selected = 0.95)),
+                                        div(style = "padding = 0em; margin-top: 0em",
+                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                        div(style = "padding = 0em; margin-top: -0.5em",
+                                            actionButton(inputId = "spend_boxplot_action_", 
+                                                         label = "Update plot"))
+                                        
+                                      )
+                               ),
+                               
+                               
+                               #### Analysis_Spending Boxviolin Plot ----------------------------------------------------
+                               column(width = 9,
+                                      plotOutput("spend_box_plot_",
+                                                 height = "65vh"))
+                               
+                               
+                               
+                             )
+                           )
+                           
+                           
+                         )
+                         
+                     )
+              )
+              
+              
             )
     ),
     
@@ -538,6 +710,7 @@ body <- dashboardBody(
                                                           "Trip purpose" = "purpose",
                                                           "Main activity" = "main_activity",
                                                           "Source of information" = "info_source",
+                                                          "Mode of payment" = "payment_mode",
                                                           "Most impressive attr." = "most_impressing"),
                                            selected = "age_group")),
                            div(style = "padding = 0em; margin-top: -1em",
@@ -551,7 +724,6 @@ body <- dashboardBody(
                                                           "Incl. sightseeing?" = "package_sightseeing",
                                                           "Incl. guided tour?" = "package_guided_tour",
                                                           "Incl. insurance?" = "package_insurance",
-                                                          "Mode of payment" = "payment_mode",
                                                           "First trip to TZA?" = "first_trip_tz"),
                                            selected = "tour_arrangement")),
                            div(style = "padding = 0em; margin-top: 0em",
@@ -618,11 +790,6 @@ body <- dashboardBody(
               )
               
             )
-    ),
-    
-    ## Analysis by Impact on Spending  ----------------------------------------------------
-    tabItem(tabName = "tab_corr",
-            h2("Correlation on Spending")
     ),
     
     ## Clustering  ----------------------------------------------------
@@ -824,6 +991,93 @@ server <- function(input, output) {
   })
   
   
+  # Analysis_Spend Data Manipulation  ----------------------------------------------------
+  
+  ## Dataset selection for no outlier treatment
+  spend_data <- reactive({
+    touristdata_clean %>%
+      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+      mutate(across(first_trip_tz, convertbinary)) %>%
+      drop_na()
+  })
+  
+  ## Dataset selection for outlier treatment
+  spend_data_nooutlier <- reactive({
+    touristdata_clean %>%
+      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+      mutate(across(first_trip_tz, convertbinary)) %>%
+      drop_na() %>%
+      treat_outliers() 
+  })
+  
+  spend_category_text <- reactive({
+    switch(input$spend_cat_,
+           "age_group" = "Age group",
+           "travel_with" = "Travelling with",
+           "purpose" = "Trip purpose",
+           "main_activity" = "Main activity",
+           "info_source" = "Source of information",
+           "tour_arrangement" = "Tour arrangement",
+           "package_transport_int" = "Incl. int'l. transport?",
+           "package_accomodation" = "Incl. accom?",
+           "package_food" = "Incl. food?",
+           "package_transport_tz" = "Incl. dom. transport?",
+           "package_sightseeing" = "Incl. sightseeing?",
+           "package_guided_tour" = "Incl. guided tour?",
+           "package_insurance" = "Incl. insurance?",
+           "payment_mode" = "Mode of payment",
+           "first_trip_tz" = "First trip to TZA?",
+           "most_impressing" = "Most impressive attr."
+    )
+  })
+  
+  ## Numerical Metrics text
+  spend_yaxis_text <- reactive({
+    switch(input$spend_yaxis_,
+           "total_cost" = "Spending per Trip (TZS)",
+           "cost_per_pax" = "Individual Spending per Trip (TZS)",
+           "cost_per_night" = "Spending per Night (TZS)",
+           "cost_per_pax_night" = "Individual Spending per Night (TZS)")
+  })
+  
+  
+  # Analysis_Spend Server  ----------------------------------------------------
+  
+  ## Wrap the scatter plot in eventReactive based on Update Plot Button
+  spend_scatter_plotreact <- eventReactive(
+    input$spend_scatter_action_, {
+      grouped_ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
+                             x = total_night_spent, y = cost_per_pax,
+                             xlab = "Total Nights Spent", ylab = "Individual Spending per Trip (TZS)",
+                             grouping.var = !!sym(input$spend_cat_),
+                             results.subtitle = TRUE,
+                             type = input$spend_test_,
+                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) 
+    })
+  
+  ## Wrap the box plot in eventReactive based on Update Plot Button
+  spend_box_plotreact <- eventReactive(
+    input$spend_boxplot_action_, {
+      ggbetweenstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
+                     x = !!sym(input$spend_cat_), y = !!sym(input$spend_yaxis_),
+                     plot.type = input$spend_plottype_,
+                     xlab = spend_category_text(), ylab = spend_yaxis_text(),
+                     type = input$spend_test_, pairwise.comparisons = input$spend_compare_, pairwise.display = input$spend_w_compare_, 
+                     mean.ci = T, p.adjust.method = "fdr",  conf.level = input$spend_cf_,
+                     package = "ggthemes", palette = "Tableau_10") +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
+    })
+  
+  ## Render the scatter plot
+  output$spend_scatter_plot_ <- renderPlot({
+    spend_scatter_plotreact()
+  })
+  
+  ## Render the box plot
+  output$spend_box_plot_ <- renderPlot({
+    spend_box_plotreact()
+  })
+  
   # Analysis_Country Data Manipulation  ----------------------------------------------------
   
   ## Select countrylist based on Region or Country Selection
@@ -996,6 +1250,7 @@ server <- function(input, output) {
            "purpose" = "Trip purpose",
            "main_activity" = "Main activity",
            "info_source" = "Source of information",
+           "payment_mode" = "Mode of payment",
            "most_impressing" = "Most impressive attr.")
   })
   
