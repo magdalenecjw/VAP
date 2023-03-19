@@ -159,9 +159,9 @@ sidebar <- dashboardSidebar(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
-             menuSubItem("Factors affecting Spending", tabName = "tab_spend", icon = icon("sack-dollar")),
-             menuSubItem("Analysis by Region", tabName = "tab_country",icon = icon("earth-africa")),
-             menuSubItem("Spending by Country", tabName = "tab_country_compare",icon = icon("earth-europe"))
+             menuSubItem("Factors affecting Spending", tabName = "tab_spend"),
+             menuSubItem("Analysis by Regions", tabName = "tab_country"),
+             menuSubItem("Between two Countries", tabName = "tab_country_compare")
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
     menuItem("Predictive Decision Tree", tabName = "tab_dt", icon = icon("network-wired"))
@@ -365,6 +365,12 @@ body <- dashboardBody(
                                                           "Bayes Factor" = "bf"),
                                            selected = "np")),
                            div(style = "padding = 0em; margin-top: 0em",
+                               radioButtons(inputId = "spend_cf_",
+                                            label = "Confidence level:",
+                                            choices = c("95%" = 0.95,
+                                                        "99%" = 0.99),
+                                            selected = 0.95)),
+                           div(style = "padding = 0em; margin-top: 0em",
                                checkboxInput(inputId = "spend_outliers_", 
                                              label = "Treat outliers",
                                              value = TRUE)),
@@ -459,12 +465,6 @@ body <- dashboardBody(
                                                                      "non-significant" = "ns"),
                                                          selected = "ns")),
                                         div(style = "padding = 0em; margin-top: 0em",
-                                            radioButtons(inputId = "spend_cf_",
-                                                         label = "Confidence level:",
-                                                         choices = c("95%" = 0.95,
-                                                                     "99%" = 0.99),
-                                                         selected = 0.95)),
-                                        div(style = "padding = 0em; margin-top: 0em",
                                             tags$p("Press button below to update graph", style = "font-style: italic;")),
                                         div(style = "padding = 0em; margin-top: -0.5em",
                                             actionButton(inputId = "spend_boxplot_action_", 
@@ -550,7 +550,7 @@ body <- dashboardBody(
                          tabBox(
                            title = h3("Hypothesis Testing"),
                            width = 12,
-                           height = "80vh",
+                           height = "80vh",  
                            
                            #### Analysis_Country Numerical ----------------------------------------------------
                            tabPanel(
@@ -608,7 +608,8 @@ body <- dashboardBody(
                                #### Analysis_Country Numerical Plot ----------------------------------------------------
                                column(width = 9,
                                       plotOutput("acou_num_plot_",
-                                                 height = "65vh")
+                                                 height = "65vh"
+                                                 )
                                ),
                                
                              )
@@ -665,7 +666,8 @@ body <- dashboardBody(
                                #### Analysis_Country Categorical Plot ----------------------------------------------------
                                column(width = 9,
                                       plotOutput("acou_cat_plot_",
-                                                 height = "65vh")
+                                                 height = "65vh"
+                                                 )
                                )
                              )
                            )
@@ -683,7 +685,7 @@ body <- dashboardBody(
     
     ## Comparison by Country  ----------------------------------------------------
     tabItem(tabName = "tab_country_compare",
-            h3("Comparing Spending by Country"),
+            h3("Spending between Two Countries"),
             fluidRow(
               ### Analysis_Compare First Column  ----------------------------------------------------
               column(width = 2,
@@ -1061,6 +1063,7 @@ server <- function(input, output) {
                              grouping.var = !!sym(input$spend_cat_),
                              results.subtitle = TRUE,
                              type = input$spend_test_,
+                             conf.level = as.numeric(input$spend_cf_),
                              ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) 
     })
   
@@ -1072,7 +1075,7 @@ server <- function(input, output) {
                      plot.type = input$spend_plottype_,
                      xlab = spend_category_text(), ylab = spend_yaxis_text(),
                      type = input$spend_test_, pairwise.comparisons = input$spend_compare_, pairwise.display = input$spend_w_compare_, 
-                     mean.ci = T, p.adjust.method = "fdr",  conf.level = input$spend_cf_,
+                     mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_),
                      package = "ggthemes", palette = "Tableau_10") +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
@@ -1176,15 +1179,15 @@ server <- function(input, output) {
   ## Wrap the numerical plot in eventReactive based on Update Plot Button
   acou_num_plotreact <- eventReactive(
     input$acou_action_, {
-      options(scipen = 999)
       ggbetweenstats(data = if(input$acou_outliers_){acou_ANOVA_nooutlier()}else{acou_ANOVA()},
                      x = !!sym(input$acou_reg_cou_), y = !!sym(input$acou_numvar_),
                      plot.type = input$acou_plottype_,
                      xlab = str_to_title(input$acou_reg_cou_), ylab = acou_ANOVA_metrics_text(),
                      type = input$acou_test_, pairwise.comparisons = input$acou_compare_, pairwise.display = input$acou_w_compare_, 
-                     mean.ci = T, p.adjust.method = "fdr",  conf.level = input$acou_cf_,
+                     mean.ci = T, p.adjust.method = "fdr",  
+                     conf.level = as.numeric(input$acou_cf_),
                      package = "ggthemes", palette = "Tableau_10") +
-        scale_y_continuous(labels = comma)
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
   
   ## Wrap the categorical plot in eventReactive based on Update Plot Button
@@ -1194,7 +1197,9 @@ server <- function(input, output) {
                  x = !!sym(input$acou_catvar_), y = !!sym(input$acou_reg_cou_),
                  xlab = str_to_title(input$acou_reg_cou_), ylab = acou_bar_metrics_text(),
                  legend.title = acou_bar_metrics_text(),
-                 type = input$acou_test_, conf.level = input$acou_cf_, label = input$acou_catlabel_,
+                 type = input$acou_test_, 
+                 conf.level = as.numeric(input$acou_cf_), 
+                 label = input$acou_catlabel_,
                  package = "ggthemes", palette = "Tableau_10")
     })
   
@@ -1263,6 +1268,20 @@ server <- function(input, output) {
            "most_impressing" = "Most impressive attr.")
   })
   
+  ## group text
+  acomp_box_group_text <- reactive({
+    switch(input$acomp_grvar_,
+           "tour_arrangement" = "Tour arrangement",
+           "package_transport_int" = "Incl. int'l. transport?",
+           "package_accomodation" = "Incl. accom?",
+           "package_food" = "Incl. food?",
+           "package_transport_tz" = "Incl. dom. transport?",
+           "package_sightseeing" = "Incl. sightseeing?",
+           "package_guided_tour" = "Incl. guided tour?",
+           "package_insurance" = "Incl. insurance?",
+           "first_trip_tz" = "First trip to TZA?")
+  })
+  
   # Analysis_Compare Server  ----------------------------------------------------
   
   acomp_boxplot1 <- eventReactive(
@@ -1270,8 +1289,7 @@ server <- function(input, output) {
       ggplot(acomp_boxplot1_data(),
              aes(y = !!sym(input$acomp_yvar_), x = !!sym(input$acomp_xvar_))) + 
         geom_boxplot(aes(fill = !!sym(input$acomp_grvar_))) + 
-        scale_fill_brewer(palette="YlGnBu") + 
-        scale_fill_discrete(name=NULL) +
+        scale_fill_brewer(name = acomp_box_group_text(),palette="YlGnBu") + 
         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
@@ -1281,8 +1299,7 @@ server <- function(input, output) {
       ggplot(acomp_boxplot2_data(),
              aes(y = !!sym(input$acomp_yvar_), x = !!sym(input$acomp_xvar_))) + 
         geom_boxplot(aes(fill = !!sym(input$acomp_grvar_))) + 
-        scale_fill_brewer(palette="YlGnBu") + 
-        scale_fill_discrete(name=NULL) +
+        scale_fill_brewer(name = NULL, palette="YlGnBu") + 
         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
