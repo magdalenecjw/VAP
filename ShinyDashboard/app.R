@@ -3,16 +3,16 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "shiny", "shinydashboard", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "rsample", "rpart", "rpart.plot", "sparkline", "visNetwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
 #==============================#
 
 # Base Data and Modification ----------------------------------------------------
-touristdata_clean <- read_csv("data/touristdata_clean.csv")
+touristdata <- read_csv("data/touristdata_clean.csv")
 
-touristdata_clean <- touristdata_clean %>%
+touristdata_clean <- touristdata %>%
   filter(total_cost > 0,
          total_tourist > 0,
          total_night_spent > 0) %>%
@@ -101,6 +101,19 @@ top_oceania_data <- touristdata_clean_country_sorted %>%
   filter(region == "Oceania") %>%
   arrange(desc(total_cost))
 
+# Data for Decision Tree and Boosted Tree ----------------------------------------------------
+df_analysis <- touristdata %>% 
+  select(!ID) %>% 
+  select(!code) %>% 
+  select(!country) %>%
+  filter(total_cost > 0,
+         total_tourist > 0,
+         total_night_spent > 0) %>% 
+  mutate(across(where(is.character), as.factor)) %>% 
+  mutate(across(11:17, as.factor)) %>%
+  mutate(first_trip_tz = as.factor(first_trip_tz))
+
+
 # Convert binary function  ----------------------------------------------------
 
 convertbinary <- function(x){
@@ -156,6 +169,7 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   tags$style(".left-side, .main-sidebar {padding-top: 60px}"),
   sidebarMenu(
+    id = "tabs",
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
@@ -164,7 +178,10 @@ sidebar <- dashboardSidebar(
              menuSubItem("Between two Countries", tabName = "tab_country_compare")
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
-    menuItem("Predictive Decision Tree", tabName = "tab_dt", icon = icon("network-wired"))
+    menuItem("Regression Model", tabName = "tab_pred", icon = icon("network-wired"),
+             menuSubItem("Decision Tree", tabName = "tab_dt"),
+             menuSubItem("Boosted Tree", tabName = "tab_bdt")
+    )
   )
 )
 
@@ -182,6 +199,25 @@ body <- dashboardBody(
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
   
+  #Adding text
+  tags$head(tags$style(HTML(
+    '.myClass { 
+            font-size: 200%;
+            line-height: 50px;
+            text-align: left;
+            font-family: sans-serif;
+            font-weight: bold;
+            padding: 0 15px;
+            overflow: hidden;
+            color: white;
+            }'
+  ))),
+  tags$script(HTML('
+                           $(document).ready(function() {
+                           $("header").find("nav").append(\'<div id="pageHeader" class="myClass"></div>\');
+                           })'
+  )),
+  
   # Setting theme  ----------------------------------------------------
   use_theme(mytheme),
   
@@ -193,7 +229,7 @@ body <- dashboardBody(
     
     ## Information  ----------------------------------------------------
     tabItem(tabName = "information",
-            h2("About the app")
+            #h3("About the app")
     ),
     
     ## Dashboard  ----------------------------------------------------
@@ -220,12 +256,14 @@ body <- dashboardBody(
                      #### Dashboard Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = tags$p("Control Panel", style = "color: #FFF; font-weight: bold;"),
+                         title = tags$p("Map Panel", style = "color: #FFF; font-weight: bold;"),
                          status = "primary",
                          background = "aqua",
                          solidHeader = TRUE,
                          collapsible = FALSE,
                          width = 3,
+                         div(style = "padding = 0em; margin-top: -0.5em",
+                             tags$p("ONLY manipulate map", style = "font-style: italic;")),
                          div(style = "padding = 0em; margin-top: -0.5em",
                              selectInput(inputId = "dash_mapmetric_",
                                          label = "Select metrics:",
@@ -323,7 +361,7 @@ body <- dashboardBody(
     
     ## Analysis by Impact on Spending  ----------------------------------------------------
     tabItem(tabName = "tab_spend",
-            h3("Factors affecting Spending"),
+            #h3("Factors affecting Spending"),
             fluidRow(
               
               ### Analysis_Spending First Column  ----------------------------------------------------
@@ -496,7 +534,7 @@ body <- dashboardBody(
     
     ## Analysis by Country  ----------------------------------------------------
     tabItem(tabName = "tab_country",
-            h3("Comparison among Regions and Countries"),
+            #h3("Comparison among Regions and Countries"),
             fluidRow(
               ### Analysis_Country First Column  ----------------------------------------------------
               column(width = 2,
@@ -609,7 +647,7 @@ body <- dashboardBody(
                                column(width = 9,
                                       plotOutput("acou_num_plot_",
                                                  height = "65vh"
-                                                 )
+                                      )
                                ),
                                
                              )
@@ -667,7 +705,7 @@ body <- dashboardBody(
                                column(width = 9,
                                       plotOutput("acou_cat_plot_",
                                                  height = "65vh"
-                                                 )
+                                      )
                                )
                              )
                            )
@@ -685,7 +723,7 @@ body <- dashboardBody(
     
     ## Comparison by Country  ----------------------------------------------------
     tabItem(tabName = "tab_country_compare",
-            h3("Spending between Two Countries"),
+            #h3("Spending between Two Countries"),
             fluidRow(
               ### Analysis_Compare First Column  ----------------------------------------------------
               column(width = 2,
@@ -797,12 +835,117 @@ body <- dashboardBody(
     
     ## Clustering  ----------------------------------------------------
     tabItem(tabName = "tab_cluster",
-            h2("Clustering Analysis")
+            #h3("Clustering Analysis")
     ),
     
     ## Decision Tree  ----------------------------------------------------
     tabItem(tabName = "tab_dt",
-            h2("Prediction by Decision Tree")
+            #h3("Prediction by Decision Tree"),
+            fluidRow(
+              
+              ### Decision Tree First Column  ----------------------------------------------------
+              column(width = 3,
+                     
+                     #### Variable Selection ----------------------------------------------------
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("Preparation", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = TRUE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               pickerInput(inputId = "dt_var_",
+                                           label = "Variable Selection:",
+                                           choices = list("Region" = "region", 
+                                                          "Age group" = "age_group", 
+                                                          "Travelling with" = "travel_with", 
+                                                          "Trip purpose" = "purpose",
+                                                          "Main activity" = "main_activity",
+                                                          "Source of information" = "info_source",
+                                                          "Tour arrangement" = "tour_arrangement",
+                                                          "Incl. int'l. transport?" = "package_transport_int",
+                                                          "Incl. accom?" = "package_accomodation",
+                                                          "Incl. food?" = "package_food",
+                                                          "Incl. dom. transport?" = "package_transport_tz",
+                                                          "Incl. sightseeing?" = "package_sightseeing",
+                                                          "Incl. guided tour?" = "package_guided_tour",
+                                                          "Incl. insurance?" = "package_insurance",
+                                                          "Mode of payment" = "payment_mode",
+                                                          "First trip to TZA?" = "first_trip_tz",
+                                                          "Most impressive attr." = "most_impressing",
+                                                          "Total Visitors" = "total_tourist",
+                                                          "Total Male Visitors" = "total_male",
+                                                          "Total Female Visitors" = "total_female",
+                                                          "Total Night Spent" = "total_night_spent",
+                                                          "Prop. Night Spent in Mainland" = "prop_night_spent_mainland",
+                                                          "Nights Spent in Mainland" = "night_mainland",
+                                                          "Nights Spent in Zanzibar" = "night_zanzibar"),
+                                           selected = colnames(df_analysis)[1:24],
+                                           multiple = TRUE,
+                                           options = list(`actions-box` = TRUE))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               sliderInput(inputId = "dt_partition_",
+                                           label = "Train-Test Partition Ratio:",
+                                           min = 0.5,
+                                           max = 1,
+                                           value = c(0.7)))
+                           
+                         )
+                     ),
+                     
+                     
+                     #### Model Building and Tuning ----------------------------------------------------
+                     div(style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
+                         box(
+                           title = tags$p("Model Tuning", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = TRUE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               sliderInput(inputId = "dt_minsplit_",
+                                           label = "Minimum Split:",
+                                           min = 5,
+                                           max = 20,
+                                           value = c(5))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               sliderInput(inputId = "dt_maxdepth_",
+                                           label = "Maximum Depth:",
+                                           min = 5,
+                                           max = 20,
+                                           value = c(10))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               checkboxInput(inputId = "dt_bestcp_", 
+                                             label = "Select Best CP",
+                                             value = TRUE)),
+                           disabled(div(style = "padding = 0em; margin-top: -0.8em",
+                                        numericInput(inputId = "dt_cp_",
+                                                     label = "Complexity Parameter:",
+                                                     min = 0,
+                                                     max = 0.010,
+                                                     value = 0.001))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               actionButton(inputId = "dt_action_", 
+                                            label = "Build Model"))
+                         )),
+                     
+                     
+                     
+              ),
+              
+              ### Decision Tree Second Column  ----------------------------------------------------
+              column(width = 9,)
+              
+              
+            )
+    ),
+    
+    ## Boosted Tree  ----------------------------------------------------
+    tabItem(tabName = "tab_bdt",
+            #h3("Prediction by Boosted Tree")
     )
     
   )
@@ -816,6 +959,23 @@ ui <- dashboardPage(header, sidebar, body)
 ###### Shiny Server ######
 #========================#
 server <- function(input, output) {
+  
+  # Add Title  ----------------------------------------------------
+  observeEvent(input$tabs, {
+    header <- switch(input$tabs,
+                     information = "About the app",
+                     tab_dashboard = "Dashboard",
+                     tab_spend = "Factors affecting Spending",
+                     tab_country = "Comparison among Regions and Countries",
+                     tab_country_compare = "Spending between Two Countries",
+                     tab_cluster = "Clustering Analysis",
+                     tab_dt = "Regression by Decision Tree",
+                     tab_bdt = "Regression by Boosted Tree"
+                     )
+    
+    # you can use any other dynamic content you like
+    shinyjs::html("pageHeader", header)
+  })
   
   # Global Data Manipulation  ----------------------------------------------------
   top_country <- reactive({
@@ -1353,6 +1513,14 @@ server <- function(input, output) {
                            x = 0.5,
                            yanchor = "top",
                            y = 1.15)) 
+  })
+  
+  # DT Data Manipulation  ----------------------------------------------------
+  
+  # DT Server  ----------------------------------------------------
+  ## Enable Complexity Parameter Selection when check box is selected
+  observe({
+    toggleState(id = "dt_cp_", condition = input$dt_bestcp_ == FALSE)
   })
   
 }
