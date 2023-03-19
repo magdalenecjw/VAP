@@ -552,16 +552,17 @@ body <- dashboardBody(
                                             choices = c("Region" = "region",
                                                         "Country" = "country"),
                                             selected = "region")),
-                           disabled(div(style = "padding = 0em; margin-top: -1em",
-                                        selectInput(inputId = "acou_cou_",
-                                                    label = "Select country (max 5):",
-                                                    choices = list("Top (World)" = "top_world",
-                                                                   "Top (Europe)" = "top_europe",
-                                                                   "Top (Americas)" = "top_americas",
-                                                                   "Top (Africa)" = "top_africa",
-                                                                   "Top (Asia)" = "top_asia",
-                                                                   "Top (Oceania)" = "top_oceania"),
-                                                    selected = "top_world"))),
+                           hidden(div(id = "acou_cou_div_",
+                                      style = "padding = 0em; margin-top: -1em",
+                                      selectInput(inputId = "acou_cou_",
+                                                  label = "Select country (max 5):",
+                                                  choices = list("Top (World)" = "top_world",
+                                                                 "Top (Europe)" = "top_europe",
+                                                                 "Top (Americas)" = "top_americas",
+                                                                 "Top (Africa)" = "top_africa",
+                                                                 "Top (Asia)" = "top_asia",
+                                                                 "Top (Oceania)" = "top_oceania"),
+                                                  selected = "top_world"))),
                            div(style = "padding = 0em; margin-top: -1em",
                                selectInput(inputId = "acou_test_",
                                            label = "Test type:",
@@ -921,12 +922,13 @@ body <- dashboardBody(
                                checkboxInput(inputId = "dt_bestcp_", 
                                              label = "Select Best CP",
                                              value = TRUE)),
-                           disabled(div(style = "padding = 0em; margin-top: -0.8em",
-                                        numericInput(inputId = "dt_cp_",
-                                                     label = "Complexity Parameter:",
-                                                     min = 0,
-                                                     max = 0.010,
-                                                     value = 0.001))),
+                           hidden(div(id = "dt_cp_div_",
+                                      style = "padding = 0em; margin-top: -0.8em",
+                                      numericInput(inputId = "dt_cp_",
+                                                   label = "Complexity Parameter:",
+                                                   min = 0,
+                                                   max = 0.010,
+                                                   value = 0.001))),
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "dt_action_", 
                                             label = "Build Model"))
@@ -971,7 +973,7 @@ server <- function(input, output) {
                      tab_cluster = "Clustering Analysis",
                      tab_dt = "Regression by Decision Tree",
                      tab_bdt = "Regression by Boosted Tree"
-                     )
+    )
     
     # you can use any other dynamic content you like
     shinyjs::html("pageHeader", header)
@@ -1268,7 +1270,8 @@ server <- function(input, output) {
   })
   
   ## Dataset selection for no outlier treatment
-  acou_ANOVA <- reactive({
+  acou_ANOVA <- eventReactive(
+    input$acou_action_,{
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
       mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
@@ -1277,7 +1280,8 @@ server <- function(input, output) {
   })
   
   ## Dataset selection for outlier treatment
-  acou_ANOVA_nooutlier <- reactive({
+  acou_ANOVA_nooutlier <- eventReactive(
+    input$acou_action_,{
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
       mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
@@ -1287,7 +1291,8 @@ server <- function(input, output) {
   })
   
   ## Dataset selection categorical
-  acou_barstats <- reactive({
+  acou_barstats <- eventReactive(
+    input$acou_cat_action_, {
     touristdata_clean %>%
       filter(country %in% countrylist()) %>%
       mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
@@ -1296,7 +1301,8 @@ server <- function(input, output) {
   })
   
   ## Numerical Metrics text
-  acou_ANOVA_metrics_text <- reactive({
+  acou_ANOVA_metrics_text <- eventReactive(
+    input$acou_action_,{
     switch(input$acou_numvar_,
            "total_cost" = "Spending per Trip (TZS)",
            "cost_per_pax" = "Individual Spending per Trip (TZS)",
@@ -1307,7 +1313,8 @@ server <- function(input, output) {
   })
   
   ## Categorical Metrics text
-  acou_bar_metrics_text <- reactive({
+  acou_bar_metrics_text <- eventReactive(
+    input$acou_cat_action_, {
     switch(input$acou_catvar_,
            "age_group" = "Age group",
            "travel_with" = "Travelling with",
@@ -1333,7 +1340,7 @@ server <- function(input, output) {
   
   ## Enable country selection when Country radio button is selected
   observe({
-    toggleState(id = "acou_cou_", condition = input$acou_reg_cou_ == "country")
+    toggle(id = "acou_cou_div_", condition = input$acou_reg_cou_ == "country", anim = TRUE)
   })
   
   ## Wrap the numerical plot in eventReactive based on Update Plot Button
@@ -1520,7 +1527,7 @@ server <- function(input, output) {
   # DT Server  ----------------------------------------------------
   ## Enable Complexity Parameter Selection when check box is selected
   observe({
-    toggleState(id = "dt_cp_", condition = input$dt_bestcp_ == FALSE)
+    toggle(id = "dt_cp_div_", condition = input$dt_bestcp_ == FALSE, anim = TRUE)
   })
   
 }
