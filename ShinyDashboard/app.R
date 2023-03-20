@@ -198,6 +198,7 @@ body <- dashboardBody(
   tags$style(".fa-dollar-sign {font-size:80%}"),
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
+  tags$style(".fa-circle-info {font-size:60%}"),
   
   #Adding text
   tags$head(tags$style(HTML(
@@ -988,9 +989,16 @@ body <- dashboardBody(
                                   )
                               )),
                             fluidRow(
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em; margin-right: -1em;",
-                                  valueBoxOutput("dt_rmse_", width = 10)
-                              ))
+                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                                  valueBoxOutput("dt_rmse_", width = 4)
+                              ),
+                              div(style = "padding = 0em; margin-top: -1em;",
+                                  valueBoxOutput("dt_mae_", width = 4)
+                              ),
+                              div(style = "padding = 0em; margin-top: -1em;",
+                                  valueBoxOutput("dt_r2_", width = 4)
+                              )
+                              )
                      )
               )
               
@@ -1694,7 +1702,7 @@ server <- function(input, output) {
   observeEvent(input$dt_init_action_, dt_plotTree(initialdtmodel()))
   observeEvent(input$dt_action_, dt_plotTree(pruneddtmodel()))
   
-  ##Initial Model RMSE
+  ##Initial Model Metrics
   pred_initialdtmodel <- eventReactive(
     input$dt_init_action_, {
       predict(initialdtmodel(), newdata = dt_analysis_test())
@@ -1702,10 +1710,20 @@ server <- function(input, output) {
   
   pred_initialdtmodel_rmse <- eventReactive(
     input$dt_init_action_, {
-      Metrics::rmse(actual = dt_analysis_test()$total_cost, predicted = pred_initialdtmodel())
+      caret::RMSE(pred_initialdtmodel(), dt_analysis_test()$total_cost)
     })
   
-  ##Pruned Model RMSE
+  pred_initialdtmodel_mae <- eventReactive(
+    input$dt_init_action_, {
+      caret::MAE(pred_initialdtmodel(), dt_analysis_test()$total_cost)
+    })
+  
+  pred_initialdtmodel_r2 <- eventReactive(
+    input$dt_init_action_, {
+      caret::R2(pred_initialdtmodel(), dt_analysis_test()$total_cost, form = "traditional")
+    })
+  
+  ##Pruned Model Metrics
   pred_pruneddtmodel <- eventReactive(
     input$dt_action_, {
       predict(pruneddtmodel(), newdata = dt_analysis_test())
@@ -1713,17 +1731,26 @@ server <- function(input, output) {
   
   pred_pruneddtmodel_rmse <- eventReactive(
     input$dt_action_, {
-      Metrics::rmse(actual = dt_analysis_test()$total_cost, predicted = pred_pruneddtmodel())
+      caret::RMSE(pred_pruneddtmodel(), dt_analysis_test()$total_cost)
     })
   
+  pred_pruneddtmodel_mae <- eventReactive(
+    input$dt_action_, {
+      caret::MAE(pred_pruneddtmodel(), dt_analysis_test()$total_cost)
+    })
+  
+  pred_pruneddtmodel_r2 <- eventReactive(
+    input$dt_action_, {
+      caret::R2(pred_pruneddtmodel(), dt_analysis_test()$total_cost, form = "traditional")
+    })
   
   ### Function to display RMSE
   dt_display_RMSE = function(modeltype){
     output$dt_rmse_ = renderValueBox(
       valueBox(
-        value = tags$p(paste0("TSZ ",scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 60%;"), 
-        subtitle = tags$p("RMSE", style = "font-size: 80%;"), 
-        icon = icon("dollar-sign"),
+        value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
+        subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
         color = "aqua"
       )
     )
@@ -1731,6 +1758,36 @@ server <- function(input, output) {
   
   observeEvent(input$dt_init_action_, dt_display_RMSE(pred_initialdtmodel_rmse()))
   observeEvent(input$dt_action_, dt_display_RMSE(pred_pruneddtmodel_rmse()))
+  
+  ### Function to display MAE
+  dt_display_MAE = function(modeltype){
+    output$dt_mae_ = renderValueBox(
+      valueBox(
+        value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
+        subtitle = tags$p("MAE", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, dt_display_MAE(pred_initialdtmodel_mae()))
+  observeEvent(input$dt_action_, dt_display_MAE(pred_pruneddtmodel_mae()))
+  
+  ### Function to display R2
+  dt_display_R2 = function(modeltype){
+    output$dt_r2_ = renderValueBox(
+      valueBox(
+        value = tags$p(round(modeltype, 3), style = "font-size: 50%;"), 
+        subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, dt_display_R2(pred_initialdtmodel_r2()))
+  observeEvent(input$dt_action_, dt_display_R2(pred_pruneddtmodel_r2()))
   
   
   ##Initial Model Predicted vs Actual
