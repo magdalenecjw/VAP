@@ -173,9 +173,9 @@ sidebar <- dashboardSidebar(
     menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
-             menuSubItem("Factors affecting Spending", tabName = "tab_spend"),
-             menuSubItem("Analysis by Regions", tabName = "tab_country"),
-             menuSubItem("Between two Countries", tabName = "tab_country_compare")
+             menuSubItem("Spending Behavior", tabName = "tab_spend"),
+             menuSubItem("Regional Overview", tabName = "tab_country"),
+             menuSubItem("Country Comparisons", tabName = "tab_country_compare")
     ),
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
     menuItem("Regression Model", tabName = "tab_pred", icon = icon("network-wired"),
@@ -1014,9 +1014,9 @@ server <- function(input, output) {
     header <- switch(input$tabs,
                      information = "About the app",
                      tab_dashboard = "Dashboard",
-                     tab_spend = "Factors affecting Spending",
-                     tab_country = "Comparison among Regions and Countries",
-                     tab_country_compare = "Spending between Two Countries",
+                     tab_spend = "Spending Behavior",
+                     tab_country = "Regional Overview",
+                     tab_country_compare = "Country Comparison",
                      tab_cluster = "Clustering Analysis",
                      tab_dt = "Regression by Decision Tree",
                      tab_bdt = "Regression by Boosted Tree"
