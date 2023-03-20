@@ -14,7 +14,8 @@ editor: visual
 # Load Packages and Data
 
 ```{r}
-pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork)
+pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork, 
+               caret, ranger, patchwork, tidyverse)
 ```
 
 ```{r}
@@ -24,18 +25,28 @@ df_analysis <- df %>%
   select(!ID) %>% 
   select(!code) %>% 
   select(!country)
+
+#selection of variables as a function here
 ```
+
+# Regression Tree
 
 ```{r}
 anova.model <- function(min_split, complexity_parameter, max_depth) {
-  rpart(total_cost ~ region + age_group + travel_with + total_tourist + purpose + main_activity + info_source + tour_arrangement + package_transport_int + package_accomodation + package_food + package_transport_tz + package_sightseeing + package_guided_tour + package_insurance + total_night_spent + prop_night_spent_mainland + payment_mode + first_trip_tz + most_impressing, data = df_analysis, 
+  rpart(total_cost ~ ., 
+        data = df_analysis, 
         method = "anova", 
         control = rpart.control(minsplit = min_split, 
                                 cp = complexity_parameter, 
                                 maxdepth = max_depth))
   }
 
-fit_tree <- anova.model(5, 0.002, 10)
+fit_tree <- anova.model(5, 0.001, 10)
+```
+
+```{r}
+visTree(fit_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
+
 ```
 
 ```{r}
@@ -47,4 +58,84 @@ bestcp <- fit_tree$cptable[which.min(fit_tree$cptable[,"xerror"]),"CP"]
 pruned_tree <- prune(fit_tree, cp = bestcp)
 
 visTree(pruned_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
+```
+
+# Random Forest
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+par(mfrow=c(1,2))
+```
+
+```{r}
+#can we have an option for whether user wants to do parameter tuning?
+#default is simple bootstrap resampling
+trctrl <- trainControl(method = "none")
+
+#we can give one other option of (repeated) k-fold cross-validation where they can decide on the k and number of repeats
+cvControl <- trainControl(##default of 10, range: 3-50
+                           method = "cv",
+                           number = 10)
+
+repeatcvControl <- trainControl(##default of 10, range: 3-50
+                           method = "repeatedcv",
+                           number = 10,
+                           ##default of 3, range: 3-10
+                           repeats = 3)
+
+#actual model
+rf_model <- train(total_cost ~ ., 
+                  data = df_analysis,
+                  method = "ranger", 
+                  trControl = trctrl, 
+              #trControl (refer to above objects created)
+                  num.trees = 100, #can consider range of 50 to 500 trees
+                  importance = "impurity", 
+            #variable importance computation: "impurity", "permutation"
+                  tuneGrid = data.frame(mtry = sqrt(ncol(df_analysis)),
+                                        min.node.size = 5,
+                                        splitrule = "variance") 
+            #splitrule: "variance" (default), "extratrees", "maxstat", "beta"
+            #min.node.size: default of 5 for regression trees
+            #mtry: default is square root of number of variables
+                  ) 
+```
+
+```{r}
+RMSE(rf_model$finalModel$predictions, df_analysis$total_cost)
+```
+
+```{r}
+
+rf_scatter <- ggplot() + 
+  geom_point(aes(x = df_analysis$total_cost, 
+                 y = rf_model$finalModel$predictions)) +
+  labs(x = "Actual Total Cost", y = "Predicted Total Cost",
+       title = paste0("R-squared: ", round(rf_model$finalModel$r.squared, digits=2))) + 
+  theme(axis.text = element_text(size = 5),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8))
+
+rf_residuals <- ggplot() + 
+  geom_point(aes(x = df_analysis$total_cost,
+                 y = (rf_model$finalModel$predictions-df_analysis$total_cost)),
+             col="blue3") +
+  labs(y ="Residuals (Predicted-Actual)", x = "Actual Total Cost") + 
+  geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
+  theme(axis.text = element_text(size = 5),
+        axis.title = element_text(size = 8))
+
+p <- rf_scatter + rf_residuals
+
+p
+```
+
+```{r}
+#top 20 variable importance
+#can we show a title for this table based on what was selected in the model i.e. impurity vs permutation
+
+varImp(rf_model)
 ```
