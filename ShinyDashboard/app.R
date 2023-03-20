@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "rsample", "rpart", "rpart.plot", "sparkline", "visNetwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
