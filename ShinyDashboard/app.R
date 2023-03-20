@@ -886,7 +886,7 @@ body <- dashboardBody(
                                            label = "Train-Test Partition Ratio:",
                                            min = 0.5,
                                            max = 0.95,
-                                           value = c(0.7))),
+                                           value = c(0.8))),
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "dt_init_action_", 
                                             label = "Build Model"))
@@ -972,13 +972,17 @@ body <- dashboardBody(
                                     #### Decision Tree Tree ----------------------------------------------------
                                     tabPanel(
                                       title = tags$p("Decision Tree", style = "font-weight: bold;"),
-                                      visNetworkOutput("dt_tree_")
+                                      visNetworkOutput("dt_tree_",
+                                                       width = "100%",
+                                                       height = "50vh")
                                     ),
                                     
                                     #### Decision Tree Prediction vs Actual ----------------------------------------------------
                                     tabPanel(
                                       title = tags$p("Predicted vs Actual on Test Data", style = "font-weight: bold;"),
-                                      plotOutput("dt_pred_actual_")
+                                      plotOutput("dt_pred_actual_",
+                                                 width = "100%",
+                                                 height = "50vh")
                                     )
                                     
                                   )
@@ -1583,20 +1587,23 @@ server <- function(input, output) {
         select(input$dt_var_, "total_cost")
     })
   
-  dt_dataset_split <- eventReactive(
+  dt_indices <- eventReactive(
     input$dt_init_action_, {
-      set.seed(123)
-      rsample::initial_split(dt_dataset(), prop = input$dt_partition_)
+      set.seed(1234)
+      caret::createDataPartition(dt_dataset()$total_cost, p =input$dt_partition_, list = FALSE)
+      #rsample::initial_split(dt_dataset(), prop = input$dt_partition_)
     })
   
   dt_analysis_train <- eventReactive(
     input$dt_init_action_, {
-      rsample::training(dt_dataset_split())
+      dt_dataset()[dt_indices(),]
+      #rsample::training(dt_dataset_split())
     })
   
   dt_analysis_test <- eventReactive(
     input$dt_init_action_, {
-      rsample::testing(dt_dataset_split())
+      dt_dataset()[-dt_indices(),]
+      #rsample::testing(dt_dataset_split())
     })
   
   # DT Server  ----------------------------------------------------
@@ -1748,7 +1755,6 @@ server <- function(input, output) {
         geom_abline(intercept = 0, slope = 1, color = "red") +
         scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        coord_equal() +
         theme_minimal() +
         labs(x = "Actual Value", y = "Predicted Value")
     )
