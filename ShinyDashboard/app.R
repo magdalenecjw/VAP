@@ -170,7 +170,6 @@ sidebar <- dashboardSidebar(
   tags$style(".left-side, .main-sidebar {padding-top: 60px}"),
   sidebarMenu(
     id = "tabs",
-    menuItem("Information", tabName = "information", icon = icon("info")),
     menuItem("Dashboard", tabName = "tab_dashboard", icon = icon("dashboard")),
     menuItem("Data Analysis", tabName = "tab_analysis", icon = icon("chart-simple"), startExpanded = TRUE,
              menuSubItem("Spending Behavior", tabName = "tab_spend"),
@@ -181,7 +180,8 @@ sidebar <- dashboardSidebar(
     menuItem("Regression Model", tabName = "tab_pred", icon = icon("network-wired"),
              menuSubItem("Decision Tree", tabName = "tab_dt"),
              menuSubItem("Boosted Tree", tabName = "tab_bdt")
-    )
+    ),
+    menuItem("About", tabName = "tab_about", icon = icon("info"))
   )
 )
 
@@ -226,11 +226,6 @@ body <- dashboardBody(
   # Dashboard Body Tabs  ----------------------------------------------------
   
   tabItems(
-    
-    ## Information  ----------------------------------------------------
-    tabItem(tabName = "information",
-            #h3("About the app")
-    ),
     
     ## Dashboard  ----------------------------------------------------
     tabItem(tabName = "tab_dashboard",
@@ -900,8 +895,9 @@ body <- dashboardBody(
                      ),
                      
                      
-                     #### Model Building and Tuning ----------------------------------------------------
-                     div(style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
+                     #### Model Tuning ----------------------------------------------------
+                     hidden(div(id = "dt_model_tuning",
+                         style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
                          box(
                            title = tags$p("Model Tuning", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                            status = "primary",
@@ -935,10 +931,7 @@ body <- dashboardBody(
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "dt_action_", 
                                             label = "Tune Model"))
-                         )),
-                     
-                     
-                     
+                         ))),
               ),
               
               ### Decision Tree Second Column  ----------------------------------------------------
@@ -982,7 +975,7 @@ body <- dashboardBody(
                                   )
                               )),
                             fluidRow(
-                              div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
+                              div(style = "padding = 0em; margin-top: -2em; margin-left: -2em; margin-right: -1em;",
                                   valueBoxOutput("dt_rmse_", width = 10)
                               ))
                      )
@@ -995,6 +988,11 @@ body <- dashboardBody(
     ## Boosted Tree  ----------------------------------------------------
     tabItem(tabName = "tab_bdt",
             #h3("Prediction by Boosted Tree")
+    ),
+    
+    ## Information  ----------------------------------------------------
+    tabItem(tabName = "tab_about",
+            #h3("About the app")
     )
     
   )
@@ -1012,7 +1010,7 @@ server <- function(input, output) {
   # Add Title  ----------------------------------------------------
   observeEvent(input$tabs, {
     header <- switch(input$tabs,
-                     information = "About the app",
+                     tab_about = "About the app",
                      tab_dashboard = "Dashboard",
                      tab_spend = "Spending Behavior",
                      tab_country = "Regional Overview",
@@ -1598,6 +1596,10 @@ server <- function(input, output) {
     toggle(id = "dt_cp_div_", condition = input$dt_bestcp_ == FALSE, anim = TRUE)
   })
   
+  observeEvent(input$dt_init_action_, {
+    show(id = "dt_model_tuning", anim = TRUE)
+  })
+  
   ##Initial Model
   initialdtmodel <- eventReactive(
     input$dt_init_action_, {
@@ -1631,19 +1633,19 @@ server <- function(input, output) {
   pruneddtmodel <- eventReactive(
     input$dt_action_, {
       prune(tuneddtmodel(), cp = if(input$dt_bestcp_){dt_bestcp_val()}else{input$dt_cp_}
-        )
+      )
     })
   
   ### Function to plot error
-  plotError = function(modeltype){
+  dt_plotError = function(modeltype){
     output$dt_errorplot_ = renderPlot(plotcp(modeltype))
   }
   
-  observeEvent(input$dt_init_action_, plotError(initialdtmodel()))
-  observeEvent(input$dt_action_, plotError(pruneddtmodel()))
+  observeEvent(input$dt_init_action_, dt_plotError(initialdtmodel()))
+  observeEvent(input$dt_action_, dt_plotError(pruneddtmodel()))
   
   ### Function to plot CP datatable
-  plotDtTable = function(modeltype){
+  dt_plotCPTable = function(modeltype){
     output$dt_cp_datatable_ = DT::renderDataTable(
       formatCurrency(
         DT::datatable(modeltype$cptable,
@@ -1660,11 +1662,11 @@ server <- function(input, output) {
     )
   }
   
-  observeEvent(input$dt_init_action_, plotDtTable(initialdtmodel()))
-  observeEvent(input$dt_action_, plotDtTable(pruneddtmodel()))
+  observeEvent(input$dt_init_action_, dt_plotCPTable(initialdtmodel()))
+  observeEvent(input$dt_action_, dt_plotCPTable(pruneddtmodel()))
   
   ### Function to plot tree
-  plotTree = function(modeltype){
+  dt_plotTree = function(modeltype){
     output$dt_tree_ = renderVisNetwork(
       visTree(modeltype, 
               edgesFontSize = 12, 
@@ -1673,8 +1675,8 @@ server <- function(input, output) {
     )
   }
   
-  observeEvent(input$dt_init_action_, plotTree(initialdtmodel()))
-  observeEvent(input$dt_action_, plotTree(pruneddtmodel()))
+  observeEvent(input$dt_init_action_, dt_plotTree(initialdtmodel()))
+  observeEvent(input$dt_action_, dt_plotTree(pruneddtmodel()))
   
   ##Initial Model RMSE
   pred_initialdtmodel <- eventReactive(
