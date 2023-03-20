@@ -256,7 +256,7 @@ body <- dashboardBody(
                      #### Dashboard Interactive Map  ----------------------------------------------------
                      fluidRow(
                        box(
-                         title = tags$p("Map Panel", style = "color: #FFF; font-weight: bold;"),
+                         title = tags$p("Map Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                          status = "primary",
                          background = "aqua",
                          solidHeader = TRUE,
@@ -368,7 +368,7 @@ body <- dashboardBody(
               column(width = 2,
                      div(style = "padding = 0em; margin-right: -0.5em",
                          box(
-                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold;"),
+                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
@@ -436,7 +436,7 @@ body <- dashboardBody(
                                #### Analysis_Spending Scatterplot Control Panel ----------------------------------------------------
                                column(width = 3,
                                       box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                                         status = "primary",
                                         background = "aqua",
                                         solidHeader = TRUE,
@@ -471,7 +471,7 @@ body <- dashboardBody(
                                #### Analysis_Spending Boxviolin Control Panel ----------------------------------------------------
                                column(width = 3,
                                       box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                                         status = "primary",
                                         background = "aqua",
                                         solidHeader = TRUE,
@@ -540,7 +540,7 @@ body <- dashboardBody(
               column(width = 2,
                      div(style = "padding = 0em; margin-right: -0.5em",
                          box(
-                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold;"),
+                           title = tags$p("First Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
@@ -599,7 +599,7 @@ body <- dashboardBody(
                                #### Analysis_Country Numerical Control Panel ----------------------------------------------------
                                column(width = 3,
                                       box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                                         status = "primary",
                                         background = "aqua",
                                         solidHeader = TRUE,
@@ -661,7 +661,7 @@ body <- dashboardBody(
                                #### Analysis_Country Categorical Control Panel ----------------------------------------------------
                                column(width = 3,
                                       box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold;"),
+                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                                         status = "primary",
                                         background = "aqua",
                                         solidHeader = TRUE,
@@ -730,7 +730,7 @@ body <- dashboardBody(
               column(width = 2,
                      div(style = "padding = 0em; margin-right: -0.5em",
                          box(
-                           title = tags$p("Panel", style = "color: #FFF; font-weight: bold;"),
+                           title = tags$p("Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
@@ -850,7 +850,7 @@ body <- dashboardBody(
                      #### Variable Selection ----------------------------------------------------
                      div(style = "padding = 0em; margin-right: -0.5em",
                          box(
-                           title = tags$p("Preparation", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                           title = tags$p("Model Initiation", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
@@ -890,8 +890,11 @@ body <- dashboardBody(
                                sliderInput(inputId = "dt_partition_",
                                            label = "Train-Test Partition Ratio:",
                                            min = 0.5,
-                                           max = 1,
-                                           value = c(0.7)))
+                                           max = 0.95,
+                                           value = c(0.7))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               actionButton(inputId = "dt_init_action_", 
+                                            label = "Build Model"))
                            
                          )
                      ),
@@ -926,12 +929,12 @@ body <- dashboardBody(
                                       style = "padding = 0em; margin-top: -0.8em",
                                       numericInput(inputId = "dt_cp_",
                                                    label = "Complexity Parameter:",
-                                                   min = 0,
-                                                   max = 0.010,
-                                                   value = 0.001))),
+                                                   min = 0.005,
+                                                   max = 1,
+                                                   value = 0.01))),
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "dt_action_", 
-                                            label = "Build Model"))
+                                            label = "Tune Model"))
                          )),
                      
                      
@@ -939,7 +942,51 @@ body <- dashboardBody(
               ),
               
               ### Decision Tree Second Column  ----------------------------------------------------
-              column(width = 9,)
+              column(width = 9,
+                     
+                     #### Decision Tree cp error plot and table  ----------------------------------------------------
+                     column(width = 6,
+                            div(style = "padding = 0em; margin-left: -4em",
+                                box(
+                                  status = "primary",
+                                  width = 12,
+                                  collapsible = TRUE,
+                                  plotOutput("dt_errorplot_",
+                                             height = "33vh",
+                                             width = "100%")
+                                )),
+                            div(style = "padding = 0em; margin-left: -4em",
+                                box(
+                                  status = "primary",
+                                  width = 12,
+                                  collapsible = TRUE,
+                                  DT::dataTableOutput("dt_cp_datatable_",
+                                                      height = "33vh",
+                                                      width = "100%")
+                                ))
+                     ),
+                     
+                     
+                     #### Decision Tree Model  ----------------------------------------------------
+                     column(width = 6,
+                            fluidRow(
+                              div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
+                                  box(
+                                    title = "Decision Tree Model",
+                                    status = "primary",
+                                    width = 12,
+                                    collapsible = TRUE,
+                                    fluidRow(
+                                      visNetworkOutput("dt_tree_")
+                                    )
+                                  )
+                              )),
+                            fluidRow(
+                              div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
+                                  valueBoxOutput("dt_rmse_", width = 10)
+                              ))
+                     )
+              )
               
               
             )
@@ -1272,68 +1319,68 @@ server <- function(input, output) {
   ## Dataset selection for no outlier treatment
   acou_ANOVA <- eventReactive(
     input$acou_action_,{
-    touristdata_clean %>%
-      filter(country %in% countrylist()) %>%
-      mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
-      mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
-      drop_na()
-  })
+      touristdata_clean %>%
+        filter(country %in% countrylist()) %>%
+        mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+        mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+        drop_na()
+    })
   
   ## Dataset selection for outlier treatment
   acou_ANOVA_nooutlier <- eventReactive(
     input$acou_action_,{
-    touristdata_clean %>%
-      filter(country %in% countrylist()) %>%
-      mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
-      mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
-      drop_na() %>%
-      treat_outliers() 
-  })
+      touristdata_clean %>%
+        filter(country %in% countrylist()) %>%
+        mutate(region = fct_reorder(region, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+        mutate(country = fct_reorder(country, !!sym(input$acou_numvar_), median, .desc = TRUE)) %>%
+        drop_na() %>%
+        treat_outliers() 
+    })
   
   ## Dataset selection categorical
   acou_barstats <- eventReactive(
     input$acou_cat_action_, {
-    touristdata_clean %>%
-      filter(country %in% countrylist()) %>%
-      mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
-      mutate(across(first_trip_tz, convertbinary)) %>%
-      drop_na()
-  })
+      touristdata_clean %>%
+        filter(country %in% countrylist()) %>%
+        mutate(across(package_transport_int:package_insurance, convertbinary)) %>%
+        mutate(across(first_trip_tz, convertbinary)) %>%
+        drop_na()
+    })
   
   ## Numerical Metrics text
   acou_ANOVA_metrics_text <- eventReactive(
     input$acou_action_,{
-    switch(input$acou_numvar_,
-           "total_cost" = "Spending per Trip (TZS)",
-           "cost_per_pax" = "Individual Spending per Trip (TZS)",
-           "cost_per_night" = "Spending per Night (TZS)",
-           "cost_per_pax_night" = "Individual Spending per Night (TZS)",
-           "total_night_spent" = "Night Spent per Trip",
-           "prop_night_spent_mainland" = "Proportion of Night Spent in Mainland")
-  })
+      switch(input$acou_numvar_,
+             "total_cost" = "Spending per Trip (TZS)",
+             "cost_per_pax" = "Individual Spending per Trip (TZS)",
+             "cost_per_night" = "Spending per Night (TZS)",
+             "cost_per_pax_night" = "Individual Spending per Night (TZS)",
+             "total_night_spent" = "Night Spent per Trip",
+             "prop_night_spent_mainland" = "Proportion of Night Spent in Mainland")
+    })
   
   ## Categorical Metrics text
   acou_bar_metrics_text <- eventReactive(
     input$acou_cat_action_, {
-    switch(input$acou_catvar_,
-           "age_group" = "Age group",
-           "travel_with" = "Travelling with",
-           "purpose" = "Trip purpose",
-           "main_activity" = "Main activity",
-           "info_source" = "Source of information",
-           "tour_arrangement" = "Tour arrangement",
-           "package_transport_int" = "Incl. int'l. transport?",
-           "package_accomodation" = "Incl. accom?",
-           "package_food" = "Incl. food?",
-           "package_transport_tz" = "Incl. dom. transport?",
-           "package_sightseeing" = "Incl. sightseeing?",
-           "package_guided_tour" = "Incl. guided tour?",
-           "package_insurance" = "Incl. insurance?",
-           "payment_mode" = "Mode of payment",
-           "first_trip_tz" = "First trip to TZA?",
-           "most_impressing" = "Most impressive attr."
-    )
-  })
+      switch(input$acou_catvar_,
+             "age_group" = "Age group",
+             "travel_with" = "Travelling with",
+             "purpose" = "Trip purpose",
+             "main_activity" = "Main activity",
+             "info_source" = "Source of information",
+             "tour_arrangement" = "Tour arrangement",
+             "package_transport_int" = "Incl. int'l. transport?",
+             "package_accomodation" = "Incl. accom?",
+             "package_food" = "Incl. food?",
+             "package_transport_tz" = "Incl. dom. transport?",
+             "package_sightseeing" = "Incl. sightseeing?",
+             "package_guided_tour" = "Incl. guided tour?",
+             "package_insurance" = "Incl. insurance?",
+             "payment_mode" = "Mode of payment",
+             "first_trip_tz" = "First trip to TZA?",
+             "most_impressing" = "Most impressive attr."
+      )
+    })
   
   
   # Analysis_Country Server  ----------------------------------------------------
@@ -1523,12 +1570,149 @@ server <- function(input, output) {
   })
   
   # DT Data Manipulation  ----------------------------------------------------
+  dt_dataset <- eventReactive(
+    input$dt_init_action_, {
+      df_analysis %>%
+        select(input$dt_var_, "total_cost")
+    })
+  
+  dt_dataset_split <- eventReactive(
+    input$dt_init_action_, {
+      set.seed(123)
+      rsample::initial_split(dt_dataset(), prop = input$dt_partition_)
+    })
+  
+  dt_analysis_train <- eventReactive(
+    input$dt_init_action_, {
+      rsample::training(dt_dataset_split())
+    })
+  
+  dt_analysis_test <- eventReactive(
+    input$dt_init_action_, {
+      rsample::testing(dt_dataset_split())
+    })
   
   # DT Server  ----------------------------------------------------
   ## Enable Complexity Parameter Selection when check box is selected
   observe({
     toggle(id = "dt_cp_div_", condition = input$dt_bestcp_ == FALSE, anim = TRUE)
   })
+  
+  ##Initial Model
+  initialdtmodel <- eventReactive(
+    input$dt_init_action_, {
+      rpart(
+        formula = total_cost ~ ., 
+        data = dt_analysis_train(), 
+        method = "anova",
+        control = rpart.control(minsplit = 5, cp = 0.008, maxdepth = 10)
+      )
+    })
+  
+  ##Pruned Model
+  ### Find best CP
+  dt_bestcp_val <- eventReactive(
+    input$dt_action_, {
+      initialdtmodel()$cptable[which.min(initialdtmodel()$cptable[,"xerror"]),"CP"]
+    })
+  
+  ### Tuned Model
+  tuneddtmodel <- eventReactive(
+    input$dt_action_, {
+      rpart(
+        formula = total_cost ~ ., 
+        data = dt_analysis_train(), 
+        method = "anova",
+        control = rpart.control(minsplit = input$dt_minsplit_, maxdepth = input$dt_maxdepth_)
+      )
+    })
+  
+  ### Pruned Model
+  pruneddtmodel <- eventReactive(
+    input$dt_action_, {
+      prune(tuneddtmodel(), cp = if(input$dt_bestcp_){dt_bestcp_val()}else{input$dt_cp_}
+        )
+    })
+  
+  ### Function to plot error
+  plotError = function(modeltype){
+    output$dt_errorplot_ = renderPlot(plotcp(modeltype))
+  }
+  
+  observeEvent(input$dt_init_action_, plotError(initialdtmodel()))
+  observeEvent(input$dt_action_, plotError(pruneddtmodel()))
+  
+  ### Function to plot CP datatable
+  plotDtTable = function(modeltype){
+    output$dt_cp_datatable_ = DT::renderDataTable(
+      formatCurrency(
+        DT::datatable(modeltype$cptable,
+                      rownames = FALSE,
+                      class = "compact",
+                      options = list(
+                        pageLength = 4, 
+                        lengthMenu = c(4, 8),
+                        autoWidth = TRUE,
+                        info = FALSE
+                      )),
+        c(1,3,4,5), currency = '', 
+        digits = 3) 
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, plotDtTable(initialdtmodel()))
+  observeEvent(input$dt_action_, plotDtTable(pruneddtmodel()))
+  
+  ### Function to plot tree
+  plotTree = function(modeltype){
+    output$dt_tree_ = renderVisNetwork(
+      visTree(modeltype, 
+              edgesFontSize = 12, 
+              nodesFontSize = 14,
+              legendWidth = 0.3)
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, plotTree(initialdtmodel()))
+  observeEvent(input$dt_action_, plotTree(pruneddtmodel()))
+  
+  ##Initial Model RMSE
+  pred_initialdtmodel <- eventReactive(
+    input$dt_init_action_, {
+      predict(initialdtmodel(), newdata = dt_analysis_test())
+    })
+  
+  pred_initialdtmodel_rmse <- eventReactive(
+    input$dt_init_action_, {
+      Metrics::rmse(actual = dt_analysis_test()$total_cost, predicted = pred_initialdtmodel())
+    })
+  
+  ##Pruned Model RMSE
+  pred_pruneddtmodel <- eventReactive(
+    input$dt_action_, {
+      predict(pruneddtmodel(), newdata = dt_analysis_test())
+    })
+  
+  pred_pruneddtmodel_rmse <- eventReactive(
+    input$dt_action_, {
+      Metrics::rmse(actual = dt_analysis_test()$total_cost, predicted = pred_pruneddtmodel())
+    })
+  
+  
+  ### Function to display RMSE
+  dt_display_RMSE = function(modeltype){
+    output$dt_rmse_ = renderValueBox(
+      valueBox(
+        value = tags$p(paste0("TSZ ",scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 60%;"), 
+        subtitle = tags$p("RMSE", style = "font-size: 80%;"), 
+        icon = icon("dollar-sign"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, dt_display_RMSE(pred_initialdtmodel_rmse()))
+  observeEvent(input$dt_action_, dt_display_RMSE(pred_pruneddtmodel_rmse()))
   
 }
 
