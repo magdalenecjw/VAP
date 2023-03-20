@@ -897,41 +897,41 @@ body <- dashboardBody(
                      
                      #### Model Tuning ----------------------------------------------------
                      hidden(div(id = "dt_model_tuning",
-                         style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
-                         box(
-                           title = tags$p("Model Tuning", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                           status = "primary",
-                           background = "aqua",
-                           solidHeader = TRUE,
-                           collapsible = TRUE,
-                           width = 12,
-                           div(style = "padding = 0em; margin-top: -0.5em",
-                               sliderInput(inputId = "dt_minsplit_",
-                                           label = "Minimum Split:",
-                                           min = 5,
-                                           max = 20,
-                                           value = c(5))),
-                           div(style = "padding = 0em; margin-top: -0.8em",
-                               sliderInput(inputId = "dt_maxdepth_",
-                                           label = "Maximum Depth:",
-                                           min = 5,
-                                           max = 20,
-                                           value = c(10))),
-                           div(style = "padding = 0em; margin-top: -0.8em",
-                               checkboxInput(inputId = "dt_bestcp_", 
-                                             label = "Select Best CP",
-                                             value = TRUE)),
-                           hidden(div(id = "dt_cp_div_",
-                                      style = "padding = 0em; margin-top: -0.8em",
-                                      numericInput(inputId = "dt_cp_",
-                                                   label = "Complexity Parameter:",
-                                                   min = 0.005,
-                                                   max = 1,
-                                                   value = 0.01))),
-                           div(style = "padding = 0em; margin-top: -0.8em",
-                               actionButton(inputId = "dt_action_", 
-                                            label = "Tune Model"))
-                         ))),
+                                style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
+                                box(
+                                  title = tags$p("Model Tuning", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                                  status = "primary",
+                                  background = "aqua",
+                                  solidHeader = TRUE,
+                                  collapsible = TRUE,
+                                  width = 12,
+                                  div(style = "padding = 0em; margin-top: -0.5em",
+                                      sliderInput(inputId = "dt_minsplit_",
+                                                  label = "Minimum Split:",
+                                                  min = 5,
+                                                  max = 20,
+                                                  value = c(5))),
+                                  div(style = "padding = 0em; margin-top: -0.8em",
+                                      sliderInput(inputId = "dt_maxdepth_",
+                                                  label = "Maximum Depth:",
+                                                  min = 5,
+                                                  max = 20,
+                                                  value = c(10))),
+                                  div(style = "padding = 0em; margin-top: -0.8em",
+                                      checkboxInput(inputId = "dt_bestcp_", 
+                                                    label = "Select Best CP",
+                                                    value = TRUE)),
+                                  hidden(div(id = "dt_cp_div_",
+                                             style = "padding = 0em; margin-top: -0.8em",
+                                             numericInput(inputId = "dt_cp_",
+                                                          label = "Complexity Parameter:",
+                                                          min = 0.005,
+                                                          max = 1,
+                                                          value = 0.01))),
+                                  div(style = "padding = 0em; margin-top: -0.8em",
+                                      actionButton(inputId = "dt_action_", 
+                                                   label = "Tune Model"))
+                                ))),
               ),
               
               ### Decision Tree Second Column  ----------------------------------------------------
@@ -964,18 +964,27 @@ body <- dashboardBody(
                      column(width = 6,
                             fluidRow(
                               div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
-                                  box(
-                                    title = "Decision Tree Model",
-                                    status = "primary",
+                                  tabBox(
+                                    #title = h3("Hypothesis Testing"),
                                     width = 12,
-                                    collapsible = TRUE,
-                                    fluidRow(
+                                    height = "65vh",
+                                    
+                                    #### Decision Tree Tree ----------------------------------------------------
+                                    tabPanel(
+                                      title = tags$p("Decision Tree", style = "font-weight: bold;"),
                                       visNetworkOutput("dt_tree_")
+                                    ),
+                                    
+                                    #### Decision Tree Prediction vs Actual ----------------------------------------------------
+                                    tabPanel(
+                                      title = tags$p("Predicted vs Actual on Test Data", style = "font-weight: bold;"),
+                                      plotOutput("dt_pred_actual_")
                                     )
+                                    
                                   )
                               )),
                             fluidRow(
-                              div(style = "padding = 0em; margin-top: -2em; margin-left: -2em; margin-right: -1em;",
+                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em; margin-right: -1em;",
                                   valueBoxOutput("dt_rmse_", width = 10)
                               ))
                      )
@@ -1715,6 +1724,38 @@ server <- function(input, output) {
   
   observeEvent(input$dt_init_action_, dt_display_RMSE(pred_initialdtmodel_rmse()))
   observeEvent(input$dt_action_, dt_display_RMSE(pred_pruneddtmodel_rmse()))
+  
+  
+  ##Initial Model Predicted vs Actual
+  dt_predvsactual_initial <- eventReactive(
+    input$dt_init_action_, {
+      data.frame(actual = dt_analysis_test()$total_cost,
+                 pred = pred_initialdtmodel())
+    })
+  
+  ##Pruned Model Predicted vs Actual
+  dt_predvsactual_pruned <- eventReactive(
+    input$dt_action_, {
+      data.frame(actual = dt_analysis_test()$total_cost,
+                 pred = pred_pruneddtmodel())
+    })
+  
+  dt_plotpredvsactual = function(modeltype){
+    output$dt_pred_actual_ = renderPlot(
+      ggplot(data = modeltype, 
+             aes(actual, pred)) +
+        geom_point() +
+        geom_abline(intercept = 0, slope = 1, color = "red") +
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        coord_equal() +
+        theme_minimal() +
+        labs(x = "Actual Value", y = "Predicted Value")
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, dt_plotpredvsactual(dt_predvsactual_initial()))
+  observeEvent(input$dt_action_, dt_plotpredvsactual(dt_predvsactual_pruned()))
   
 }
 
