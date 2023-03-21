@@ -87,15 +87,15 @@ repeatcvControl <- trainControl(##default of 10, range: 3-50
                            method = "repeatedcv",
                            number = 10,
                            ##default of 3, range: 3-10
-                           repeats = 3)
+                           repeats = 10)
 
 #actual model
 rf_model <- train(total_cost ~ ., 
                   data = df_train,
                   method = "ranger", 
-                  trControl = trctrl, 
+                  trControl = repeatcvControl, 
             #trControl (refer to above objects created)
-                  num.trees = 5, #can consider range of 50 to 500 trees
+                  num.trees = 50, #can consider range of 5 to 500 trees
                   importance = "impurity", 
             #variable importance computation: "impurity", "permutation"
                   tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
@@ -110,10 +110,6 @@ rf_model <- train(total_cost ~ .,
 
 ```{r}
 df_test$fit_forest <- predict(rf_model, df_test)
-```
-
-```{r}
-RMSE(df_test$fit_forest, df_test$total_cost)
 ```
 
 ```{r}
