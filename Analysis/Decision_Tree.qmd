@@ -64,10 +64,13 @@ visTree(pruned_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
 
 ```{r}
 set.seed(1234)
-```
 
-```{r}
-par(mfrow=c(1,2))
+trainIndex <- createDataPartition(df_analysis$total_cost, p = 0.8, 
+                                  list = FALSE, 
+                                  times = 1)
+
+df_train <- df_analysis[trainIndex,]
+df_test <- df_analysis[-trainIndex,]
 ```
 
 ```{r}
@@ -88,14 +91,14 @@ repeatcvControl <- trainControl(##default of 10, range: 3-50
 
 #actual model
 rf_model <- train(total_cost ~ ., 
-                  data = df_analysis,
+                  data = df_train,
                   method = "ranger", 
                   trControl = trctrl, 
-              #trControl (refer to above objects created)
-                  num.trees = 100, #can consider range of 50 to 500 trees
+            #trControl (refer to above objects created)
+                  num.trees = 5, #can consider range of 50 to 500 trees
                   importance = "impurity", 
             #variable importance computation: "impurity", "permutation"
-                  tuneGrid = data.frame(mtry = sqrt(ncol(df_analysis)),
+                  tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
                                         min.node.size = 5,
                                         splitrule = "variance") 
             #splitrule: "variance" (default), "extratrees", "maxstat", "beta"
@@ -104,15 +107,19 @@ rf_model <- train(total_cost ~ .,
                   ) 
 ```
 
+
 ```{r}
-RMSE(rf_model$finalModel$predictions, df_analysis$total_cost)
+df_test$fit_forest <- predict(rf_model, df_test)
+```
+
+```{r}
+RMSE(df_test$fit_forest, df_test$total_cost)
 ```
 
 ```{r}
 
 rf_scatter <- ggplot() + 
-  geom_point(aes(x = df_analysis$total_cost, 
-                 y = rf_model$finalModel$predictions)) +
+  geom_point(aes(x = df_test$total_cost, y = df_test$fit_forest)) +
   labs(x = "Actual Total Cost", y = "Predicted Total Cost",
        title = paste0("R-squared: ", round(rf_model$finalModel$r.squared, digits=2))) + 
   theme(axis.text = element_text(size = 5),
@@ -120,15 +127,17 @@ rf_scatter <- ggplot() +
         title = element_text(size = 8))
 
 rf_residuals <- ggplot() + 
-  geom_point(aes(x = df_analysis$total_cost,
-                 y = (rf_model$finalModel$predictions-df_analysis$total_cost)),
+  geom_point(aes(x = df_test$total_cost, 
+                 y = (df_test$fit_forest-df_test$total_cost)),
              col="blue3") +
   labs(y ="Residuals (Predicted-Actual)", x = "Actual Total Cost") + 
   geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
   theme(axis.text = element_text(size = 5),
         axis.title = element_text(size = 8))
 
-p <- rf_scatter + rf_residuals
+p <- rf_scatter + rf_residuals + 
+  plot_annotation(title = "Scatterplot of predicted vs. actual total cost", 
+                  theme = theme(plot.title = element_text(size = 18)))
 
 p
 ```
@@ -138,4 +147,35 @@ p
 #can we show a title for this table based on what was selected in the model i.e. impurity vs permutation
 
 varImp(rf_model)
+```
+
+```{r}
+##this is related to the model built above, but can we also have a separate tab where model takes in the other parameters set above, but here we allow for a range of the number of trees. This will allow us to plot the R-squared value vs the number of trees. 
+
+##our range can remain at 5-500 but would suggest we limit them to select no more than 100 numbers at one go e.g. 5-105 otherwise it will take very long to run depending on which trControl we choose to use
+
+tree_range <- 5:100
+
+rsquared_trees <- c()
+
+for (i in tree_range){
+  rf_model <- train(total_cost ~ ., 
+                  data = df_train,
+                  method = "ranger", 
+                  trControl = trctrl, 
+                  num.trees = i,
+                  importance = "impurity", 
+                  tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
+                                        min.node.size = 5,
+                                        splitrule = "variance"))
+  
+  rsquared_trees <- append(rsquared_trees, rf_model$finalModel$r.squared)
+}
+
+rsquared_plot <- data.frame(tree_range, rsquared_trees)
+
+ggplot(df = rsquared_plot) + 
+  geom_point(aes(x = tree_range, y = rsquared_trees)) + 
+  labs(x = "Number of trees", y = "R-squared values", 
+       title = "R-squared vs. Number of Trees Plot")
 ```
