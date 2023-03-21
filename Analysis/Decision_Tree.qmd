@@ -162,7 +162,7 @@ for (i in tree_range){
   rf_model <- train(total_cost ~ ., 
                   data = df_train,
                   method = "ranger", 
-                  trControl = trctrl, 
+                  trControl = cvControl, 
                   num.trees = i,
                   importance = "impurity", 
                   tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
