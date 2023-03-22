@@ -1285,14 +1285,15 @@ server <- function(input, output) {
   ## Wrap the scatter plot in eventReactive based on Update Plot Button
   spend_scatter_plotreact <- eventReactive(
     input$spend_scatter_action_, {
-      grouped_ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
-                             x = total_night_spent, y = cost_per_pax,
-                             xlab = "Total Nights Spent", ylab = "Individual Spending per Trip (TZS)",
-                             grouping.var = !!sym(input$spend_cat_),
+      ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
+                             x = cost_per_pax, y = total_night_spent,
+                             xlab = "Individual Spending per Trip (TZS)", ylab = "Total Nights Spent",
+                             #grouping.var = !!sym(input$spend_cat_),
                              results.subtitle = TRUE,
                              type = input$spend_test_,
                              conf.level = as.numeric(input$spend_cf_),
-                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) 
+                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) + 
+        facet_wrap(vars(!!sym(input$spend_cat_)))
     })
   
   ## Wrap the box plot in eventReactive based on Update Plot Button
