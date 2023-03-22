@@ -115,10 +115,12 @@ df_analysis <- touristdata %>%
 
 
 # Convert binary function  ----------------------------------------------------
-
 convertbinary <- function(x){
   ifelse(x==1,"Yes","No")
 }
+
+#colorset
+colorset <-  c("#30C5FF", "#D8A48F", "#5C946E", "#E9D758", "#FF5964", "#80C2AF", "#A0DDE6", "#B37BA4", "#F18F01", "#006E90")
 
 #========================#
 ###### Custom Theme ######
@@ -128,7 +130,9 @@ convertbinary <- function(x){
 mytheme <- create_theme(
   adminlte_color(
     light_blue = "#030708",
-    aqua = "#A0DDE6"
+    aqua = "#A0DDE6",
+    green = "#5C946E",
+    yellow = "#E9D758"
   ),
   adminlte_sidebar(
     width = "200px",
@@ -192,9 +196,11 @@ body <- dashboardBody(
   tags$style("h2 { font-family: sans-serif; font-weight: bold; }"),
   tags$style("h3 { font-family: sans-serif; font-weight: bold; }"),
   tags$style(".small-box.bg-aqua { color: #2A2D34 !important; }"),
+  tags$style(".small-box.bg-yellow { color: #2A2D34 !important; }"),
   tags$style(".box-header h3.box-title{ color: #2A2D34; font-weight: bold }"),
   tags$style(".box { font-size: 90%}"),
   tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
+  tags$style(".nav-tabs-custom .nav-tabs li.active { border-top-color: #E9D758 !important; }"),
   tags$style(".fa-dollar-sign {font-size:80%}"),
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
@@ -239,14 +245,14 @@ body <- dashboardBody(
                      fluidRow(
                        valueBoxOutput("dash_topspender_", width = 4),
                        valueBoxOutput("dash_avgspenttrip_", width = 4),
-                       valueBoxOutput("dash_avgspentnight_", width = 4)
+                       valueBoxOutput("dash_topvisitor_", width = 4)
                      ),
                      #### Dashboard Second Value Boxes  ----------------------------------------------------
                      div(style = "padding = 0em; margin-top: 0em",
                          fluidRow(
-                           valueBoxOutput("dash_totalvisitors_", width = 4),
+                           valueBoxOutput("dash_avgpartysize_", width = 4),
                            valueBoxOutput("dash_avgnight_", width = 4),
-                           valueBoxOutput("dash_avgpartysize_", width = 4)
+                           valueBoxOutput("dash_avgspentnight_", width = 4)
                          )),
                      
                      #### Dashboard Interactive Map  ----------------------------------------------------
@@ -264,11 +270,11 @@ body <- dashboardBody(
                              selectInput(inputId = "dash_mapmetric_",
                                          label = "Select metrics:",
                                          choices = c("Total Visitors" = "total_tourist",
-                                                     "Total Spending" = "total_cost",
-                                                     "Average Spending per Trip" = "avg_cost",
-                                                     "Average Night Spent" = "avg_night_spent",
-                                                     "Average Spending per Night" = "cost_per_night",
-                                                     "Average Individual Spending per Night" = "cost_per_pax_night"),
+                                                     "Total Spend (TZS)" = "total_cost",
+                                                     "Average TZS/Trip" = "avg_cost",
+                                                     "Average Nights" = "avg_night_spent",
+                                                     "Average TZS/Night" = "cost_per_night",
+                                                     "Average TZS/pax/Night" = "cost_per_pax_night"),
                                          selected = "total_tourist")),
                          div(style = "padding = 0em; margin-top: -1em",
                              selectInput(inputId = "dash_mapclassification_",
@@ -1054,6 +1060,16 @@ server <- function(input, output) {
     scales::comma(touristdata_clean_country_sorted$total_cost[1]/1000000)
   })
   
+  top_tourist_country <- reactive({
+    touristdata_clean_country_sorted_tourist$country[1]
+  })
+  
+  top_tourist <- reactive({
+    scales::comma(touristdata_clean_country_sorted_tourist$total_tourist[1])
+  })
+  
+  
+  
   # Dashboard Data Manipulation  ----------------------------------------------------
   dash_touristdatatable <- reactive({
     touristdata_clean_country_sorted %>%
@@ -1061,7 +1077,7 @@ server <- function(input, output) {
       select(!c(1,3,4,5,9,11,14)) %>%
       rename("Country" = "code",
              "Total Visitors" = "total_tourist",
-             "Total TZS" = "total_cost",
+             "Total Spend (TZS)" = "total_cost",
              "Avg Nights" = "avg_night_spent",
              "Avg TZS/Trip" = "avg_cost",
              "Avg TZS/Night" = "cost_per_night",
@@ -1072,11 +1088,11 @@ server <- function(input, output) {
   dash_map_metrics_text <- reactive({
     switch(input$dash_mapmetric_,
            "total_tourist" = "Total Visitors",
-           "total_cost" = "Total Spending (TZS)",
-           "avg_cost" = "Average Spending per Trip (TZS)",
-           "avg_night_spent" = "Average Night Spent",
-           "cost_per_night" = "Average Spending per Night (TZS)",
-           "cost_per_pax_night" = "Average Individual Spending per Night (TZS)")
+           "total_cost" = "Total Spend (TZS)",
+           "avg_cost" = "Avg TZS/Trip",
+           "avg_night_spent" = "Avg Nights",
+           "cost_per_night" = "Avg TZS/Night",
+           "cost_per_pax_night" = "Avg TZS/pax/Night")
   })
   
   # Dashboard Server  ----------------------------------------------------
@@ -1085,41 +1101,50 @@ server <- function(input, output) {
       value = tags$p(paste0("TSZ ",top_value(), "m"), style = "font-size: 60%;"),
       subtitle = tags$p(paste0("Top Spending Country: ",top_country()), style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
-      color = "aqua"
+      color = "yellow"
     )
   })
   
   output$dash_avgspenttrip_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "k"), style = "font-size: 60%;"), 
-      subtitle = tags$p("Average Spending per Trip", style = "font-size: 80%;"), 
+      subtitle = tags$p("Average TSZ/Trip", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
-      color = "aqua"
+      color = "yellow"
+    )
+  })
+  
+  output$dash_topvisitor_ <- renderValueBox({
+    valueBox(
+      value = tags$p(top_tourist(), style = "font-size: 60%;"), 
+      subtitle = tags$p(paste0("Top Visiting Country: ",top_tourist_country()), style = "font-size: 80%;"), 
+      icon = icon("people-group"),
+      color = "green"
     )
   })
   
   output$dash_avgspentnight_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "k"), style = "font-size: 60%;"), 
-      subtitle = tags$p("Average Spending per Night", style = "font-size: 80%;"), 
+      subtitle = tags$p("Average TSZ/Night", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
-      color = "aqua"
+      color = "yellow"
     )
   })
   
-  output$dash_totalvisitors_ <- renderValueBox({
-    valueBox(
-      value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
-      subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
-      icon = icon("people-group"),
-      color = "aqua"
-    )
-  })
+#  output$dash_totalvisitors_ <- renderValueBox({
+#    valueBox(
+#      value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
+#      subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
+#      icon = icon("people-group"),
+#      color = "aqua"
+#    )
+#  })
   
   output$dash_avgnight_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_night_spent),0))), style = "font-size: 60%;"), 
-      subtitle = tags$p("Average Night Spent by Tourist", style = "font-size: 80%;"), 
+      subtitle = tags$p("Average Nights Spent", style = "font-size: 80%;"), 
       icon = icon("bed"),
       color = "aqua"
     )
@@ -1130,7 +1155,7 @@ server <- function(input, output) {
       value = tags$p(paste0(scales::comma(round(mean(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
       subtitle = tags$p("Average Party Size", style = "font-size: 80%;"), 
       icon = icon("people-group"),
-      color = "aqua"
+      color = "green"
     )
   })
   
@@ -1146,7 +1171,8 @@ server <- function(input, output) {
               style = input$dash_mapclassification_, 
               palette="YlGn", 
               id = "country",
-              title = dash_map_metrics_text()
+              title = dash_map_metrics_text(),
+              popup.vars = c(" " = paste0(input$dash_mapmetric_))
       ) +
       tm_view(view.legend.position = c("left","bottom")) +
       tm_borders(col = "grey20",
@@ -1182,17 +1208,18 @@ server <- function(input, output) {
     plot_ly(touristdata_clean_country_cum) %>%
       add_trace(x = ~reorder(`code`,-`total_cost`), 
                 y = ~`total_cost`, 
-                type = "bar", name = "Total Spending",
-                marker = list(color = "#A0DDE6"),
+                type = "bar", name = "Total Spend (TZS)",
+                marker = list(color = "#1F2F16"),
                 hovertemplate = paste(touristdata_clean_country_cum$country,": TZS",format(round(touristdata_clean_country_cum$total_cost / 1e9, 2), trim = TRUE), "B")) %>%
       add_trace(x = ~reorder(`code`,-`total_cost`), 
                 y = ~`cum`*100,
                 type = "scatter", mode = "lines", 
                 yaxis = "y2", name = "Cum. %",
+                line = list(color = "#F4B266"),
                 hovertemplate = paste(touristdata_clean_country_cum$country,": %{y:.2f}","%")) %>%
       layout(autosize = TRUE,
              xaxis = list(title = ""),
-             yaxis = list(title = list(text = "Total Spending", font = t_spending_yaxis), showgrid = F),
+             yaxis = list(title = list(text = "Total Spend (TZS)", font = t_spending_yaxis), showgrid = F),
              yaxis2 = list(overlaying = "y", side = "right", range = list(0, 100), showticklabels = FALSE),
              legend = list(orientation="h", yanchor="bottom",y=0.9,xanchor="top",x=0.2)) 
     
@@ -1206,12 +1233,13 @@ server <- function(input, output) {
       add_trace(x = ~reorder(`code`,-`total_tourist`), 
                 y = ~`total_tourist`, 
                 type = "bar", name = "Total Visitors",
-                marker = list(color = "#A0DDE6"),
+                marker = list(color = "#1F2F16"),
                 hovertemplate = paste(touristdata_clean_country_cum_tourist$country,": ",touristdata_clean_country_cum_tourist$total_tourist)) %>%
       add_trace(x = ~reorder(`code`,-`total_tourist`), 
                 y = ~`cum`*100,
                 type = "scatter", mode = "lines", 
                 yaxis = "y2", name = "Cum. %",
+                line = list(color = "#F4B266"),
                 hovertemplate = paste(touristdata_clean_country_cum_tourist$country,": %{y:.2f}","%")) %>%
       layout(autosize = TRUE,
              xaxis = list(title = ""),
@@ -1285,15 +1313,15 @@ server <- function(input, output) {
   ## Wrap the scatter plot in eventReactive based on Update Plot Button
   spend_scatter_plotreact <- eventReactive(
     input$spend_scatter_action_, {
-      ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
+      grouped_ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
                              x = cost_per_pax, y = total_night_spent,
                              xlab = "Individual Spending per Trip (TZS)", ylab = "Total Nights Spent",
-                             #grouping.var = !!sym(input$spend_cat_),
+                             grouping.var = !!sym(input$spend_cat_),
                              results.subtitle = TRUE,
                              type = input$spend_test_,
                              conf.level = as.numeric(input$spend_cf_),
-                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) + 
-        facet_wrap(vars(!!sym(input$spend_cat_)))
+                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
+        #facet_wrap(vars(!!sym(input$spend_cat_)))
     })
   
   ## Wrap the box plot in eventReactive based on Update Plot Button
@@ -1304,8 +1332,8 @@ server <- function(input, output) {
                      plot.type = input$spend_plottype_,
                      xlab = spend_category_text(), ylab = spend_yaxis_text(),
                      type = input$spend_test_, pairwise.comparisons = input$spend_compare_, pairwise.display = input$spend_w_compare_, 
-                     mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_),
-                     package = "ggthemes", palette = "Tableau_10") +
+                     mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_)) +
+        scale_color_manual(values = colorset) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
   
@@ -1419,8 +1447,8 @@ server <- function(input, output) {
                      xlab = str_to_title(input$acou_reg_cou_), ylab = acou_ANOVA_metrics_text(),
                      type = input$acou_test_, pairwise.comparisons = input$acou_compare_, pairwise.display = input$acou_w_compare_, 
                      mean.ci = T, p.adjust.method = "fdr",  
-                     conf.level = as.numeric(input$acou_cf_),
-                     package = "ggthemes", palette = "Tableau_10") +
+                     conf.level = as.numeric(input$acou_cf_)) +
+        scale_color_manual(values = colorset) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
     })
   
