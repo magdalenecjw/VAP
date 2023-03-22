@@ -990,6 +990,14 @@ body <- dashboardBody(
                                       plotOutput("dt_pred_actual_",
                                                  width = "100%",
                                                  height = "50vh")
+                                    ),
+                                    
+                                    #### Decision Tree Residual Plot  ----------------------------------------------------
+                                    tabPanel(
+                                      title = tags$p("Residual Plot", style = "font-weight: bold;"),
+                                      plotOutput("dt_resid_",
+                                                 width = "100%",
+                                                 height = "50vh")
                                     )
                                     
                                   )
@@ -1841,13 +1849,45 @@ server <- function(input, output) {
         geom_abline(intercept = 0, slope = 1, color = "red") +
         scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        theme_minimal() +
-        labs(x = "Actual Value", y = "Predicted Value")
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Predicted Total Spending")
     )
   }
   
   observeEvent(input$dt_init_action_, dt_plotpredvsactual(dt_predvsactual_initial()))
   observeEvent(input$dt_action_, dt_plotpredvsactual(dt_predvsactual_pruned()))
+  
+  ##Residual
+  dt_resid_initial <- eventReactive(
+    input$dt_init_action_, {
+      data.frame(actual = dt_analysis_test()$total_cost,
+                 pred = pred_initialdtmodel(),
+                 resid = pred_initialdtmodel() - dt_analysis_test()$total_cost)
+    })
+  
+  ##Pruned Model Predicted vs Actual
+  dt_resid_pruned <- eventReactive(
+    input$dt_action_, {
+      data.frame(actual = dt_analysis_test()$total_cost,
+                 pred = pred_pruneddtmodel(),
+                 resid = pred_pruneddtmodel() - dt_analysis_test()$total_cost)
+    })
+  
+  dt_plotresid = function(modeltype){
+    output$dt_resid_ = renderPlot(
+      ggplot(data = modeltype, 
+             aes(actual, resid)) +
+        geom_point() +
+        geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Residuals (Predicted-Actual)")
+    )
+  }
+  
+  observeEvent(input$dt_init_action_, dt_plotresid(dt_resid_initial()))
+  observeEvent(input$dt_action_, dt_plotresid(dt_resid_pruned()))
   
 }
 
