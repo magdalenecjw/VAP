@@ -101,7 +101,7 @@ top_oceania_data <- touristdata_clean_country_sorted %>%
   filter(region == "Oceania") %>%
   arrange(desc(total_cost))
 
-# Data for Decision Tree and Boosted Tree ----------------------------------------------------
+# Data for Decision Tree and Random Forest  ----------------------------------------------------
 df_analysis <- touristdata %>% 
   select(!ID) %>% 
   select(!code) %>% 
@@ -183,7 +183,7 @@ sidebar <- dashboardSidebar(
     menuItem("Clustering", tabName = "tab_cluster", icon = icon("circle-nodes")),
     menuItem("Regression Model", tabName = "tab_pred", icon = icon("network-wired"),
              menuSubItem("Decision Tree", tabName = "tab_dt"),
-             menuSubItem("Boosted Tree", tabName = "tab_bdt")
+             menuSubItem("Random Forest", tabName = "tab_rf")
     ),
     menuItem("About", tabName = "tab_about", icon = icon("info"))
   )
@@ -1012,7 +1012,7 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-top: -1em;",
                                   valueBoxOutput("dt_r2_", width = 4)
                               )
-                              )
+                            )
                      )
               )
               
@@ -1020,9 +1020,9 @@ body <- dashboardBody(
             )
     ),
     
-    ## Boosted Tree  ----------------------------------------------------
-    tabItem(tabName = "tab_bdt",
-            #h3("Prediction by Boosted Tree")
+    ## Random Forest  ----------------------------------------------------
+    tabItem(tabName = "tab_rf",
+            #h3("Prediction by Random Forest")
     ),
     
     ## Information  ----------------------------------------------------
@@ -1052,7 +1052,7 @@ server <- function(input, output) {
                      tab_country_compare = "Country Comparison",
                      tab_cluster = "Clustering Analysis",
                      tab_dt = "Regression by Decision Tree",
-                     tab_bdt = "Regression by Boosted Tree"
+                     tab_rf = "Regression by Random Forest"
     )
     
     # you can use any other dynamic content you like
@@ -1140,14 +1140,14 @@ server <- function(input, output) {
     )
   })
   
-#  output$dash_totalvisitors_ <- renderValueBox({
-#    valueBox(
-#      value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
-#      subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
-#      icon = icon("people-group"),
-#      color = "aqua"
-#    )
-#  })
+  #  output$dash_totalvisitors_ <- renderValueBox({
+  #    valueBox(
+  #      value = tags$p(paste0(scales::comma(round(sum(touristdata_clean$total_tourist),0))), style = "font-size: 60%;"), 
+  #      subtitle = tags$p("Total Visitors in dataset", style = "font-size: 80%;"), 
+  #      icon = icon("people-group"),
+  #      color = "aqua"
+  #    )
+  #  })
   
   output$dash_avgnight_ <- renderValueBox({
     valueBox(
@@ -1329,7 +1329,7 @@ server <- function(input, output) {
                              type = input$spend_test_,
                              conf.level = as.numeric(input$spend_cf_),
                              ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
-        #facet_wrap(vars(!!sym(input$spend_cat_)))
+      #facet_wrap(vars(!!sym(input$spend_cat_)))
     })
   
   ## Wrap the box plot in eventReactive based on Update Plot Button
@@ -1469,8 +1469,8 @@ server <- function(input, output) {
                  legend.title = acou_bar_metrics_text(),
                  type = input$acou_test_, 
                  conf.level = as.numeric(input$acou_cf_), 
-                 label = input$acou_catlabel_,
-                 package = "ggthemes", palette = "Tableau_10")
+                 label = input$acou_catlabel_) +
+        scale_fill_manual(values = colorset)
     })
   
   ## Render the numerical plot
