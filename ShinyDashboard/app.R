@@ -1006,10 +1006,10 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
                                   valueBoxOutput("dt_rmse_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em;",
+                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
                                   valueBoxOutput("dt_mae_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em;",
+                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
                                   valueBoxOutput("dt_r2_", width = 4)
                               )
                             )
