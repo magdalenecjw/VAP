@@ -15,7 +15,7 @@ editor: visual
 
 ```{r}
 pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork, 
-               caret, ranger, patchwork, tidyverse)
+               caret, ranger, patchwork, tidyverse, xgboost)
 ```
 
 ```{r}
@@ -174,4 +174,9 @@ ggplot(df = rsquared_plot) +
   geom_point(aes(x = tree_range, y = rsquared_trees)) + 
   labs(x = "Number of trees", y = "R-squared values", 
        title = "R-squared vs. Number of Trees Plot")
+```
+# XGBoost
+
+```{r}
+
 ```
