@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "ranger", "patchwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
@@ -849,7 +849,7 @@ body <- dashboardBody(
               ### Decision Tree First Column  ----------------------------------------------------
               column(width = 3,
                      
-                     #### Variable Selection ----------------------------------------------------
+                     #### Model Initiation ----------------------------------------------------
                      div(style = "padding = 0em; margin-right: -0.5em",
                          box(
                            title = tags$p("Model Initiation", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
@@ -1023,6 +1023,170 @@ body <- dashboardBody(
     ## Random Forest  ----------------------------------------------------
     tabItem(tabName = "tab_rf",
             #h3("Prediction by Random Forest")
+            fluidRow(
+              
+              ### Random Forest First Column  ----------------------------------------------------
+              column(width = 3,
+                     
+                     #### Model Building ----------------------------------------------------
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("Model Building", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = TRUE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               pickerInput(inputId = "rf_var_",
+                                           label = "Variable Selection:",
+                                           choices = list("Region" = "region", 
+                                                          "Age group" = "age_group", 
+                                                          "Travelling with" = "travel_with", 
+                                                          "Trip purpose" = "purpose",
+                                                          "Main activity" = "main_activity",
+                                                          "Source of information" = "info_source",
+                                                          "Tour arrangement" = "tour_arrangement",
+                                                          "Incl. int'l. transport?" = "package_transport_int",
+                                                          "Incl. accom?" = "package_accomodation",
+                                                          "Incl. food?" = "package_food",
+                                                          "Incl. dom. transport?" = "package_transport_tz",
+                                                          "Incl. sightseeing?" = "package_sightseeing",
+                                                          "Incl. guided tour?" = "package_guided_tour",
+                                                          "Incl. insurance?" = "package_insurance",
+                                                          "Mode of payment" = "payment_mode",
+                                                          "First trip to TZA?" = "first_trip_tz",
+                                                          "Most impressive attr." = "most_impressing",
+                                                          "Total Visitors" = "total_tourist",
+                                                          "Total Male Visitors" = "total_male",
+                                                          "Total Female Visitors" = "total_female",
+                                                          "Total Night Spent" = "total_night_spent",
+                                                          "Prop. Night Spent in Mainland" = "prop_night_spent_mainland",
+                                                          "Nights Spent in Mainland" = "night_mainland",
+                                                          "Nights Spent in Zanzibar" = "night_zanzibar"),
+                                           selected = colnames(df_analysis)[1:24],
+                                           multiple = TRUE,
+                                           options = list(`actions-box` = TRUE))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               sliderInput(inputId = "rf_partition_",
+                                           label = "Train-Test Partition Ratio:",
+                                           min = 0.5,
+                                           max = 0.95,
+                                           value = c(0.8))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               radioButtons(inputId = "rf_traincontrol_",
+                                            label = "Resampling Technique:",
+                                            choices = c("Bootstrap Resampling" = "rf_bootres",
+                                                        "K-fold cross-validation" = "rf_kfold",
+                                                        "Repeated K-fold cross-validation" = "rf_repeatkfold"),
+                                            selected = "rf_bootres")),
+                           hidden(div(id = "rf_kfold_number_div",
+                                      style = "padding = 0em; margin-top: -0.8em",
+                                      numericInput(inputId = "rf_kfold_number",
+                                                   label = "k (Choose between 3 to 50):",
+                                                   min = 3,
+                                                   max = 50,
+                                                   value = 10))),
+                           hidden(div(id = "rf_repeatkfold_number_div",
+                                      style = "padding = 0em; margin-top: -0.8em",
+                                      numericInput(inputId = "rf_repeatkfold_number",
+                                                   label = "k (Choose between 3 to 50):",
+                                                   min = 3,
+                                                   max = 50,
+                                                   value = 10))),
+                           hidden(div(id = "rf_repeatkfold_repeat_div",
+                                      style = "padding = 0em; margin-top: -0.8em",
+                                      numericInput(inputId = "rf_repeatkfold_repeat",
+                                                   label = "Number of repetition (Choose between 3 to 10):",
+                                                   min = 3,
+                                                   max = 10,
+                                                   value = 3))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               numericInput(inputId = "rf_numtrees_",
+                                            label = "Number of Trees (Choose between 3 to 500):",
+                                            min = 5,
+                                            max = 500,
+                                            value = 50)),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               radioButtons(inputId = "rf_importance_",
+                                            label = "Feature Importance:",
+                                            choices = c("Gini Importance" = "impurity",
+                                                        "Permutation Importance" = "permutation"),
+                                            selected = "impurity")),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               selectInput(inputId = "rf_splitrule_",
+                                           label = "Select Split Rule:",
+                                           choices = c("Variance" = "variance",
+                                                       "Extra Trees" = "extratrees",
+                                                       "Max Stat" = "maxstat",
+                                                       "Beta" = "beta"),
+                                           selected = "variance")),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               actionButton(inputId = "rf_action_", 
+                                            label = "Build Model"))
+                           
+                           
+                         )
+                         
+                     )
+                     
+              ),
+              
+              ### Random Forest Second Column  ----------------------------------------------------
+              column(width = 9,
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
+                           tabBox(
+                             #title = h3("Hypothesis Testing"),
+                             width = 12,
+                             height = "65vh",
+                             
+                             #### Random Forest Prediction vs Actual and Residual ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("Predicted vs Actual on Test Data", style = "font-weight: bold;"),
+                               column(width = 6,
+                                      plotOutput("rf_pred_actual_",
+                                                 width = "100%",
+                                                 height = "50vh")),
+                               column(width = 6,
+                                      plotOutput("rf_resid_",
+                                                 width = "100%",
+                                                 height = "50vh"))
+                               
+                             ),
+                             
+                             #### Random Forest Variable Importance  ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("Variable Importance", style = "font-weight: bold;"),
+                               plotOutput("rf_varimp_",
+                                          width = "100%",
+                                          height = "50vh")
+                             ),
+                             
+                             #### Random Forest Variable Importance  ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("R-squared value vs Number of trees", style = "font-weight: bold;"),
+                             )
+                           )
+                       )),
+                     
+                     fluidRow(
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("rf_rmse_", width = 4)
+                       ),
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("rf_mae_", width = 4)
+                       ),
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("rf_r2_", width = 4)
+                       )
+                     )
+                     
+              )
+              
+              
+              
+            )
     ),
     
     ## Information  ----------------------------------------------------
@@ -1889,7 +2053,199 @@ server <- function(input, output) {
   observeEvent(input$dt_init_action_, dt_plotresid(dt_resid_initial()))
   observeEvent(input$dt_action_, dt_plotresid(dt_resid_pruned()))
   
+  # RF Data Manipulation  ----------------------------------------------------
+  rf_dataset <- eventReactive(
+    input$rf_action_, {
+      df_analysis %>%
+        select(input$rf_var_, "total_cost")
+    })
+  
+  rf_indices <- eventReactive(
+    input$rf_action_, {
+      set.seed(1234)
+      caret::createDataPartition(rf_dataset()$total_cost, p =input$rf_partition_, list = FALSE)
+    })
+  
+  rf_analysis_train <- eventReactive(
+    input$rf_action_, {
+      rf_dataset()[rf_indices(),]
+    })
+  
+  rf_analysis_test <- eventReactive(
+    input$rf_action_, {
+      rf_dataset()[-rf_indices(),]
+    })
+  
+  rf_trctrl <- eventReactive(
+    input$rf_action_, {
+      trainControl(method = "none")
+    })
+  
+  rf_cvControl <- eventReactive(
+    input$rf_action_, {
+      trainControl(
+        method = "cv",
+        number = input$rf_kfold_number)
+    })
+  
+  rf_repeatcvControl <- eventReactive(
+    input$rf_action_, {
+      trainControl(
+        method = "repeatedcv",
+        number = input$rf_repeatkfold_number,
+        repeats = input$rf_repeatkfold_repeat)
+    })
+  
+  # RF Server  ----------------------------------------------------
+  ## Enable K Parameter Selection when check box is selected
+  observe({
+    toggle(id = "rf_kfold_number_div", condition = input$rf_traincontrol_ == "rf_kfold", anim = TRUE)
+  })
+  
+  observe({
+    toggle(id = "rf_repeatkfold_number_div", condition = input$rf_traincontrol_ == "rf_repeatkfold", anim = TRUE)
+  })
+  
+  observe({
+    toggle(id = "rf_repeatkfold_repeat_div", condition = input$rf_traincontrol_ == "rf_repeatkfold", anim = TRUE)
+  })
+  
+  ## Build Model
+  rfmodel <- eventReactive(
+    input$rf_action_, {
+      train(total_cost ~ ., 
+            data = rf_analysis_train(),
+            method = "ranger", 
+            #trControl = rf_trctrl(),
+            trControl = if(input$rf_traincontrol_ == "rf_bootres"){rf_trctrl()}else if(input$rf_traincontrol_ == "rf_kfold"){rf_cvControl()}else{rf_repeatcvControl()}, 
+            num.trees = input$rf_numtrees_, 
+            importance = input$rf_importance_, 
+            tuneGrid = data.frame(mtry = sqrt(ncol(rf_analysis_train())),
+                                  min.node.size = 5,
+                                  splitrule = input$rf_splitrule_) 
+      ) 
+    })
+  
+  pred_rfmodel <- eventReactive(
+    input$rf_action_, {
+      predict(rfmodel(), newdata = rf_analysis_test())
+    })
+  
+  ## Dataset for plotting
+  rf_dataplot <- eventReactive(
+    input$rf_action_, {
+      data.frame(actual = rf_analysis_test()$total_cost,
+                 pred = pred_rfmodel(),
+                 resid = pred_rfmodel() - rf_analysis_test()$total_cost)
+    })
+  
+  ## Plot Predictive vs Actual
+  rf_plotpredvsactual <- eventReactive(
+    input$rf_action_, {
+      ggplot(data = rf_dataplot(), 
+             aes(actual, pred)) +
+        geom_point() +
+        geom_abline(intercept = 0, slope = 1, color = "red") +
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Predicted Total Spending",
+             title = "Prediction vs Actual")
+    })
+  
+  output$rf_pred_actual_ <- renderPlot({
+    rf_plotpredvsactual()
+  })
+  
+  ## Plot Residual
+  rf_residual <- eventReactive(
+    input$rf_action_, {
+      ggplot(data = rf_dataplot(), 
+             aes(actual, resid)) +
+        geom_point() +
+        geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Residuals (Predicted-Actual)",
+             title = "Residual Plot")
+    })
+  
+  output$rf_resid_ <- renderPlot({
+    rf_residual()
+  })
+  
+  ## Plot Variable Importance
+  rf_varimp <- eventReactive(
+    input$rf_action_, {
+      plot(varImp(rfmodel()), 20) 
+    })
+  
+  output$rf_varimp_ <- renderPlot({
+    rf_varimp()
+  })
+  
+  ## Calculate metrics
+  pred_rfmodel_rmse <- eventReactive(
+    input$rf_action_, {
+      caret::RMSE(pred_rfmodel(), rf_analysis_test()$total_cost)
+    })
+  
+  pred_rfmodel_mae <- eventReactive(
+    input$rf_action_, {
+      caret::MAE(pred_rfmodel(), rf_analysis_test()$total_cost)
+    })
+  
+  pred_rfmodel_r2 <- eventReactive(
+    input$rf_action_, {
+      caret::R2(pred_rfmodel(), rf_analysis_test()$total_cost, form = "traditional")
+    })
+  
+  ## Display RMSE
+  rf_display_RMSE = function(){
+    output$rf_rmse_ = renderValueBox(
+      valueBox(
+        value = tags$p(paste0(scales::comma(round(pred_rfmodel_rmse()/1000,0)), "k"), style = "font-size: 50%;"), 
+        subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$rf_action_, rf_display_RMSE())
+  
+  ## Display MAE
+  rf_display_mae = function(){
+    output$rf_mae_ = renderValueBox(
+      valueBox(
+        value = tags$p(paste0(scales::comma(round(pred_rfmodel_mae()/1000,0)), "k"), style = "font-size: 50%;"), 
+        subtitle = tags$p("MAE", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$rf_action_, rf_display_mae())
+  
+  ## Display R2
+  rf_display_r2 = function(){
+    output$rf_r2_ = renderValueBox(
+      valueBox(
+        value = tags$p(round(pred_rfmodel_r2(), 3), style = "font-size: 50%;"), 
+        subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
+        icon = icon("circle-info"),
+        color = "aqua"
+      )
+    )
+  }
+  
+  observeEvent(input$rf_action_, rf_display_r2())
+  
 }
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
