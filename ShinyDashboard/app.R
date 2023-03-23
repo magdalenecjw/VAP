@@ -1163,10 +1163,41 @@ body <- dashboardBody(
                                           height = "50vh")
                              ),
                              
-                             #### Random Forest Variable Importance  ----------------------------------------------------
-                             tabPanel(
-                               title = tags$p("R-squared value vs Number of trees", style = "font-weight: bold;"),
-                             )
+                             #### Random Forest R-squared value vs trees  ----------------------------------------------------
+                            # tabPanel(
+                            #   title = tags$p("R-squared value vs Number of trees", style = "font-weight: bold;"),
+                               
+                               ##### Random Forest R-squared value vs trees Panel  ----------------------------------------------------
+                            #   column(width = 3,
+                            #          hidden(div(id = "rf_R2vstree_div",
+                            #                     style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
+                            #                     box(
+                            #                       title = tags$p("Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                            #                       status = "primary",
+                            #                       background = "aqua",
+                            #                       solidHeader = TRUE,
+                            #                       collapsible = TRUE,
+                            #                       width = 12,
+                            #                       div(style = "padding = 0em; margin-top: -0.5em",
+                            #                           sliderInput(inputId = "rf_tree_range_",
+                            #                                       label = "Range of Trees (keep range within 20):",
+                            #                                       min = 5,
+                            #                                       max = 100,
+                            #                                       value = c(5,25))),
+                            #                       div(style = "padding = 0em; margin-top: -0.5em",
+                            #                           actionButton(inputId = "rf_R2vstree_action", 
+                            #                                        label = "Plot"))
+                            #                     )
+                            #          ))
+                            #   ),
+                               
+                               ##### Random Forest R-squared value vs trees Plot  ----------------------------------------------------
+                            #   column(width = 9,
+                            #          plotOutput("rf_R2vstree_plot",
+                            #                     width = "100%",
+                            #                     height = "50vh")
+                            #   )
+                             #)
                            )
                        )),
                      
@@ -2110,6 +2141,10 @@ server <- function(input, output) {
     toggle(id = "rf_repeatkfold_repeat_div", condition = input$rf_traincontrol_ == "rf_repeatkfold", anim = TRUE)
   })
   
+  observeEvent(input$rf_action_, {
+    show(id = "rf_R2vstree_div", anim = TRUE)
+  })
+  
   ## Build Model
   rfmodel <- eventReactive(
     input$rf_action_, {
@@ -2130,60 +2165,6 @@ server <- function(input, output) {
     input$rf_action_, {
       predict(rfmodel(), newdata = rf_analysis_test())
     })
-  
-  ## Dataset for plotting
-  rf_dataplot <- eventReactive(
-    input$rf_action_, {
-      data.frame(actual = rf_analysis_test()$total_cost,
-                 pred = pred_rfmodel(),
-                 resid = pred_rfmodel() - rf_analysis_test()$total_cost)
-    })
-  
-  ## Plot Predictive vs Actual
-  rf_plotpredvsactual <- eventReactive(
-    input$rf_action_, {
-      ggplot(data = rf_dataplot(), 
-             aes(actual, pred)) +
-        geom_point() +
-        geom_abline(intercept = 0, slope = 1, color = "red") +
-        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        #theme_minimal() +
-        labs(x = "Actual Total Spending", y = "Predicted Total Spending",
-             title = "Prediction vs Actual")
-    })
-  
-  output$rf_pred_actual_ <- renderPlot({
-    rf_plotpredvsactual()
-  })
-  
-  ## Plot Residual
-  rf_residual <- eventReactive(
-    input$rf_action_, {
-      ggplot(data = rf_dataplot(), 
-             aes(actual, resid)) +
-        geom_point() +
-        geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
-        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        #theme_minimal() +
-        labs(x = "Actual Total Spending", y = "Residuals (Predicted-Actual)",
-             title = "Residual Plot")
-    })
-  
-  output$rf_resid_ <- renderPlot({
-    rf_residual()
-  })
-  
-  ## Plot Variable Importance
-  rf_varimp <- eventReactive(
-    input$rf_action_, {
-      plot(varImp(rfmodel()), 20) 
-    })
-  
-  output$rf_varimp_ <- renderPlot({
-    rf_varimp()
-  })
   
   ## Calculate metrics
   pred_rfmodel_rmse <- eventReactive(
@@ -2242,6 +2223,101 @@ server <- function(input, output) {
   }
   
   observeEvent(input$rf_action_, rf_display_r2())
+  
+  ## Dataset for plotting
+  rf_dataplot <- eventReactive(
+    input$rf_action_, {
+      data.frame(actual = rf_analysis_test()$total_cost,
+                 pred = pred_rfmodel(),
+                 resid = pred_rfmodel() - rf_analysis_test()$total_cost)
+    })
+  
+  ## Plot Predictive vs Actual
+  rf_plotpredvsactual <- eventReactive(
+    input$rf_action_, {
+      ggplot(data = rf_dataplot(), 
+             aes(actual, pred)) +
+        geom_point() +
+        geom_abline(intercept = 0, slope = 1, color = "red") +
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Predicted Total Spending",
+             title = "Prediction vs Actual")
+    })
+  
+  output$rf_pred_actual_ <- renderPlot({
+    rf_plotpredvsactual()
+  })
+  
+  ## Plot Residual
+  rf_residual <- eventReactive(
+    input$rf_action_, {
+      ggplot(data = rf_dataplot(), 
+             aes(actual, resid)) +
+        geom_point() +
+        geom_hline(yintercept = 0, col="red4", linetype = "dashed", linewidth = 0.5) + 
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        #theme_minimal() +
+        labs(x = "Actual Total Spending", y = "Residuals (Predicted-Actual)",
+             title = "Residual Plot")
+    })
+  
+  output$rf_resid_ <- renderPlot({
+    rf_residual()
+  })
+  
+  ## Plot Variable Importance
+  rf_varimp <- eventReactive(
+    input$rf_action_, {
+      plot(varImp(rfmodel()), 20) 
+    })
+  
+  output$rf_varimp_ <- renderPlot({
+    rf_varimp()
+  })
+  
+  #tree_range_var <- reactive({5:100})
+  
+  #rsquared_trees_pred <- eventReactive(
+  #  input$rf_action_, {
+  #    rsquared_trees <- c()
+      
+  #    for (i in tree_range_var()){
+  #      rf_model_a <- train(total_cost ~ ., 
+  #                          data = rf_analysis_train(),
+  #                          method = "ranger", 
+  #                          trControl = rf_cvControl(), 
+  #                          num.trees = i,
+  #                          importance = "impurity", 
+  #                          tuneGrid = data.frame(mtry = sqrt(ncol(rf_analysis_train())),
+  #                                                min.node.size = 5,
+  #                                                splitrule = "variance"))
+        
+  #      rsquared_trees <- append(rsquared_trees, rf_model_a$finalModel$r.squared)
+  #    }
+  #    rsquared_trees
+  #  })
+  
+  #rsquared_trees_final <- eventReactive(
+  #  input$rf_action_, {
+  #    data.frame(tree_range = tree_range_var(), 
+  #               rsquare = rsquared_trees_pred())
+  #  })
+  
+  #rsquared_trees_final_plot <- eventReactive(
+  #  input$rf_R2vstree_action, {
+  #    ggplot(df = rsquared_trees_final()) + 
+  #      geom_point(aes(x = tree_range, y = rsquare)) + 
+  #      labs(x = "Number of trees", y = "R-squared values", 
+  #           title = "R-squared vs. Number of Trees Plot")
+  #  })
+  
+  #output$rf_R2vstree_plot <- renderPlot({
+  #  rsquared_trees_final_plot()
+  #})
+  
   
 }
 
