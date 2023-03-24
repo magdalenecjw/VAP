@@ -185,7 +185,7 @@ sidebar <- dashboardSidebar(
              menuSubItem("Decision Tree", tabName = "tab_dt"),
              menuSubItem("Random Forest", tabName = "tab_rf")
     ),
-    menuItem("About", tabName = "tab_about", icon = icon("info"))
+    menuItem("About", tabName = "tab_about", icon = icon("circle-info"))
   )
 )
 
@@ -204,7 +204,7 @@ body <- dashboardBody(
   tags$style(".fa-dollar-sign {font-size:80%}"),
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
-  tags$style(".fa-circle-info {font-size:60%}"),
+  tags$style(".fa-calculator {font-size:60%}"),
   
   #Adding text
   tags$head(tags$style(HTML(
@@ -1989,7 +1989,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
@@ -2004,7 +2004,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
@@ -2019,7 +2019,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(round(modeltype, 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
@@ -2195,7 +2195,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_rmse()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
@@ -2209,7 +2209,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_mae()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
@@ -2223,7 +2223,7 @@ server <- function(input, output) {
       valueBox(
         value = tags$p(round(pred_rfmodel_r2(), 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
-        icon = icon("circle-info"),
+        icon = icon("calculator"),
         color = "aqua"
       )
     )
