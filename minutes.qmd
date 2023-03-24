@@ -1,0 +1,24 @@
+---
+title: "Data Preparation"
+author: "Habari Tanzania"
+date: 8 Feb 2023
+date-modified: "`r Sys.Date()`"
+execute: 
+  echo: true
+  eval: true
+  warning: false
+format: html
+editor: visual
+---
+
+# Minutes of Team Progress
+
+### [#1 Meeting Minutes](https://smu.sharepoint.com/:w:/t/VisualAnalytics382/EUG11CjyhtxOpgkl-jE8qfQBRXlMYXIVZFQ95jlTaBFn9g?e=roeD9A)
+
+### [#2 Meeting Minutes](https://smu.sharepoint.com/:w:/t/VisualAnalytics382/EceHBT5xYBBLrLnqHbfHfHEBe3UGA_BJDs6haOBAu3yBzw?e=XiTC3z)
+
+### [#3 Meeting Minutes](https://smu.sharepoint.com/:w:/t/VisualAnalytics382/EQ3lTuupKMBCo6nhs_6ksbgBCdfBvQ9KPZZ-8ruqbaG2Sg?e=zaU2K7)
+
+### [#4 Meeting Minutes](https://smu.sharepoint.com/:w:/t/VisualAnalytics382/EUcSwI8K6b9Hm_qGyP6V_ZMB2Zn4m7cfUMSEq0ouFwdgug?e=YLAg0A)
+
+### [#5 Meeting Minutes](https://smu.sharepoint.com/:w:/t/VisualAnalytics382/Ee8h4caJYk1NjlDO3GHhwh4B-nb8Ut91IvKBeaOUOjB1fw?e=o1jhOt)
