@@ -1,0 +1,16 @@
+{
+  "hash": "f8cffdb130c34585e7917bf85b7c9175",
+  "result": {
+    "markdown": "---\ntitle: \"Exploratory Data Analysis\"\nauthor: \"Habari Tanzania\"\ndate: 14 Feb 2023\ndate-modified: \"2023-03-18\"\nexecute: \n  echo: true\n  eval: true\n  warning: false\nformat: html\neditor: visual\n---\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(\"ggstatsplot\", \"plotly\", \"DT\", \"scales\",\"tidyverse\")\n```\n:::\n\n\n## 2. Loading the data\n\n\n::: {.cell}\n\n```{.r .cell-code}\ntouristdata_clean <- read_csv(\"data/touristdata_clean.csv\")\ntouristdata_clean <- touristdata_clean %>%\n  filter(total_cost > 0,\n         total_tourist > 0,\n         total_night_spent > 0) %>%\n  mutate(cost_per_pax = round(total_cost/total_tourist,0),\n         cost_per_night = round(total_cost/total_night_spent,0),\n         cost_per_pax_night = round(total_cost/total_tourist/total_night_spent,0))\n```\n:::\n\n\n## 3. Correlation\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\noptions(scipen = 999)\nplotcorrelation_costppvtn <- function (a) {\nggscatterstats(data = touristdata_clean,\n                 x = cost_per_pax, y = total_night_spent,\n                 type = \"nonparametic\") + facet_wrap(vars(!!sym(a)))\n}\n\nplotcorrelation_costppvtn (\"tour_arrangement\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-3-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplotcorrelation_costppvtn (\"age_group\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-4-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplotcorrelation_costppvtn (\"travel_with\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-5-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplotcorrelation_costppvtn (\"main_activity\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-6-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplotcorrelation_costppvtn (\"purpose\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-7-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplotcorrelation_costppvtn (\"info_source\")\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-8-1.png){width=672}\n:::\n:::\n\n\n## 4. Country comparision\n\n\n::: {.cell}\n\n```{.r .cell-code}\noptions(scipen = 999)\n\np1 <- ggplot(data = touristdata_clean %>% filter(country == \"GERMANY\") %>% group_by(tour_arrangement),\n                 aes(y = total_cost, x = age_group)) + geom_boxplot(aes(fill = tour_arrangement)) + scale_fill_brewer(palette=\"YlGnBu\") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))\n\np1\n```\n\n::: {.cell-output-display}\n![](EDA_files/figure-html/unnamed-chunk-9-1.png){width=672}\n:::\n:::\n",
+    "supporting": [
+      "EDA_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
