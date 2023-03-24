@@ -304,10 +304,17 @@ body <- dashboardBody(
                        ),
                        
                        column(width = 9,
-                              div(style = "padding = 0em; margin-left: -1.5em",
+                              div(style = "padding = 0em; margin-left: -2.5em; margin-right: -1em",
+                                  box(
+                                    #title = "Top Spending Country",
+                                    status = "primary",
+                                    width = 12,
+                                    collapsible = F,
+                                    height = "61vh",
                                   tmapOutput("dash_map_", 
                                              width = "100%",
-                                             height = "57vh")
+                                             height = "55vh")
+                                  )
                               )
                        )
                      ),
