@@ -25,6 +25,8 @@ website:
         text: "Home"
       #- href: "Proposal/ProposalPage.html"
       #  text: "Proposal"
+      - href: "minutes.html"
+        text: "Project Minutes"
       - href: "DataPrep/DataPrep.html"
         text: "Data Preparation"
       - href: "EDA/EDA.html"

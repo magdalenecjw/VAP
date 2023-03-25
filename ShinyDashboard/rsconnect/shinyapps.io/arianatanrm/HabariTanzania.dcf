@@ -1,0 +1,13 @@
+name: HabariTanzania
+title: HabariTanzania
+username:
+account: arianatanrm
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8637780
+bundleId: 6990830
+url: https://arianatanrm.shinyapps.io/HabariTanzania/
+when: 1679464500.12107
+lastSyncTime: 1679464500.12108
+asMultiple: FALSE
+asStatic: FALSE
