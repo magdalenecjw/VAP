@@ -10,3 +10,112 @@ execute:
 format: html
 editor: visual
 ---
+
+# Load Packages and Data
+
+```{r}
+pacman::p_load(poLCA, ggplot2, tidyverse)
+
+df <- read_csv("data/touristdata_clean.csv")
+
+df_clustering <- df %>% 
+  select(!code) %>% 
+  select(!country)
+
+```
+
+# Latent Class Analysis
+
+```{r}
+#recode dichotomous variables as poLCA expects all variables to start at level 1, hence dichotomous variables should be 1/2 and not 0/1
+
+df_clustering_recoded <- df_clustering %>%
+  mutate(package_transport_int = recode(package_transport_int,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_accomodation = recode(package_accomodation,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_food = recode(package_food,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_transport_tz = recode(package_transport_tz,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_sightseeing = recode(package_sightseeing,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_insurance = recode(package_insurance,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(first_trip_tz = recode(first_trip_tz,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(duration = cut(total_night_spent, breaks = c(0, 7, Inf), 
+             labels = c("Within_1_week", "More_than_1_week"))) %>%
+  mutate(mainland_zanzibar = cut(prop_night_spent_mainland, 
+                                 breaks = c(0, 0.5, Inf), right = F, 
+                                 labels = c("zanzibar", "mainland")))
+
+##ensure all variables are factors
+df_clustering_recoded[-1] <- lapply(df_clustering_recoded[-1], factor)
+
+##ensure no missing values
+sapply(df_clustering_recoded, function(x) sum(is.na(x)))
+```
+
+```{r}
+## select variables
+##Variables in parentheses are the latent class classification variables.
+##Variables outside of the parentheses are covariates (not included in the LCA).
+
+f_nocovariate <- as.formula(cbind(total_cost, region, age_group, 
+                                  travel_with, purpose, main_activity,
+                                  tour_arrangement, duration,
+                                  mainland_zanzibar, payment_mode,
+                                  first_trip_tz)
+                            ~1)
+
+f_wcovariate <- as.formula(cbind(age_group, travel_with, purpose, 
+                                 main_activity, tour_arrangement, duration,
+                                 mainland_zanzibar, payment_mode, 
+                                 first_trip_tz)
+                           ~total_cost+region)
+
+##subset the data to only include these selected variables
+df_clustering_subset <- df_clustering_recoded %>%
+  select(ID, total_cost, region, age_group, travel_with, purpose, 
+         main_activity, tour_arrangement, duration,
+         mainland_zanzibar, payment_mode, first_trip_tz)
+
+```
+
+```{r}
+
+##latent class analysis specifying 3 classes
+##the more classes and variables there are, the longer it takes to run
+
+##can consider limiting the nclass to between 2-10
+## nrep = 1 means local search for lowest BIC; nrep > 1 = global search, but loading for nrep = 1 already takes a long time when nclass > 1, so suggest we dont allow for tweaking of nrep)
+
+lCA1 <- poLCA(f_nocovariate, df_clustering_subset, nclass=3, nrep=1)
+```
+
+```{r}
+# Calculate entropy (3-class mode)l- values closer to 1.0 indicate greater separation of the classes.
+entropy <- function (p) {sum(-p*log(p))}
+error_prior <- entropy(lCA1$P) # Class proportions
+error_post <- mean(apply(lCA1$posterior, 1, entropy))
+LCA3_entropy <- (error_prior - error_post) / error_prior
+```
+
+```{r}
+##appending model classification to data set
+df_clustering_subset$class <- lCA1$predclass
+```
+
+```{r}
+##plotting results
+ggplot() + geom_bar(data = df_clustering_subset, aes(x = age_group)) +
+  facet_wrap(vars(class), ncol = 3)
+```

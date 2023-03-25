@@ -15,7 +15,7 @@ editor: visual
 
 ```{r}
 pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork, 
-               caret, ranger, patchwork, tidyverse, xgboost)
+               caret, ranger, patchwork)
 ```
 
 ```{r}
@@ -95,7 +95,7 @@ rf_model <- train(total_cost ~ .,
                   method = "ranger", 
                   trControl = repeatcvControl, 
             #trControl (refer to above objects created)
-                  num.trees = 50, #can consider range of 5 to 500 trees
+                  num.trees = 50, #can consider range of 5 to 200 trees
                   importance = "impurity", 
             #variable importance computation: "impurity", "permutation"
                   tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
@@ -106,7 +106,6 @@ rf_model <- train(total_cost ~ .,
             #mtry: default is square root of number of variables
                   ) 
 ```
-
 
 ```{r}
 df_test$fit_forest <- predict(rf_model, df_test)
@@ -150,7 +149,7 @@ varImp(rf_model)
 
 ##our range can remain at 5-500 but would suggest we limit them to select no more than 100 numbers at one go e.g. 5-105 otherwise it will take very long to run depending on which trControl we choose to use
 
-tree_range <- 5:100
+tree_range <- 5:150
 
 rsquared_trees <- c()
 
@@ -158,7 +157,7 @@ for (i in tree_range){
   rf_model <- train(total_cost ~ ., 
                   data = df_train,
                   method = "ranger", 
-                  trControl = cvControl, 
+                  trControl = trctrl, 
                   num.trees = i,
                   importance = "impurity", 
                   tuneGrid = data.frame(mtry = sqrt(ncol(df_train)),
@@ -175,6 +174,7 @@ ggplot(df = rsquared_plot) +
   labs(x = "Number of trees", y = "R-squared values", 
        title = "R-squared vs. Number of Trees Plot")
 ```
+
 # XGBoost
 
 ```{r}
