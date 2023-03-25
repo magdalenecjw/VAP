@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://habaritanzania.netlify.app/about.html</loc>
+    <lastmod>2023-03-25T13:39:33.654Z</lastmod>
+  </url>
+  <url>
     <loc>https://habaritanzania.netlify.app/Analysis/Clustering.html</loc>
-    <lastmod>2023-03-25T13:34:11.597Z</lastmod>
+    <lastmod>2023-03-25T13:46:00.680Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/Analysis/Decision_Tree.html</loc>
-    <lastmod>2023-03-25T13:33:24.424Z</lastmod>
+    <lastmod>2023-03-25T13:40:28.251Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/DataPrep/DataPrep.html</loc>
-    <lastmod>2023-03-25T13:33:38.823Z</lastmod>
+    <lastmod>2023-03-25T13:40:41.545Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/EDA/CDA.html</loc>
-    <lastmod>2023-03-25T13:33:42.580Z</lastmod>
+    <lastmod>2023-03-25T13:45:55.769Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/EDA/EDA.html</loc>
-    <lastmod>2023-03-25T13:34:04.132Z</lastmod>
+    <lastmod>2023-03-25T13:43:05.013Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/index.html</loc>
+    <lastmod>2023-03-25T13:43:05.556Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/minutes.html</loc>
-    <lastmod>2023-03-25T13:34:05.777Z</lastmod>
+    <lastmod>2023-03-25T13:43:07.345Z</lastmod>
   </url>
 </urlset>

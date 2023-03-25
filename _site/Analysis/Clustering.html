@@ -384,209 +384,209 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>LCA_model <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(f, df_clustering_recoded, <span class="at">nclass=</span><span class="dv">7</span>, <span class="at">nrep=</span><span class="dv">5</span>, <span class="at">maxiter=</span><span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Model 1: llik = -46230.13 ... best llik = -46230.13
-Model 2: llik = -46510.07 ... best llik = -46230.13
-Model 3: llik = -46230.13 ... best llik = -46230.13
-Model 4: llik = -46230.21 ... best llik = -46230.13
-Model 5: llik = -46550.39 ... best llik = -46230.13
+<pre><code>Model 1: llik = -46510.07 ... best llik = -46510.07
+Model 2: llik = -46510.07 ... best llik = -46510.07
+Model 3: llik = -46693.42 ... best llik = -46510.07
+Model 4: llik = -46192.65 ... best llik = -46192.65
+Model 5: llik = -46555.23 ... best llik = -46192.65
 Conditional item response (column) probabilities,
  by outcome variable, for each class (row) 
  
 $region
            Pr(1)  Pr(2)  Pr(3)  Pr(4)  Pr(5)
-class 1:  0.7860 0.0475 0.0832 0.0767 0.0066
-class 2:  0.0870 0.2050 0.1497 0.5290 0.0294
-class 3:  0.0664 0.2772 0.1146 0.4343 0.1075
-class 4:  0.8138 0.0367 0.0781 0.0706 0.0008
-class 5:  0.0149 0.3200 0.0425 0.5509 0.0716
-class 6:  0.0871 0.1751 0.0968 0.6096 0.0313
-class 7:  0.1810 0.0088 0.0397 0.7516 0.0189
+class 1:  0.0149 0.3204 0.0424 0.5507 0.0717
+class 2:  0.1801 0.0090 0.0406 0.7513 0.0190
+class 3:  0.1848 0.1407 0.1447 0.5102 0.0196
+class 4:  0.2764 0.1393 0.0917 0.4692 0.0234
+class 5:  0.0039 0.3514 0.0982 0.3924 0.1541
+class 6:  0.7875 0.0460 0.0833 0.0766 0.0066
+class 7:  0.0863 0.2057 0.1496 0.5289 0.0294
 
 $age_group
            Pr(1)  Pr(2)  Pr(3)  Pr(4)
-class 1:  0.0525 0.6795 0.2471 0.0209
-class 2:  0.2884 0.5226 0.1708 0.0181
-class 3:  0.2433 0.3918 0.2630 0.1018
-class 4:  0.0751 0.6769 0.2438 0.0043
-class 5:  0.0438 0.3619 0.4364 0.1578
-class 6:  0.1617 0.5135 0.2808 0.0440
-class 7:  0.0842 0.5963 0.2977 0.0219
+class 1:  0.0437 0.3619 0.4366 0.1578
+class 2:  0.0840 0.5948 0.2981 0.0230
+class 3:  0.3204 0.4375 0.2124 0.0297
+class 4:  0.1393 0.5564 0.2709 0.0334
+class 5:  0.2014 0.3691 0.2894 0.1400
+class 6:  0.0527 0.6791 0.2473 0.0209
+class 7:  0.2881 0.5227 0.1710 0.0182
 
 $travel_with
            Pr(1)  Pr(2)  Pr(3)
-class 1:  1.0000 0.0000 0.0000
-class 2:  1.0000 0.0000 0.0000
+class 1:  0.0000 0.2643 0.7357
+class 2:  0.0021 0.3103 0.6876
 class 3:  1.0000 0.0000 0.0000
-class 4:  0.0000 0.6779 0.3221
-class 5:  0.0000 0.2647 0.7353
-class 6:  0.0016 0.4368 0.5616
-class 7:  0.0021 0.3093 0.6886
+class 4:  0.0012 0.4995 0.4993
+class 5:  1.0000 0.0000 0.0000
+class 6:  1.0000 0.0000 0.0000
+class 7:  1.0000 0.0000 0.0000
 
 $total_tourist
           Pr(1)  Pr(2)  Pr(3)
-class 1:      1 0.0000 0.0000
-class 2:      1 0.0000 0.0000
+class 1:      0 0.6568 0.3432
+class 2:      0 0.6838 0.3162
 class 3:      1 0.0000 0.0000
-class 4:      0 0.7532 0.2468
-class 5:      0 0.6566 0.3434
-class 6:      0 0.6519 0.3481
-class 7:      0 0.6846 0.3154
+class 4:      0 0.6785 0.3215
+class 5:      1 0.0000 0.0000
+class 6:      1 0.0000 0.0000
+class 7:      1 0.0000 0.0000
 
 $purpose
            Pr(1)  Pr(2)
-class 1:  0.2992 0.7008
-class 2:  0.7189 0.2811
-class 3:  0.8374 0.1626
-class 4:  0.3884 0.6116
-class 5:  0.9883 0.0117
-class 6:  0.8924 0.1076
-class 7:  0.9519 0.0481
+class 1:  0.9883 0.0117
+class 2:  0.9520 0.0480
+class 3:  0.5279 0.4721
+class 4:  0.7611 0.2389
+class 5:  1.0000 0.0000
+class 6:  0.2998 0.7002
+class 7:  0.7184 0.2816
 
 $info_source
            Pr(1)  Pr(2)  Pr(3)
-class 1:  0.3444 0.1203 0.5353
-class 2:  0.3378 0.1271 0.5351
-class 3:  0.1951 0.6253 0.1796
-class 4:  0.2707 0.1525 0.5769
-class 5:  0.1169 0.7668 0.1164
-class 6:  0.3570 0.1726 0.4704
-class 7:  0.2062 0.6508 0.1430
+class 1:  0.1168 0.7669 0.1162
+class 2:  0.2056 0.6495 0.1448
+class 3:  0.3114 0.4095 0.2790
+class 4:  0.3349 0.1675 0.4976
+class 5:  0.1355 0.7384 0.1261
+class 6:  0.3433 0.1204 0.5363
+class 7:  0.3382 0.1272 0.5347
 
 $tour_arrangement
            Pr(1)  Pr(2)
-class 1:  0.9947 0.0053
-class 2:  1.0000 0.0000
-class 3:  0.0099 0.9901
-class 4:  1.0000 0.0000
-class 5:  0.0068 0.9932
-class 6:  0.9935 0.0065
-class 7:  0.0148 0.9852
+class 1:  0.0068 0.9932
+class 2:  0.0147 0.9853
+class 3:  0.0200 0.9800
+class 4:  0.9965 0.0035
+class 5:  0.0066 0.9934
+class 6:  0.9951 0.0049
+class 7:  1.0000 0.0000
 
 $package_transport_int
            Pr(1)  Pr(2)
-class 1:  0.9936 0.0064
-class 2:  0.9984 0.0016
-class 3:  0.5418 0.4582
-class 4:  0.9956 0.0044
-class 5:  0.3537 0.6463
-class 6:  0.9960 0.0040
-class 7:  0.0944 0.9056
+class 1:  0.3538 0.6462
+class 2:  0.0956 0.9044
+class 3:  0.4459 0.5541
+class 4:  0.9969 0.0031
+class 5:  0.5913 0.4087
+class 6:  0.9951 0.0049
+class 7:  0.9984 0.0016
 
 $package_accomodation
            Pr(1)  Pr(2)
-class 1:  0.9989 0.0011
-class 2:  1.0000 0.0000
-class 3:  0.0099 0.9901
-class 4:  1.0000 0.0000
-class 5:  0.0195 0.9805
-class 6:  0.9943 0.0057
-class 7:  0.0409 0.9591
+class 1:  0.0194 0.9806
+class 2:  0.0428 0.9572
+class 3:  0.0235 0.9765
+class 4:  0.9961 0.0039
+class 5:  0.0033 0.9967
+class 6:  1.0000 0.0000
+class 7:  1.0000 0.0000
 
 $package_food
            Pr(1)  Pr(2)
-class 1:  1.0000 0.0000
-class 2:  1.0000 0.0000
-class 3:  0.0663 0.9337
+class 1:  0.0919 0.9081
+class 2:  0.1008 0.8992
+class 3:  0.1544 0.8456
 class 4:  1.0000 0.0000
-class 5:  0.0922 0.9078
+class 5:  0.0223 0.9777
 class 6:  1.0000 0.0000
-class 7:  0.0981 0.9019
+class 7:  1.0000 0.0000
 
 $package_transport_tz
            Pr(1)  Pr(2)
-class 1:  1.0000 0.0000
-class 2:  1.0000 0.0000
-class 3:  0.1526 0.8474
+class 1:  0.0975 0.9025
+class 2:  0.3004 0.6996
+class 3:  0.3635 0.6365
 class 4:  1.0000 0.0000
-class 5:  0.0978 0.9022
+class 5:  0.0428 0.9572
 class 6:  1.0000 0.0000
-class 7:  0.2985 0.7015
+class 7:  1.0000 0.0000
 
 $package_sightseeing
            Pr(1)  Pr(2)
-class 1:  1.0000 0.0000
-class 2:  1.0000 0.0000
-class 3:  0.3111 0.6889
+class 1:  0.1163 0.8837
+class 2:  0.8326 0.1674
+class 3:  0.7637 0.2363
 class 4:  1.0000 0.0000
-class 5:  0.1174 0.8826
+class 5:  0.0718 0.9282
 class 6:  1.0000 0.0000
-class 7:  0.8322 0.1678
+class 7:  1.0000 0.0000
 
 $package_guided_tour
            Pr(1)  Pr(2)
-class 1:  0.9990 0.0010
-class 2:  1.0000 0.0000
-class 3:  0.2672 0.7328
+class 1:  0.1209 0.8791
+class 2:  0.7732 0.2268
+class 3:  0.6311 0.3689
 class 4:  1.0000 0.0000
-class 5:  0.1219 0.8781
-class 6:  1.0000 0.0000
-class 7:  0.7727 0.2273
+class 5:  0.0754 0.9246
+class 6:  0.9990 0.0010
+class 7:  1.0000 0.0000
 
 $package_insurance
            Pr(1)  Pr(2)
-class 1:  1.0000 0.0000
-class 2:  1.0000 0.0000
-class 3:  0.7666 0.2334
+class 1:  0.6215 0.3785
+class 2:  0.6575 0.3425
+class 3:  0.8335 0.1665
 class 4:  1.0000 0.0000
-class 5:  0.6220 0.3780
+class 5:  0.7316 0.2684
 class 6:  1.0000 0.0000
-class 7:  0.6558 0.3442
+class 7:  1.0000 0.0000
 
 $payment_mode
            Pr(1)  Pr(2)
-class 1:  0.8728 0.1272
-class 2:  0.9020 0.0980
-class 3:  0.8926 0.1074
-class 4:  0.8952 0.1048
-class 5:  0.8255 0.1745
-class 6:  0.8282 0.1718
-class 7:  0.8701 0.1299
+class 1:  0.8255 0.1745
+class 2:  0.8702 0.1298
+class 3:  0.8927 0.1073
+class 4:  0.8455 0.1545
+class 5:  0.8905 0.1095
+class 6:  0.8741 0.1259
+class 7:  0.9014 0.0986
 
 $first_trip_tz
            Pr(1)  Pr(2)
-class 1:  0.7067 0.2933
-class 2:  0.3579 0.6421
-class 3:  0.1315 0.8685
-class 4:  0.5499 0.4501
-class 5:  0.0905 0.9095
-class 6:  0.2961 0.7039
-class 7:  0.1820 0.8180
+class 1:  0.0904 0.9096
+class 2:  0.1829 0.8171
+class 3:  0.2452 0.7548
+class 4:  0.3617 0.6383
+class 5:  0.0728 0.9272
+class 6:  0.7068 0.2932
+class 7:  0.3580 0.6420
 
 $total_cost
            Pr(1)  Pr(2)  Pr(3)  Pr(4)
-class 1:  0.6333 0.3306 0.0321 0.0040
-class 2:  0.2392 0.5142 0.2197 0.0269
-class 3:  0.1117 0.1712 0.5092 0.2080
-class 4:  0.5834 0.3354 0.0719 0.0093
-class 5:  0.0401 0.1024 0.1875 0.6700
-class 6:  0.1238 0.3660 0.3754 0.1348
-class 7:  0.0400 0.1096 0.4075 0.4429
+class 1:  0.0401 0.1024 0.1873 0.6701
+class 2:  0.0398 0.1095 0.4077 0.4429
+class 3:  0.1815 0.2345 0.4914 0.0925
+class 4:  0.2436 0.3584 0.2961 0.1020
+class 5:  0.0745 0.1395 0.5172 0.2689
+class 6:  0.6345 0.3295 0.0321 0.0040
+class 7:  0.2388 0.5147 0.2195 0.0269
 
 $duration
            Pr(1)  Pr(2)
-class 1:  0.8714 0.1286
-class 2:  0.2001 0.7999
-class 3:  0.4314 0.5686
-class 4:  0.9475 0.0525
-class 5:  0.2780 0.7220
-class 6:  0.2836 0.7164
-class 7:  0.6292 0.3708
+class 1:  0.2783 0.7217
+class 2:  0.6261 0.3739
+class 3:  0.4688 0.5312
+class 4:  0.4567 0.5433
+class 5:  0.4131 0.5869
+class 6:  0.8709 0.1291
+class 7:  0.2009 0.7991
 
 $mainland_zanzibar
            Pr(1)  Pr(2)
-class 1:  0.0109 0.9891
-class 2:  0.1288 0.8712
-class 3:  0.0453 0.9547
-class 4:  0.0000 1.0000
-class 5:  0.0665 0.9335
-class 6:  0.2767 0.7233
-class 7:  0.7527 0.2473
+class 1:  0.0667 0.9333
+class 2:  0.7485 0.2515
+class 3:  0.0839 0.9161
+class 4:  0.2049 0.7951
+class 5:  0.0245 0.9755
+class 6:  0.0109 0.9891
+class 7:  0.1288 0.8712
 
 Estimated class population shares 
- 0.2077 0.1302 0.1529 0.0481 0.2202 0.1369 0.1038 
+ 0.2199 0.1044 0.0533 0.1848 0.0999 0.2073 0.1303 
  
 Predicted class memberships (by modal posterior prob.) 
- 0.2107 0.1272 0.153 0.0478 0.222 0.1372 0.1021 
+ 0.2218 0.1026 0.0513 0.1848 0.1019 0.2112 0.1266 
  
 ========================================================= 
 Fit for 7 latent classes: 
@@ -594,12 +594,12 @@ Fit for 7 latent classes:
 number of observations: 4622 
 number of estimated parameters: 209 
 residual degrees of freedom: 4413 
-maximum log-likelihood: -46230.13 
+maximum log-likelihood: -46192.65 
  
-AIC(7): 92878.26
-BIC(7): 94223.92
-G^2(7): 22020.34 (Likelihood ratio/deviance statistic) 
-X^2(7): 57482142 (Chi-square goodness of fit) 
+AIC(7): 92803.3
+BIC(7): 94148.96
+G^2(7): 21945.37 (Likelihood ratio/deviance statistic) 
+X^2(7): 48495716 (Chi-square goodness of fit) 
  </code></pre>
 </div>
 </div>
