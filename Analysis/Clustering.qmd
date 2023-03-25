@@ -27,7 +27,9 @@ df_clustering <- df %>%
 # Latent Class Analysis
 
 ```{r}
-#recode dichotomous variables as poLCA expects all variables to start at level 1, hence dichotomous variables should be 1/2 and not 0/1
+##recode dichotomous variables as poLCA expects all variables to start at level 1, hence dichotomous variables should be 1/2 and not 0/1
+##bin continuous variables into categories
+##recode variables with imbalanced classification
 
 df_clustering_recoded <- df_clustering %>%
   mutate(package_transport_int = recode(package_transport_int,
@@ -45,6 +47,9 @@ df_clustering_recoded <- df_clustering %>%
   mutate(package_sightseeing = recode(package_sightseeing,
                                         `1` = 2,
                                         `0` = 1)) %>%
+  mutate(package_guided_tour = recode(package_guided_tour,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
   mutate(package_insurance = recode(package_insurance,
                                         `1` = 2,
                                         `0` = 1)) %>%
@@ -55,38 +60,74 @@ df_clustering_recoded <- df_clustering %>%
              labels = c("Within_1_week", "More_than_1_week"))) %>%
   mutate(mainland_zanzibar = cut(prop_night_spent_mainland, 
                                  breaks = c(0, 0.5, Inf), right = F, 
-                                 labels = c("zanzibar", "mainland")))
+                                 labels = c("zanzibar", "mainland"))) %>%
+  mutate(travel_with = recode(travel_with,
+                              `Children` = "ImmediateFamily",
+                              `Spouse` = "ImmediateFamily",
+                              `Spouse and Children` = "ImmediateFamily")) %>%
+  select(!total_female) %>%
+  select(!total_male) %>%
+  filter(total_tourist > 0) %>%
+  mutate(total_tourist = cut(total_tourist,
+                             breaks = c(0,1,2,Inf),
+                             labels = c("1", "2", "3+"))) %>%
+  filter(purpose != "Other") %>%
+  mutate(purpose = recode(purpose,
+                          `Business` = "Non-Leisure",
+                          `Leisure and Holidays` = "Leisure",
+                          `Meetings and Conference` = "Non-Leisure",
+                          `Scientific and Academic` = "Non-Leisure",
+                          `Visiting Friends and Relatives` = "Leisure",
+                          `Volunteering` = "Non-Leisure")) %>%
+  select(!main_activity) %>%
+  mutate(info_source = recode(info_source,
+                          `Friends, relatives` = "Word-of-Mouth",
+                          `inflight magazines` = "Others",
+                          `Newspaper, magazines,brochures` = "Others",
+                          `others` = "Others",
+                          `Radio, TV, Web` = "Others",
+                          `Tanzania Mission Abroad` = "Others",
+                          `Trade fair` = "Others",
+                          `Travel, agent, tour operator` = "Travel agents")) %>%
+  select(!night_mainland) %>%
+  select(!night_zanzibar) %>%
+  select(!total_night_spent) %>%
+  select(!prop_night_spent_mainland) %>%
+  mutate(payment_mode = recode(payment_mode,
+                               `Cash` = "Cash",
+                               `Credit Card` = "Non-Cash",
+                               `Other` = "Non-Cash",
+                               `Travellers Cheque` = "Non-Cash")) %>%
+  select(!most_impressing) %>%
+  mutate(total_cost = cut(total_cost, 
+                          breaks = c(0, 800000, 3550000, 9950000, Inf), 
+                          right = F, 
+                          labels = c("800k or less", "800k - 3.55mil", 
+                                     "3.55mil - 9.95mil", 
+                                     "More than 9.95mil")))
+
+```
+
+```{r}
 
 ##ensure all variables are factors
 df_clustering_recoded[-1] <- lapply(df_clustering_recoded[-1], factor)
 
 ##ensure no missing values
 sapply(df_clustering_recoded, function(x) sum(is.na(x)))
+
 ```
 
 ```{r}
 ## select variables
-##Variables in parentheses are the latent class classification variables.
-##Variables outside of the parentheses are covariates (not included in the LCA).
+##Variables in parentheses are the latent class classification variables
 
-f_nocovariate <- as.formula(cbind(total_cost, region, age_group, 
-                                  travel_with, purpose, main_activity,
-                                  tour_arrangement, duration,
-                                  mainland_zanzibar, payment_mode,
-                                  first_trip_tz)
-                            ~1)
-
-f_wcovariate <- as.formula(cbind(age_group, travel_with, purpose, 
-                                 main_activity, tour_arrangement, duration,
-                                 mainland_zanzibar, payment_mode, 
-                                 first_trip_tz)
-                           ~total_cost+region)
-
-##subset the data to only include these selected variables
-df_clustering_subset <- df_clustering_recoded %>%
-  select(ID, total_cost, region, age_group, travel_with, purpose, 
-         main_activity, tour_arrangement, duration,
-         mainland_zanzibar, payment_mode, first_trip_tz)
+f <- as.formula(cbind(region, age_group, travel_with, total_tourist, purpose,
+                      info_source, tour_arrangement, package_transport_int,
+                      package_accomodation, package_food, package_transport_tz,
+                      package_sightseeing, package_guided_tour,
+                      package_insurance, payment_mode, first_trip_tz,
+                      total_cost, duration, mainland_zanzibar)~1)
 
 ```
 
@@ -95,27 +136,19 @@ df_clustering_subset <- df_clustering_recoded %>%
 ##latent class analysis specifying 3 classes
 ##the more classes and variables there are, the longer it takes to run
 
-##can consider limiting the nclass to between 2-10
-## nrep = 1 means local search for lowest BIC; nrep > 1 = global search, but loading for nrep = 1 already takes a long time when nclass > 1, so suggest we dont allow for tweaking of nrep)
+##can consider limiting the nclass to between 2-7
+##limit nrep to between 1 to 5)
 
-lCA1 <- poLCA(f_nocovariate, df_clustering_subset, nclass=3, nrep=1)
-```
-
-```{r}
-# Calculate entropy (3-class mode)l- values closer to 1.0 indicate greater separation of the classes.
-entropy <- function (p) {sum(-p*log(p))}
-error_prior <- entropy(lCA1$P) # Class proportions
-error_post <- mean(apply(lCA1$posterior, 1, entropy))
-LCA3_entropy <- (error_prior - error_post) / error_prior
+LCA_model <- poLCA(f, df_clustering_recoded, nclass=7, nrep=5, maxiter=5000)
 ```
 
 ```{r}
 ##appending model classification to data set
-df_clustering_subset$class <- lCA1$predclass
+df_clustering_recoded$class <- LCA_model$predclass
 ```
 
 ```{r}
-##plotting results
-ggplot() + geom_bar(data = df_clustering_subset, aes(x = age_group)) +
+##plotting results - change of x only
+ggplot() + geom_bar(data = df_clustering_recoded, aes(x = region)) +
   facet_wrap(vars(class), ncol = 3)
 ```
