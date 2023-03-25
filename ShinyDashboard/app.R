@@ -1010,13 +1010,13 @@ body <- dashboardBody(
                                   )
                               )),
                             fluidRow(
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_rmse_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_mae_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_r2_", width = 4)
                               )
                             )
@@ -1236,7 +1236,7 @@ body <- dashboardBody(
 )
 
 # User Interface  ----------------------------------------------------
-ui <- dashboardPage(header, sidebar, body)
+ui <- dashboardPage(title="Tanzania Tourism Analysis", header, sidebar, body)
 
 
 #========================#
@@ -1530,7 +1530,7 @@ server <- function(input, output) {
                              results.subtitle = TRUE,
                              type = input$spend_test_,
                              conf.level = as.numeric(input$spend_cf_),
-                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
+                             ggplot.component = scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
       #facet_wrap(vars(!!sym(input$spend_cat_)))
     })
   
@@ -1990,7 +1990,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2005,7 +2005,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2020,7 +2020,7 @@ server <- function(input, output) {
         value = tags$p(round(modeltype, 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2196,7 +2196,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_rmse()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2210,7 +2210,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_mae()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2224,7 +2224,7 @@ server <- function(input, output) {
         value = tags$p(round(pred_rfmodel_r2(), 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
