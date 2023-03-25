@@ -18,6 +18,10 @@ pacman::p_load(tidyverse, rpart, rpart.plot, sparkline, visNetwork,
                caret, ranger, patchwork)
 ```
 
+-   As there are too many levels within the variable Country (and Code), this variable will be removed from the regression data set.
+
+-   Similarly, ID cannot be used as a predictor, hence, will be removed.
+
 ```{r}
 df <- read_csv("data/touristdata_clean.csv")
 
@@ -25,11 +29,11 @@ df_analysis <- df %>%
   select(!ID) %>% 
   select(!code) %>% 
   select(!country)
-
-#selection of variables as a function here
 ```
 
 # Regression Tree
+
+### Basic Regression Tree model
 
 ```{r}
 anova.model <- function(min_split, complexity_parameter, max_depth) {
@@ -44,10 +48,14 @@ anova.model <- function(min_split, complexity_parameter, max_depth) {
 fit_tree <- anova.model(5, 0.001, 10)
 ```
 
+### Visualising the Regression Tree
+
 ```{r}
 visTree(fit_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
 
 ```
+
+### Tuning of hyperparameters
 
 ```{r}
 printcp(fit_tree)
@@ -62,6 +70,8 @@ visTree(pruned_tree, edgesFontSize = 14, nodesFontSize = 16, width = "100%")
 
 # Random Forest
 
+### Splitting of data set into train vs. test data
+
 ```{r}
 set.seed(1234)
 
@@ -73,12 +83,14 @@ df_train <- df_analysis[trainIndex,]
 df_test <- df_analysis[-trainIndex,]
 ```
 
+### Hyperparameter Tuning and Training of Model
+
 ```{r}
-#can we have an option for whether user wants to do parameter tuning?
-#default is simple bootstrap resampling
+##setting option for user to decide if they want to do parameter tuning
+##default is simple bootstrap resampling
 trctrl <- trainControl(method = "none")
 
-#we can give one other option of (repeated) k-fold cross-validation where they can decide on the k and number of repeats
+##alternative is (repeated) k-fold cross-validation - user input decision on the value of k and the number of repeats
 cvControl <- trainControl(##default of 10, range: 3-50
                            method = "cv",
                            number = 10)
@@ -89,7 +101,7 @@ repeatcvControl <- trainControl(##default of 10, range: 3-50
                            ##default of 3, range: 3-10
                            repeats = 10)
 
-#actual model
+##building of model
 rf_model <- train(total_cost ~ ., 
                   data = df_train,
                   method = "ranger", 
@@ -107,12 +119,13 @@ rf_model <- train(total_cost ~ .,
                   ) 
 ```
 
+### Visualising of predicted vs. observed responses
+
 ```{r}
+##Fit test data into the model that has been built
 df_test$fit_forest <- predict(rf_model, df_test)
-```
 
-```{r}
-
+##Scatterplot of predicted vs. observed and Residuals scatterplot
 rf_scatter <- ggplot() + 
   geom_point(aes(x = df_test$total_cost, y = df_test$fit_forest)) +
   labs(x = "Actual Total Cost", y = "Predicted Total Cost",
@@ -137,18 +150,19 @@ p <- rf_scatter + rf_residuals +
 p
 ```
 
-```{r}
-#top 20 variable importance
-#can we show a title for this table based on what was selected in the model i.e. impurity vs permutation
+### Visualising variable importance (top 20)
 
+```{r}
 varImp(rf_model)
 ```
 
+### Visualising of R-squred value vs. the number of trees
+
+-   The original intention was to take in an input range for the number of trees and build a chart that would show a summary of how the R-squared value changes accordingly for the model trained above.
+
+-   However, after an attempt to build the chart on the Shiny app, we realised that the app may not have sufficient memory space to handle the for loop required to build this chart. As such, this chart is dropped from the final Shiny app.
+
 ```{r}
-##this is related to the model built above, but can we also have a separate tab where model takes in the other parameters set above, but here we allow for a range of the number of trees. This will allow us to plot the R-squared value vs the number of trees. 
-
-##our range can remain at 5-500 but would suggest we limit them to select no more than 100 numbers at one go e.g. 5-105 otherwise it will take very long to run depending on which trControl we choose to use
-
 tree_range <- 5:150
 
 rsquared_trees <- c()
@@ -173,10 +187,4 @@ ggplot(df = rsquared_plot) +
   geom_point(aes(x = tree_range, y = rsquared_trees)) + 
   labs(x = "Number of trees", y = "R-squared values", 
        title = "R-squared vs. Number of Trees Plot")
-```
-
-# XGBoost
-
-```{r}
-
 ```

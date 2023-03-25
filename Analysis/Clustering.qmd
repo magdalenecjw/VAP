@@ -14,24 +14,26 @@ editor: visual
 # Load Packages and Data
 
 ```{r}
-pacman::p_load(poLCA, ggplot2, tidyverse)
+pacman::p_load(poLCA, ggplot2, plotly, tidyverse)
 
 df <- read_csv("data/touristdata_clean.csv")
-
-df_clustering <- df %>% 
-  select(!code) %>% 
-  select(!country)
 
 ```
 
 # Latent Class Analysis
 
-```{r}
-##recode dichotomous variables as poLCA expects all variables to start at level 1, hence dichotomous variables should be 1/2 and not 0/1
-##bin continuous variables into categories
-##recode variables with imbalanced classification
+-   As poLCA expects all variables to start at level 1, dichotomous variables that are currently in 0/1 format need to be recoded as 1/2.
 
-df_clustering_recoded <- df_clustering %>%
+-   Continuous variables also need to be binned into categories of relatively similar sizes.
+
+-   In addition, variables with imbalance classification will be recoded into broader (and fewer) categories.
+
+-   Lastly, some of the categories are dropped if they are deemed to be less useful for use in classification.
+
+```{r}
+df_clustering <- df %>%
+  select(!code) %>% 
+  select(!country) %>%
   mutate(package_transport_int = recode(package_transport_int,
                                         `1` = 2,
                                         `0` = 1)) %>%
@@ -108,19 +110,22 @@ df_clustering_recoded <- df_clustering %>%
 
 ```
 
+Once the data set is cleaned, all variables are converted into factors and checked to ensure that there are no missing values.
+
 ```{r}
 
 ##ensure all variables are factors
-df_clustering_recoded[-1] <- lapply(df_clustering_recoded[-1], factor)
+df_clustering[-1] <- lapply(df_clustering[-1], factor)
 
 ##ensure no missing values
-sapply(df_clustering_recoded, function(x) sum(is.na(x)))
+sapply(df_clustering, function(x) sum(is.na(x)))
 
 ```
 
+We can then proceed to run the model by specifying the the number of classes we want and the number of repeats we will run for the model. If the number of repeats \> 1 (i.e. more than 1 run of the model is done), it means that a global search was done to obtain the lowest BIC score.
+
 ```{r}
-## select variables
-##Variables in parentheses are the latent class classification variables
+set.seed(1234)
 
 f <- as.formula(cbind(region, age_group, travel_with, total_tourist, purpose,
                       info_source, tour_arrangement, package_transport_int,
@@ -129,26 +134,71 @@ f <- as.formula(cbind(region, age_group, travel_with, total_tourist, purpose,
                       package_insurance, payment_mode, first_trip_tz,
                       total_cost, duration, mainland_zanzibar)~1)
 
-```
-
-```{r}
-
 ##latent class analysis specifying 3 classes
 ##the more classes and variables there are, the longer it takes to run
 
 ##can consider limiting the nclass to between 2-7
-##limit nrep to between 1 to 5)
-
-LCA_model <- poLCA(f, df_clustering_recoded, nclass=7, nrep=5, maxiter=5000)
+##limit nrep to between 1 to 5
+LCA_model <- poLCA(f, df_clustering, nclass=7, nrep=5, maxiter=5000)
 ```
 
+### Plot BIC score
+
 ```{r}
-##appending model classification to data set
-df_clustering_recoded$class <- LCA_model$predclass
+##in box similar to RSME for regression tree
+LCA_model$bic
+```
+
+### Plot AIC score
+
+```{r}
+##in box similar to RSME for regression tree
+LCA_model$aic
+```
+
+### Plot Entropy
+
+-   Entropy indicates how accurately the model defines classes. In general, an entropy value close to 1 is ideal and above 0.8 is acceptable. Anything below 0.6 is likely to be a suggestion of poor classification.
+
+```{r}
+##in box similar to RSME for regression tree
+entropy <- function(p) sum(-p*log(p))
+error_prior <- entropy(LCA_model$P)
+error_post <- mean(apply(LCA_model$posterior, c(1,2), entropy), na.rm=T)
+LCA_entropy <- (error_prior - error_post) / error_prior
+LCA_entropy
+```
+
+### Visualising Results
+
+-   The model classification is appended to the original data set for plotting of the variables to compare across the classes.
+
+```{r}
+df_clustering$class <- LCA_model$predclass
+df_clustering$class <- factor(df_clustering$class)
 ```
 
 ```{r}
 ##plotting results - change of x only
-ggplot() + geom_bar(data = df_clustering_recoded, aes(x = region)) +
-  facet_wrap(vars(class), ncol = 3)
+plot_table <- df_clustering %>%
+  group_by(purpose, class) %>% ##input x to be charted
+  summarise(counts = n()) %>% 
+  ungroup
+
+p1 <- ggplot(plot_table, aes(fill = purpose, y = counts, x = class)) + 
+  geom_bar(position = "fill", stat = "identity")
+
+fig1 <- ggplotly(p1)
+
+fig1
+```
+
+```{r}
+##alternative chart where x becomes the fill
+p2 <- ggplot(plot_table, aes(fill = class, y = counts, x = purpose)) + 
+  geom_bar(position = "fill", stat = "identity")
+
+fig2 <- ggplotly(p2)
+
+fig2
 ```
