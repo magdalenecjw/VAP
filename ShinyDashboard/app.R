@@ -307,7 +307,7 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-left: -2.5em; margin-right: -1em",
                                   box(
                                     #title = "Top Spending Country",
-                                    status = "primary",
+                                    status = "warning",
                                     width = 12,
                                     collapsible = F,
                                     height = "61vh",
@@ -327,7 +327,7 @@ body <- dashboardBody(
                          fluidRow(
                            box(
                              title = "Top Spending Country",
-                             status = "primary",
+                             status = "warning",
                              width = 12,
                              collapsible = T,
                              DT::dataTableOutput("dash_datatable_")
@@ -790,7 +790,7 @@ body <- dashboardBody(
               column(width = 10,
                      div(style = "padding = 0em; margin-left: -2em",
                          box(
-                           status = "primary",
+                           status = "warning",
                            width = 12,
                            collapsible = FALSE,
                            fluidRow(
@@ -863,7 +863,7 @@ body <- dashboardBody(
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
-                           collapsible = TRUE,
+                           collapsible = FALSE,
                            width = 12,
                            div(style = "padding = 0em; margin-top: -0.5em",
                                pickerInput(inputId = "dt_var_",
@@ -917,7 +917,7 @@ body <- dashboardBody(
                                   status = "primary",
                                   background = "aqua",
                                   solidHeader = TRUE,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   width = 12,
                                   div(style = "padding = 0em; margin-top: -0.5em",
                                       sliderInput(inputId = "dt_minsplit_",
@@ -955,18 +955,18 @@ body <- dashboardBody(
                      column(width = 6,
                             div(style = "padding = 0em; margin-left: -4em",
                                 box(
-                                  status = "primary",
+                                  status = "warning",
                                   width = 12,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   plotOutput("dt_errorplot_",
                                              height = "33vh",
                                              width = "100%")
                                 )),
                             div(style = "padding = 0em; margin-left: -4em",
                                 box(
-                                  status = "primary",
+                                  status = "warning",
                                   width = 12,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   DT::dataTableOutput("dt_cp_datatable_",
                                                       height = "33vh",
                                                       width = "100%")
@@ -1042,7 +1042,7 @@ body <- dashboardBody(
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
-                           collapsible = TRUE,
+                           collapsible = FALSE,
                            width = 12,
                            div(style = "padding = 0em; margin-top: -0.5em",
                                pickerInput(inputId = "rf_var_",
