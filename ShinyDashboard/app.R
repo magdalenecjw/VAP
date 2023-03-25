@@ -271,10 +271,10 @@ body <- dashboardBody(
                                          label = "Select metrics:",
                                          choices = c("Total Visitors" = "total_tourist",
                                                      "Total Spend (TZS)" = "total_cost",
-                                                     "Average TZS/Trip" = "avg_cost",
+                                                     "Average Spend/Trip" = "avg_cost",
                                                      "Average Nights" = "avg_night_spent",
-                                                     "Average TZS/Night" = "cost_per_night",
-                                                     "Average TZS/pax/Night" = "cost_per_pax_night"),
+                                                     "Average Spend/Night" = "cost_per_night",
+                                                     "Average Spend/pax/Night" = "cost_per_pax_night"),
                                          selected = "total_tourist")),
                          div(style = "padding = 0em; margin-top: -1em",
                              selectInput(inputId = "dash_mapclassification_",
@@ -307,7 +307,7 @@ body <- dashboardBody(
                               div(style = "padding = 0em; margin-left: -2.5em; margin-right: -1em",
                                   box(
                                     #title = "Top Spending Country",
-                                    status = "primary",
+                                    status = "warning",
                                     width = 12,
                                     collapsible = F,
                                     height = "61vh",
@@ -327,7 +327,7 @@ body <- dashboardBody(
                          fluidRow(
                            box(
                              title = "Top Spending Country",
-                             status = "primary",
+                             status = "warning",
                              width = 12,
                              collapsible = T,
                              DT::dataTableOutput("dash_datatable_")
@@ -790,7 +790,7 @@ body <- dashboardBody(
               column(width = 10,
                      div(style = "padding = 0em; margin-left: -2em",
                          box(
-                           status = "primary",
+                           status = "warning",
                            width = 12,
                            collapsible = FALSE,
                            fluidRow(
@@ -863,7 +863,7 @@ body <- dashboardBody(
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
-                           collapsible = TRUE,
+                           collapsible = FALSE,
                            width = 12,
                            div(style = "padding = 0em; margin-top: -0.5em",
                                pickerInput(inputId = "dt_var_",
@@ -901,6 +901,8 @@ body <- dashboardBody(
                                            min = 0.5,
                                            max = 0.95,
                                            value = c(0.8))),
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               tags$p("Press button below to build model", style = "font-style: italic;")),
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "dt_init_action_", 
                                             label = "Build Model"))
@@ -917,7 +919,7 @@ body <- dashboardBody(
                                   status = "primary",
                                   background = "aqua",
                                   solidHeader = TRUE,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   width = 12,
                                   div(style = "padding = 0em; margin-top: -0.5em",
                                       sliderInput(inputId = "dt_minsplit_",
@@ -942,6 +944,8 @@ body <- dashboardBody(
                                                           min = 0.005,
                                                           max = 1,
                                                           value = 0.01))),
+                                  div(style = "padding = 0em; margin-top: -0.5em",
+                                      tags$p("Press button below to tune model", style = "font-style: italic;")),
                                   div(style = "padding = 0em; margin-top: -0.8em",
                                       actionButton(inputId = "dt_action_", 
                                                    label = "Tune Model"))
@@ -955,18 +959,18 @@ body <- dashboardBody(
                      column(width = 6,
                             div(style = "padding = 0em; margin-left: -4em",
                                 box(
-                                  status = "primary",
+                                  status = "warning",
                                   width = 12,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   plotOutput("dt_errorplot_",
                                              height = "33vh",
                                              width = "100%")
                                 )),
                             div(style = "padding = 0em; margin-left: -4em",
                                 box(
-                                  status = "primary",
+                                  status = "warning",
                                   width = 12,
-                                  collapsible = TRUE,
+                                  collapsible = FALSE,
                                   DT::dataTableOutput("dt_cp_datatable_",
                                                       height = "33vh",
                                                       width = "100%")
@@ -1010,13 +1014,13 @@ body <- dashboardBody(
                                   )
                               )),
                             fluidRow(
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_rmse_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_mae_", width = 4)
                               ),
-                              div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                              div(style = "padding = 0em; margin-top: 1em; margin-left: -2em;",
                                   valueBoxOutput("dt_r2_", width = 4)
                               )
                             )
@@ -1042,7 +1046,7 @@ body <- dashboardBody(
                            status = "primary",
                            background = "aqua",
                            solidHeader = TRUE,
-                           collapsible = TRUE,
+                           collapsible = FALSE,
                            width = 12,
                            div(style = "padding = 0em; margin-top: -0.5em",
                                pickerInput(inputId = "rf_var_",
@@ -1125,9 +1129,10 @@ body <- dashboardBody(
                                            label = "Select Split Rule:",
                                            choices = c("Variance" = "variance",
                                                        "Extra Trees" = "extratrees",
-                                                       "Max Stat" = "maxstat",
-                                                       "Beta" = "beta"),
+                                                       "Max Stat" = "maxstat"),
                                            selected = "variance")),
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               tags$p("Press button below to build model", style = "font-style: italic;")),
                            div(style = "padding = 0em; margin-top: -0.8em",
                                actionButton(inputId = "rf_action_", 
                                             label = "Build Model"))
@@ -1144,7 +1149,7 @@ body <- dashboardBody(
                      fluidRow(
                        div(style = "padding = 0em; margin-left: -2em; margin-right: -1em;",
                            tabBox(
-                             #title = h3("Hypothesis Testing"),
+                             title = htmlOutput("rf_title_"),
                              width = 12,
                              height = "65vh",
                              
@@ -1236,7 +1241,7 @@ body <- dashboardBody(
 )
 
 # User Interface  ----------------------------------------------------
-ui <- dashboardPage(header, sidebar, body)
+ui <- dashboardPage(title="Tanzania Tourism Analysis", header, sidebar, body)
 
 
 #========================#
@@ -1289,9 +1294,9 @@ server <- function(input, output) {
              "Total Visitors" = "total_tourist",
              "Total Spend (TZS)" = "total_cost",
              "Avg Nights" = "avg_night_spent",
-             "Avg TZS/Trip" = "avg_cost",
-             "Avg TZS/Night" = "cost_per_night",
-             "Avg TZS/pax/Night" = "cost_per_pax_night"
+             "Avg Spend/Trip" = "avg_cost",
+             "Avg Spend/Night" = "cost_per_night",
+             "Avg Spend/pax/Night" = "cost_per_pax_night"
       )
   })
   
@@ -1299,10 +1304,10 @@ server <- function(input, output) {
     switch(input$dash_mapmetric_,
            "total_tourist" = "Total Visitors",
            "total_cost" = "Total Spend (TZS)",
-           "avg_cost" = "Avg TZS/Trip",
+           "avg_cost" = "Avg Spend/Trip",
            "avg_night_spent" = "Avg Nights",
-           "cost_per_night" = "Avg TZS/Night",
-           "cost_per_pax_night" = "Avg TZS/pax/Night")
+           "cost_per_night" = "Avg Spend/Night",
+           "cost_per_pax_night" = "Avg Spend/pax/Night")
   })
   
   # Dashboard Server  ----------------------------------------------------
@@ -1318,7 +1323,7 @@ server <- function(input, output) {
   output$dash_avgspenttrip_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$total_cost)/1000,0)), "k"), style = "font-size: 60%;"), 
-      subtitle = tags$p("Average TSZ/Trip", style = "font-size: 80%;"), 
+      subtitle = tags$p("Average Spend/Trip", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "yellow"
     )
@@ -1336,7 +1341,7 @@ server <- function(input, output) {
   output$dash_avgspentnight_ <- renderValueBox({
     valueBox(
       value = tags$p(paste0("TSZ ",scales::comma(round(mean(touristdata_clean$cost_per_night)/1000,0)), "k"), style = "font-size: 60%;"), 
-      subtitle = tags$p("Average TSZ/Night", style = "font-size: 80%;"), 
+      subtitle = tags$p("Average Spend/Night", style = "font-size: 80%;"), 
       icon = icon("dollar-sign"),
       color = "yellow"
     )
@@ -1530,7 +1535,7 @@ server <- function(input, output) {
                              results.subtitle = TRUE,
                              type = input$spend_test_,
                              conf.level = as.numeric(input$spend_cf_),
-                             ggplot.component = scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
+                             ggplot.component = scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
       #facet_wrap(vars(!!sym(input$spend_cat_)))
     })
   
@@ -1990,7 +1995,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2005,7 +2010,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(modeltype/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2020,7 +2025,7 @@ server <- function(input, output) {
         value = tags$p(round(modeltype, 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2135,6 +2140,16 @@ server <- function(input, output) {
     })
   
   # RF Server  ----------------------------------------------------
+  ## Title panel
+  rf_title_text <- eventReactive(
+    input$rf_action_, {
+      paste("<h3>", paste0("Number of Trees: ", input$rf_numtrees_),  "</h3>")
+    })
+  
+  output$rf_title_ <- renderText({
+    rf_title_text()
+  })
+  
   ## Enable K Parameter Selection when check box is selected
   observe({
     toggle(id = "rf_kfold_number_div", condition = input$rf_traincontrol_ == "rf_kfold", anim = TRUE)
@@ -2196,7 +2211,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_rmse()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("RMSE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2210,7 +2225,7 @@ server <- function(input, output) {
         value = tags$p(paste0(scales::comma(round(pred_rfmodel_mae()/1000,0)), "k"), style = "font-size: 50%;"), 
         subtitle = tags$p("MAE", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
@@ -2224,7 +2239,7 @@ server <- function(input, output) {
         value = tags$p(round(pred_rfmodel_r2(), 3), style = "font-size: 50%;"), 
         subtitle = tags$p("Rsquare", style = "font-size: 90%;"), 
         icon = icon("calculator"),
-        color = "aqua"
+        color = "yellow"
       )
     )
   }
