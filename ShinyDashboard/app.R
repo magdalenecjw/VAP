@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "ranger", "patchwork", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "ranger", "poLCA", "patchwork", "reshape2", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
@@ -101,6 +101,95 @@ top_oceania_data <- touristdata_clean_country_sorted %>%
   filter(region == "Oceania") %>%
   arrange(desc(total_cost))
 
+# Data for Clustering  ----------------------------------------------------
+df_clustering <- touristdata %>%
+  select(!ID) %>% 
+  select(!code) %>% 
+  select(!country) %>%
+  mutate(package_transport_int = recode(package_transport_int,
+                                        `1` = 2,
+                                        `0` = 1)) %>%
+  mutate(package_accomodation = recode(package_accomodation,
+                                       `1` = 2,
+                                       `0` = 1)) %>%
+  mutate(package_food = recode(package_food,
+                               `1` = 2,
+                               `0` = 1)) %>%
+  mutate(package_transport_tz = recode(package_transport_tz,
+                                       `1` = 2,
+                                       `0` = 1)) %>%
+  mutate(package_sightseeing = recode(package_sightseeing,
+                                      `1` = 2,
+                                      `0` = 1)) %>%
+  mutate(package_guided_tour = recode(package_guided_tour,
+                                      `1` = 2,
+                                      `0` = 1)) %>%
+  mutate(package_insurance = recode(package_insurance,
+                                    `1` = 2,
+                                    `0` = 1)) %>%
+  mutate(first_trip_tz = recode(first_trip_tz,
+                                `1` = 2,
+                                `0` = 1)) %>%
+  mutate(duration = cut(total_night_spent, breaks = c(0, 7, Inf), 
+                        labels = c("Within_1_week", "More_than_1_week"))) %>%
+  mutate(mainland_zanzibar = cut(prop_night_spent_mainland, 
+                                 breaks = c(0, 0.5, Inf), right = F, 
+                                 labels = c("zanzibar", "mainland"))) %>%
+  mutate(travel_with = recode(travel_with,
+                              `Children` = "ImmediateFamily",
+                              `Spouse` = "ImmediateFamily",
+                              `Spouse and Children` = "ImmediateFamily")) %>%
+  select(!total_female) %>%
+  select(!total_male) %>%
+  filter(total_tourist > 0) %>%
+  mutate(total_tourist = cut(total_tourist,
+                             breaks = c(0,1,2,Inf),
+                             labels = c("1", "2", "3+"))) %>%
+  filter(purpose != "Other") %>%
+  mutate(purpose = recode(purpose,
+                          `Business` = "Non-Leisure",
+                          `Leisure and Holidays` = "Leisure",
+                          `Meetings and Conference` = "Non-Leisure",
+                          `Scientific and Academic` = "Non-Leisure",
+                          `Visiting Friends and Relatives` = "Leisure",
+                          `Volunteering` = "Non-Leisure")) %>%
+  select(!main_activity) %>%
+  mutate(info_source = recode(info_source,
+                              `Friends, relatives` = "Word-of-Mouth",
+                              `inflight magazines` = "Others",
+                              `Newspaper, magazines,brochures` = "Others",
+                              `others` = "Others",
+                              `Radio, TV, Web` = "Others",
+                              `Tanzania Mission Abroad` = "Others",
+                              `Trade fair` = "Others",
+                              `Travel, agent, tour operator` = "Travel agents")) %>%
+  select(!night_mainland) %>%
+  select(!night_zanzibar) %>%
+  select(!total_night_spent) %>%
+  select(!prop_night_spent_mainland) %>%
+  mutate(payment_mode = recode(payment_mode,
+                               `Cash` = "Cash",
+                               `Credit Card` = "Non-Cash",
+                               `Other` = "Non-Cash",
+                               `Travellers Cheque` = "Non-Cash")) %>%
+  select(!most_impressing) %>%
+  mutate(total_cost = cut(total_cost, 
+                          breaks = c(0, 800000, 3550000, 9950000, Inf), 
+                          right = F, 
+                          labels = c("800k or less", "800k - 3.55mil", 
+                                     "3.55mil - 9.95mil", 
+                                     "More than 9.95mil"))) %>%
+  mutate_all(as.factor) %>%
+  drop_na()
+
+set.seed(1234)
+clust_f <- as.formula(cbind(region, age_group, travel_with, total_tourist, purpose,
+                            info_source, tour_arrangement, package_transport_int,
+                            package_accomodation, package_food, package_transport_tz,
+                            package_sightseeing, package_guided_tour,
+                            package_insurance, payment_mode, first_trip_tz,
+                            total_cost, duration, mainland_zanzibar)~1)  
+
 # Data for Decision Tree and Random Forest  ----------------------------------------------------
 df_analysis <- touristdata %>% 
   select(!ID) %>% 
@@ -117,6 +206,16 @@ df_analysis <- touristdata %>%
 # Convert binary function  ----------------------------------------------------
 convertbinary <- function(x){
   ifelse(x==1,"Yes","No")
+}
+
+# Convert binary2 function  ----------------------------------------------------
+convertbinary2 <- function(x){
+  ifelse(x==2,"Yes","No")
+}
+
+# Calculate clustering entropy function  ----------------------------------------------------
+entropy <- function(p) {
+  sum(-p*log(p))
 }
 
 #colorset
@@ -311,9 +410,9 @@ body <- dashboardBody(
                                     width = 12,
                                     collapsible = F,
                                     height = "61vh",
-                                  tmapOutput("dash_map_", 
-                                             width = "100%",
-                                             height = "55vh")
+                                    tmapOutput("dash_map_", 
+                                               width = "100%",
+                                               height = "55vh")
                                   )
                               )
                        )
@@ -845,7 +944,133 @@ body <- dashboardBody(
     
     ## Clustering  ----------------------------------------------------
     tabItem(tabName = "tab_cluster",
-            #h3("Clustering Analysis")
+            #h3("Clustering Analysis"),
+            fluidRow(
+              
+              ### Clustering First Column  ----------------------------------------------------
+              column(width = 2,
+                     
+                     #### Clustering Panel
+                     div(style = "padding = 0em; margin-right: -0.5em",
+                         box(
+                           title = tags$p("Clustering Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                           status = "primary",
+                           background = "aqua",
+                           solidHeader = TRUE,
+                           collapsible = FALSE,
+                           width = 12,
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               sliderInput(inputId = "clust_nclass",
+                                           label = "Number of Clusters:",
+                                           min = 2,
+                                           max = 8,
+                                           value = c(3))),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               sliderInput(inputId = "clust_nrep",
+                                           label = "Number of Repetitions:",
+                                           min = 1,
+                                           max = 6,
+                                           value = c(3))),
+                           div(style = "padding = 0em; margin-top: -0.5em",
+                               tags$p("Press button below to start clustering", style = "font-style: italic;")),
+                           div(style = "padding = 0em; margin-top: -0.8em",
+                               actionButton(inputId = "clust_action_", 
+                                            label = "Run Cluster"))
+                           
+                           
+                         )
+                         
+                     )
+                     
+              ),
+              
+              ### Clustering Second Column  ----------------------------------------------------
+              column(width = 10,
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em; margin-right: -0.5em;",
+                           tabBox(
+                             title = h3("Latent Class Analysis"),
+                             width = 12,
+                             height = "65vh",
+                             
+                             #### Clustering Plots ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("LCA Result Overall Plot", style = "font-weight: bold;"),
+                               plotlyOutput("clust_plot",
+                                            width = "100%",
+                                            height = "50vh")
+                             ),
+                             
+                             #### Clustering Individual Plot ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("LCA Result Individual Plot", style = "font-weight: bold;"),
+                               fluidRow(
+                                 column(width = 4),
+                                 column(width = 4,
+                                        align = "center",
+                                        selectizeInput(inputId = "clust_var",
+                                                       width = "100%",
+                                                       label = "Select variable:",
+                                                       choices = list("Age group" = "age_group", 
+                                                                      "Trip Duration" = "duration",
+                                                                      "First trip to TZA?" = "first_trip_tz",
+                                                                      "Source of information" = "info_source",
+                                                                      "Mainland or Zanzibar?" = "mainland_zanzibar",
+                                                                      "Incl. accom?" = "package_accomodation",
+                                                                      "Incl. food?" = "package_food",
+                                                                      "Incl. guided tour?" = "package_guided_tour",
+                                                                      "Incl. insurance?" = "package_insurance",
+                                                                      "Incl. sightseeing?" = "package_sightseeing",
+                                                                      "Incl. int'l. transport?" = "package_transport_int",
+                                                                      "Incl. dom. transport?" = "package_transport_tz",
+                                                                      "Mode of payment" = "payment_mode",
+                                                                      "Trip purpose" = "purpose",
+                                                                      "Tourist region origin" = "region",
+                                                                      "Spending per Trip (TZS)" = "total_cost", 
+                                                                      "Total Visitors" = "total_tourist",
+                                                                      "Travelling with" = "travel_with", 
+                                                                      "Tour arrangement" = "tour_arrangement"),
+                                                       selected = "total_cost")),
+                                 column(width = 4,
+                                        align = "left",
+                                        div(style = "margin-left: -1em; margin-top: 1.75em;",
+                                            actionButton(inputId = "clust_var_action_", 
+                                                         label = "Plot Graph"))
+                                 )
+                               ),
+                               fluidRow(
+                                 column(width = 12,
+                                        align = "center",
+                                        plotlyOutput("clust_ind_plot",
+                                                     width = "90%",
+                                                     height = "45vh"))
+                               )
+                             )
+                           )
+                       )
+                     ),
+                     
+                     fluidRow(
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("clust_aic_", width = 3)
+                       ),
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("clust_bic_", width = 3)
+                       ),
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("clust_gsq_", width = 3)
+                       ),
+                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                           valueBoxOutput("clust_entropy_", width = 3)
+                       )
+                     )
+                     
+                     
+              )
+              
+              
+              
+            )
     ),
     
     ## Decision Tree  ----------------------------------------------------
@@ -1176,39 +1401,39 @@ body <- dashboardBody(
                              ),
                              
                              #### Random Forest R-squared value vs trees  ----------------------------------------------------
-                            # tabPanel(
-                            #   title = tags$p("R-squared value vs Number of trees", style = "font-weight: bold;"),
-                               
-                               ##### Random Forest R-squared value vs trees Panel  ----------------------------------------------------
-                            #   column(width = 3,
-                            #          hidden(div(id = "rf_R2vstree_div",
-                            #                     style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
-                            #                     box(
-                            #                       title = tags$p("Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                            #                       status = "primary",
-                            #                       background = "aqua",
-                            #                       solidHeader = TRUE,
-                            #                       collapsible = TRUE,
-                            #                       width = 12,
-                            #                       div(style = "padding = 0em; margin-top: -0.5em",
-                            #                           sliderInput(inputId = "rf_tree_range_",
-                            #                                       label = "Range of Trees (keep range within 20):",
-                            #                                       min = 5,
-                            #                                       max = 100,
-                            #                                       value = c(5,25))),
-                            #                       div(style = "padding = 0em; margin-top: -0.5em",
-                            #                           actionButton(inputId = "rf_R2vstree_action", 
-                            #                                        label = "Plot"))
-                            #                     )
-                            #          ))
-                            #   ),
-                               
-                               ##### Random Forest R-squared value vs trees Plot  ----------------------------------------------------
-                            #   column(width = 9,
-                            #          plotOutput("rf_R2vstree_plot",
-                            #                     width = "100%",
-                            #                     height = "50vh")
-                            #   )
+                             # tabPanel(
+                             #   title = tags$p("R-squared value vs Number of trees", style = "font-weight: bold;"),
+                             
+                             ##### Random Forest R-squared value vs trees Panel  ----------------------------------------------------
+                             #   column(width = 3,
+                             #          hidden(div(id = "rf_R2vstree_div",
+                             #                     style = "padding = 0em; margin-right: -0.5em; margin-top: -1em",
+                             #                     box(
+                             #                       title = tags$p("Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                             #                       status = "primary",
+                             #                       background = "aqua",
+                             #                       solidHeader = TRUE,
+                             #                       collapsible = TRUE,
+                             #                       width = 12,
+                             #                       div(style = "padding = 0em; margin-top: -0.5em",
+                             #                           sliderInput(inputId = "rf_tree_range_",
+                             #                                       label = "Range of Trees (keep range within 20):",
+                             #                                       min = 5,
+                             #                                       max = 100,
+                             #                                       value = c(5,25))),
+                             #                       div(style = "padding = 0em; margin-top: -0.5em",
+                             #                           actionButton(inputId = "rf_R2vstree_action", 
+                             #                                        label = "Plot"))
+                             #                     )
+                             #          ))
+                             #   ),
+                             
+                             ##### Random Forest R-squared value vs trees Plot  ----------------------------------------------------
+                             #   column(width = 9,
+                             #          plotOutput("rf_R2vstree_plot",
+                             #                     width = "100%",
+                             #                     height = "50vh")
+                             #   )
                              #)
                            )
                        )),
@@ -1832,6 +2057,199 @@ server <- function(input, output) {
                            y = 1.15)) 
   })
   
+  # Clustering Data Manipulation  ----------------------------------------------------
+  
+  # Clustering Server  ----------------------------------------------------
+  ## Clustering Model
+  clust_LCA_model <- eventReactive(
+    input$clust_action_, {
+      poLCA(clust_f, df_clustering, nclass=input$clust_nclass, nrep=input$clust_nrep, maxiter=5000)
+    })
+  
+  ## Calculate metrics
+  clust_aic_reactive <- eventReactive(
+    input$clust_action_, {
+      clust_LCA_model()$aic
+    })
+  
+  clust_bic_reactive <- eventReactive(
+    input$clust_action_, {
+      clust_LCA_model()$bic
+    })
+  
+  clust_gsq_reactive <- eventReactive(
+    input$clust_action_, {
+      clust_LCA_model()$Gsq
+    })
+  
+  error_prior <- eventReactive(
+    input$clust_action_, {
+      entropy(clust_LCA_model()$P)
+    })
+  
+  error_post <- eventReactive(
+    input$clust_action_, {
+      mean(apply(clust_LCA_model()$posterior, c(1,2), entropy), na.rm=T)
+    })
+  
+  
+  clust_entropy_reactive <- eventReactive(
+    input$clust_action_, {
+      (error_prior() - error_post()) / error_prior()
+    })
+  
+  ## Display AIC
+  clust_display_aic = function(){
+    output$clust_aic_ = renderValueBox(
+      valueBox(
+        value = tags$p(scales::comma(round(clust_aic_reactive(),2)), style = "font-size: 50%;"), 
+        subtitle = tags$p("AIC", style = "font-size: 90%;"), 
+        icon = icon("calculator"),
+        color = "yellow"
+      )
+    )
+  }
+  
+  observeEvent(input$clust_action_, clust_display_aic())
+  
+  ## Display BIC
+  clust_display_bic = function(){
+    output$clust_bic_ = renderValueBox(
+      valueBox(
+        value = tags$p(scales::comma(round(clust_bic_reactive(),2)), style = "font-size: 50%;"), 
+        subtitle = tags$p("BIC", style = "font-size: 90%;"), 
+        icon = icon("calculator"),
+        color = "yellow"
+      )
+    )
+  }
+  
+  observeEvent(input$clust_action_, clust_display_bic())
+  
+  ## Display Likelihood ratio
+  clust_display_gsq = function(){
+    output$clust_gsq_ = renderValueBox(
+      valueBox(
+        value = tags$p(scales::comma(round(clust_gsq_reactive(),2)), style = "font-size: 50%;"), 
+        subtitle = tags$p("Likelihood Ratio", style = "font-size: 90%;"), 
+        icon = icon("calculator"),
+        color = "yellow"
+      )
+    )
+  }
+  
+  observeEvent(input$clust_action_, clust_display_gsq())
+  
+  ## Display Entropy
+  clust_display_entropy = function(){
+    output$clust_entropy_ = renderValueBox(
+      valueBox(
+        value = tags$p(round(clust_entropy_reactive(), 3), style = "font-size: 50%;"), 
+        subtitle = tags$p("Entropy", style = "font-size: 90%;"), 
+        icon = icon("calculator"),
+        color = "yellow"
+      )
+    )
+  }
+  
+  observeEvent(input$clust_action_, clust_display_entropy())
+  
+  ## Create new dataframe for plotting overall plot
+  df_clustering_prob <- eventReactive(
+    input$clust_action_, {
+      reshape2::melt(clust_LCA_model()$probs, level = 2) %>%
+        rename(Class = Var1,
+               Factor_level = Var2,
+               Prop = value,
+               Category = L2) %>%
+        mutate(Prop = round(Prop*100,2))
+    })
+  
+  ##Plotting OVerall Plot
+  clust_plot_reactive <- eventReactive(
+    input$clust_action_, {
+      ggplot(df_clustering_prob(),
+             aes(x = Class, y = Prop, fill = Factor_level)) + 
+        geom_bar(stat = "identity", position = "stack") + 
+        facet_wrap(~ Category) + 
+        coord_flip() +
+        labs(fill = "Factor Level") +
+        scale_y_continuous("Proportion", expand = c(0, 0)) + 
+        theme_minimal(base_size = 10) +
+        scale_fill_manual(values = colorset)
+    })
+  
+  output$clust_plot <- renderPlotly({
+    ggplotly(clust_plot_reactive()) %>%
+      layout(legend = list(orientation = 'h',
+                           xanchor = "center",
+                           x = 0.5,
+                           yanchor = "top",
+                           y = 1.15))
+  })
+  
+  
+  ## Adding class column to df_clustering
+  df_clustering_mod <- eventReactive(
+    input$clust_action_, {
+      df_clustering %>%
+        mutate(class = clust_LCA_model()$predclass) %>%
+        mutate(class = as.factor(class)) %>%
+        mutate(across(package_transport_int:package_insurance, convertbinary2)) %>%
+        mutate(across(first_trip_tz, convertbinary2))
+    })
+  
+  ##Preparation to plot individual plot
+  clust_grouped_table <- eventReactive(
+    input$clust_var_action_, {
+      df_clustering_mod() %>%
+        group_by(!!sym(input$clust_var), class) %>% ##input x to be charted
+        summarise(counts = n()) %>%
+        ungroup()
+    })
+  
+  clust_class_table <- eventReactive(
+    input$clust_var_action_, {
+      df_clustering_mod() %>%
+        group_by(class) %>%
+        summarise(sum_count = n()) %>%
+        ungroup()
+    })
+  
+  clust_plot_table <- eventReactive(
+    input$clust_var_action_, {
+      left_join(clust_grouped_table(), clust_class_table()) %>%
+        mutate(perc = round(counts*100/sum_count, 1)) %>%
+        rename(cluster = class)
+    })
+  
+  ##Plotting Individual Plot
+  clust_ind_plot_reactive <- eventReactive(
+    input$clust_var_action_, {
+      ggplot(clust_plot_table(), aes(x = cluster, y = counts, fill = !!sym(input$clust_var))) + 
+        geom_bar(
+          aes(text = paste0("prop: ",perc,"%")),
+          color = "black", 
+          stat = "identity", 
+          position = "fill") +
+        coord_flip() +
+        labs(x = "Cluster", y = "Proportion", fill = NULL) +
+        scale_y_continuous(labels = scales::percent) +
+        theme_minimal(base_size = 11) +
+        scale_fill_manual(values = colorset)
+    })
+  
+  output$clust_ind_plot <- renderPlotly({
+    ggplotly(clust_ind_plot_reactive(), tooltip = c("text", "x", "fill")) %>%
+      layout(legend = list(orientation = 'h',
+                           xanchor = "center",
+                           x = 0.5,
+                           yanchor = "top",
+                           y = 1.15))
+  })
+  
+  
+  
   # DT Data Manipulation  ----------------------------------------------------
   dt_dataset <- eventReactive(
     input$dt_init_action_, {
@@ -2305,7 +2723,7 @@ server <- function(input, output) {
   #rsquared_trees_pred <- eventReactive(
   #  input$rf_action_, {
   #    rsquared_trees <- c()
-      
+  
   #    for (i in tree_range_var()){
   #      rf_model_a <- train(total_cost ~ ., 
   #                          data = rf_analysis_train(),
@@ -2316,7 +2734,7 @@ server <- function(input, output) {
   #                          tuneGrid = data.frame(mtry = sqrt(ncol(rf_analysis_train())),
   #                                                min.node.size = 5,
   #                                                splitrule = "variance"))
-        
+  
   #      rsquared_trees <- append(rsquared_trees, rf_model_a$finalModel$r.squared)
   #    }
   #    rsquared_trees
