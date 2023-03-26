@@ -22,6 +22,69 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -59,6 +122,14 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "Submit"
   }
 }</script>
+<script src="../site_libs/htmlwidgets-1.6.0/htmlwidgets.js"></script>
+<script src="../site_libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="../site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -104,6 +175,11 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../minutes.html" class="sidebar-item-text sidebar-link">Project Minutes</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../DataPrep/DataPrep.html" class="sidebar-item-text sidebar-link">Data Preparation</a>
   </div>
 </li>
@@ -124,7 +200,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../Analysis/Regression.html" class="sidebar-item-text sidebar-link">Regression Analysis</a>
+  <a href="../Analysis/Decision_Tree.html" class="sidebar-item-text sidebar-link">Decision Tree Analysis</a>
   </div>
 </li>
     </ul>
@@ -132,7 +208,20 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-packages-and-data" id="toc-load-packages-and-data" class="nav-link active" data-scroll-target="#load-packages-and-data">Load Packages and Data</a></li>
+  <li><a href="#latent-class-analysis" id="toc-latent-class-analysis" class="nav-link" data-scroll-target="#latent-class-analysis">Latent Class Analysis</a>
+  <ul class="collapse">
+  <li><a href="#plot-bic-score" id="toc-plot-bic-score" class="nav-link" data-scroll-target="#plot-bic-score">Plot BIC score</a></li>
+  <li><a href="#plot-aic-score" id="toc-plot-aic-score" class="nav-link" data-scroll-target="#plot-aic-score">Plot AIC score</a></li>
+  <li><a href="#plot-entropy" id="toc-plot-entropy" class="nav-link" data-scroll-target="#plot-entropy">Plot Entropy</a></li>
+  <li><a href="#visualising-results" id="toc-visualising-results" class="nav-link" data-scroll-target="#visualising-results">Visualising Results</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -163,7 +252,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 11, 2023</p>
+      <p class="date-modified">March 26, 2023</p>
     </div>
   </div>
     
@@ -172,8 +261,442 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="load-packages-and-data" class="level1">
+<h1>Load Packages and Data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(poLCA, ggplot2, plotly, tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/touristdata_clean.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="latent-class-analysis" class="level1">
+<h1>Latent Class Analysis</h1>
+<ul>
+<li><p>As poLCA expects all variables to start at level 1, dichotomous variables that are currently in 0/1 format need to be recoded as 1/2.</p></li>
+<li><p>Continuous variables also need to be binned into categories of relatively similar sizes.</p></li>
+<li><p>In addition, variables with imbalance classification will be recoded into broader (and fewer) categories.</p></li>
+<li><p>Lastly, some of the categories are dropped if they are deemed to be less useful for use in classification.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_clustering <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>code) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>country) <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_transport_int =</span> <span class="fu">recode</span>(package_transport_int,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_accomodation =</span> <span class="fu">recode</span>(package_accomodation,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_food =</span> <span class="fu">recode</span>(package_food,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_transport_tz =</span> <span class="fu">recode</span>(package_transport_tz,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_sightseeing =</span> <span class="fu">recode</span>(package_sightseeing,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_guided_tour =</span> <span class="fu">recode</span>(package_guided_tour,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">package_insurance =</span> <span class="fu">recode</span>(package_insurance,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">first_trip_tz =</span> <span class="fu">recode</span>(first_trip_tz,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">duration =</span> <span class="fu">cut</span>(total_night_spent, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="cn">Inf</span>), </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Within_1_week"</span>, <span class="st">"More_than_1_week"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mainland_zanzibar =</span> <span class="fu">cut</span>(prop_night_spent_mainland, </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="cn">Inf</span>), <span class="at">right =</span> F, </span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"zanzibar"</span>, <span class="st">"mainland"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">travel_with =</span> <span class="fu">recode</span>(travel_with,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>                              <span class="st">`</span><span class="at">Children</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"ImmediateFamily"</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                              <span class="st">`</span><span class="at">Spouse</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"ImmediateFamily"</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>                              <span class="st">`</span><span class="at">Spouse and Children</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"ImmediateFamily"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>total_female) <span class="sc">%&gt;%</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>total_male) <span class="sc">%&gt;%</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_tourist <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_tourist =</span> <span class="fu">cut</span>(total_tourist,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                             <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="cn">Inf</span>),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>                             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3+"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(purpose <span class="sc">!=</span> <span class="st">"Other"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">purpose =</span> <span class="fu">recode</span>(purpose,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Business</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Leisure"</span>,</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Leisure and Holidays</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Leisure"</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Meetings and Conference</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Leisure"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Scientific and Academic</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Leisure"</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Visiting Friends and Relatives</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Leisure"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Volunteering</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Leisure"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>main_activity) <span class="sc">%&gt;%</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">info_source =</span> <span class="fu">recode</span>(info_source,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Friends, relatives</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Word-of-Mouth"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">inflight magazines</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Newspaper, magazines,brochures</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">others</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Radio, TV, Web</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Tanzania Mission Abroad</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Trade fair</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Others"</span>,</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>                          <span class="st">`</span><span class="at">Travel, agent, tour operator</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Travel agents"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>night_mainland) <span class="sc">%&gt;%</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>night_zanzibar) <span class="sc">%&gt;%</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>total_night_spent) <span class="sc">%&gt;%</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>prop_night_spent_mainland) <span class="sc">%&gt;%</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">payment_mode =</span> <span class="fu">recode</span>(payment_mode,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>                               <span class="st">`</span><span class="at">Cash</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Cash"</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>                               <span class="st">`</span><span class="at">Credit Card</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Cash"</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>                               <span class="st">`</span><span class="at">Other</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Cash"</span>,</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>                               <span class="st">`</span><span class="at">Travellers Cheque</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Non-Cash"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>most_impressing) <span class="sc">%&gt;%</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_cost =</span> <span class="fu">cut</span>(total_cost, </span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>                          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">800000</span>, <span class="dv">3550000</span>, <span class="dv">9950000</span>, <span class="cn">Inf</span>), </span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>                          <span class="at">right =</span> F, </span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>                          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"800k or less"</span>, <span class="st">"800k - 3.55mil"</span>, </span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"3.55mil - 9.95mil"</span>, </span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"More than 9.95mil"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once the data set is cleaned, all variables are converted into factors and checked to ensure that there are no missing values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">##ensure all variables are factors</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_clustering[<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df_clustering[<span class="sc">-</span><span class="dv">1</span>], factor)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##ensure no missing values</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(df_clustering, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   ID                region             age_group 
+                    0                     0                     0 
+          travel_with         total_tourist               purpose 
+                    0                     0                     0 
+          info_source      tour_arrangement package_transport_int 
+                    0                     0                     0 
+ package_accomodation          package_food  package_transport_tz 
+                    0                     0                     0 
+  package_sightseeing   package_guided_tour     package_insurance 
+                    0                     0                     0 
+         payment_mode         first_trip_tz            total_cost 
+                    0                     0                     0 
+             duration     mainland_zanzibar 
+                    0                     0 </code></pre>
+</div>
+</div>
+<p>We can then proceed to run the model by specifying the the number of classes we want and the number of repeats we will run for the model. If the number of repeats &gt; 1 (i.e.&nbsp;more than 1 run of the model is done), it means that a global search was done to obtain the lowest BIC score.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">cbind</span>(region, age_group, travel_with, total_tourist, purpose,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                      info_source, tour_arrangement, package_transport_int,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                      package_accomodation, package_food, package_transport_tz,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                      package_sightseeing, package_guided_tour,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                      package_insurance, payment_mode, first_trip_tz,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                      total_cost, duration, mainland_zanzibar)<span class="sc">~</span><span class="dv">1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="do">##latent class analysis specifying 3 classes</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="do">##the more classes and variables there are, the longer it takes to run</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="do">##can consider limiting the nclass to between 2-7</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="do">##limit nrep to between 1 to 5</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>LCA_model <span class="ot">&lt;-</span> <span class="fu">poLCA</span>(f, df_clustering, <span class="at">nclass=</span><span class="dv">7</span>, <span class="at">nrep=</span><span class="dv">5</span>, <span class="at">maxiter=</span><span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 1: llik = -46192.65 ... best llik = -46192.65
+Model 2: llik = -46192.96 ... best llik = -46192.65
+Model 3: llik = -46230.21 ... best llik = -46192.65
+Model 4: llik = -46407.38 ... best llik = -46192.65
+Model 5: llik = -46575.45 ... best llik = -46192.65
+Conditional item response (column) probabilities,
+ by outcome variable, for each class (row) 
+ 
+$region
+           Pr(1)  Pr(2)  Pr(3)  Pr(4)  Pr(5)
+class 1:  0.0149 0.3204 0.0424 0.5507 0.0717
+class 2:  0.1801 0.0090 0.0406 0.7513 0.0190
+class 3:  0.0039 0.3514 0.0982 0.3924 0.1541
+class 4:  0.7875 0.0460 0.0833 0.0766 0.0066
+class 5:  0.2764 0.1393 0.0917 0.4692 0.0234
+class 6:  0.0863 0.2057 0.1496 0.5289 0.0294
+class 7:  0.1848 0.1407 0.1447 0.5102 0.0196
+
+$age_group
+           Pr(1)  Pr(2)  Pr(3)  Pr(4)
+class 1:  0.0437 0.3619 0.4366 0.1578
+class 2:  0.0840 0.5948 0.2981 0.0230
+class 3:  0.2014 0.3691 0.2894 0.1400
+class 4:  0.0527 0.6791 0.2473 0.0209
+class 5:  0.1393 0.5564 0.2709 0.0334
+class 6:  0.2881 0.5227 0.1710 0.0182
+class 7:  0.3204 0.4375 0.2124 0.0297
+
+$travel_with
+           Pr(1)  Pr(2)  Pr(3)
+class 1:  0.0000 0.2643 0.7357
+class 2:  0.0021 0.3103 0.6876
+class 3:  1.0000 0.0000 0.0000
+class 4:  1.0000 0.0000 0.0000
+class 5:  0.0012 0.4995 0.4993
+class 6:  1.0000 0.0000 0.0000
+class 7:  1.0000 0.0000 0.0000
+
+$total_tourist
+          Pr(1)  Pr(2)  Pr(3)
+class 1:      0 0.6568 0.3432
+class 2:      0 0.6838 0.3162
+class 3:      1 0.0000 0.0000
+class 4:      1 0.0000 0.0000
+class 5:      0 0.6785 0.3215
+class 6:      1 0.0000 0.0000
+class 7:      1 0.0000 0.0000
+
+$purpose
+           Pr(1)  Pr(2)
+class 1:  0.9883 0.0117
+class 2:  0.9520 0.0480
+class 3:  1.0000 0.0000
+class 4:  0.2998 0.7002
+class 5:  0.7611 0.2389
+class 6:  0.7184 0.2816
+class 7:  0.5279 0.4721
+
+$info_source
+           Pr(1)  Pr(2)  Pr(3)
+class 1:  0.1168 0.7669 0.1162
+class 2:  0.2056 0.6495 0.1448
+class 3:  0.1355 0.7384 0.1261
+class 4:  0.3433 0.1204 0.5363
+class 5:  0.3349 0.1675 0.4976
+class 6:  0.3382 0.1272 0.5347
+class 7:  0.3114 0.4095 0.2790
+
+$tour_arrangement
+           Pr(1)  Pr(2)
+class 1:  0.0068 0.9932
+class 2:  0.0147 0.9853
+class 3:  0.0066 0.9934
+class 4:  0.9951 0.0049
+class 5:  0.9965 0.0035
+class 6:  1.0000 0.0000
+class 7:  0.0200 0.9800
+
+$package_transport_int
+           Pr(1)  Pr(2)
+class 1:  0.3538 0.6462
+class 2:  0.0956 0.9044
+class 3:  0.5913 0.4087
+class 4:  0.9951 0.0049
+class 5:  0.9969 0.0031
+class 6:  0.9984 0.0016
+class 7:  0.4459 0.5541
+
+$package_accomodation
+           Pr(1)  Pr(2)
+class 1:  0.0194 0.9806
+class 2:  0.0428 0.9572
+class 3:  0.0033 0.9967
+class 4:  1.0000 0.0000
+class 5:  0.9961 0.0039
+class 6:  1.0000 0.0000
+class 7:  0.0235 0.9765
+
+$package_food
+           Pr(1)  Pr(2)
+class 1:  0.0919 0.9081
+class 2:  0.1008 0.8992
+class 3:  0.0223 0.9777
+class 4:  1.0000 0.0000
+class 5:  1.0000 0.0000
+class 6:  1.0000 0.0000
+class 7:  0.1544 0.8456
+
+$package_transport_tz
+           Pr(1)  Pr(2)
+class 1:  0.0975 0.9025
+class 2:  0.3004 0.6996
+class 3:  0.0428 0.9572
+class 4:  1.0000 0.0000
+class 5:  1.0000 0.0000
+class 6:  1.0000 0.0000
+class 7:  0.3635 0.6365
+
+$package_sightseeing
+           Pr(1)  Pr(2)
+class 1:  0.1163 0.8837
+class 2:  0.8326 0.1674
+class 3:  0.0718 0.9282
+class 4:  1.0000 0.0000
+class 5:  1.0000 0.0000
+class 6:  1.0000 0.0000
+class 7:  0.7637 0.2363
+
+$package_guided_tour
+           Pr(1)  Pr(2)
+class 1:  0.1209 0.8791
+class 2:  0.7732 0.2268
+class 3:  0.0754 0.9246
+class 4:  0.9990 0.0010
+class 5:  1.0000 0.0000
+class 6:  1.0000 0.0000
+class 7:  0.6311 0.3689
+
+$package_insurance
+           Pr(1)  Pr(2)
+class 1:  0.6215 0.3785
+class 2:  0.6575 0.3425
+class 3:  0.7316 0.2684
+class 4:  1.0000 0.0000
+class 5:  1.0000 0.0000
+class 6:  1.0000 0.0000
+class 7:  0.8335 0.1665
+
+$payment_mode
+           Pr(1)  Pr(2)
+class 1:  0.8255 0.1745
+class 2:  0.8702 0.1298
+class 3:  0.8905 0.1095
+class 4:  0.8741 0.1259
+class 5:  0.8455 0.1545
+class 6:  0.9014 0.0986
+class 7:  0.8927 0.1073
+
+$first_trip_tz
+           Pr(1)  Pr(2)
+class 1:  0.0904 0.9096
+class 2:  0.1829 0.8171
+class 3:  0.0728 0.9272
+class 4:  0.7068 0.2932
+class 5:  0.3617 0.6383
+class 6:  0.3580 0.6420
+class 7:  0.2452 0.7548
+
+$total_cost
+           Pr(1)  Pr(2)  Pr(3)  Pr(4)
+class 1:  0.0401 0.1024 0.1873 0.6701
+class 2:  0.0398 0.1095 0.4077 0.4429
+class 3:  0.0745 0.1395 0.5172 0.2689
+class 4:  0.6345 0.3295 0.0321 0.0040
+class 5:  0.2436 0.3584 0.2961 0.1020
+class 6:  0.2388 0.5147 0.2195 0.0269
+class 7:  0.1815 0.2345 0.4914 0.0925
+
+$duration
+           Pr(1)  Pr(2)
+class 1:  0.2783 0.7217
+class 2:  0.6261 0.3739
+class 3:  0.4131 0.5869
+class 4:  0.8709 0.1291
+class 5:  0.4567 0.5433
+class 6:  0.2009 0.7991
+class 7:  0.4688 0.5312
+
+$mainland_zanzibar
+           Pr(1)  Pr(2)
+class 1:  0.0667 0.9333
+class 2:  0.7485 0.2515
+class 3:  0.0245 0.9755
+class 4:  0.0109 0.9891
+class 5:  0.2049 0.7951
+class 6:  0.1288 0.8712
+class 7:  0.0839 0.9161
+
+Estimated class population shares 
+ 0.2199 0.1044 0.0999 0.2073 0.1848 0.1303 0.0533 
+ 
+Predicted class memberships (by modal posterior prob.) 
+ 0.2218 0.1026 0.1019 0.2112 0.1848 0.1266 0.0513 
+ 
+========================================================= 
+Fit for 7 latent classes: 
+========================================================= 
+number of observations: 4622 
+number of estimated parameters: 209 
+residual degrees of freedom: 4413 
+maximum log-likelihood: -46192.65 
+ 
+AIC(7): 92803.3
+BIC(7): 94148.96
+G^2(7): 21945.37 (Likelihood ratio/deviance statistic) 
+X^2(7): 48495716 (Chi-square goodness of fit) 
+ </code></pre>
+</div>
+</div>
+<section id="plot-bic-score" class="level3">
+<h3 class="anchored" data-anchor-id="plot-bic-score">Plot BIC score</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">##in box similar to RSME for regression tree</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>LCA_model<span class="sc">$</span>bic</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 94148.96</code></pre>
+</div>
+</div>
+</section>
+<section id="plot-aic-score" class="level3">
+<h3 class="anchored" data-anchor-id="plot-aic-score">Plot AIC score</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">##in box similar to RSME for regression tree</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>LCA_model<span class="sc">$</span>aic</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 92803.3</code></pre>
+</div>
+</div>
+</section>
+<section id="plot-entropy" class="level3">
+<h3 class="anchored" data-anchor-id="plot-entropy">Plot Entropy</h3>
+<ul>
+<li>Entropy indicates how accurately the model defines classes. In general, an entropy value close to 1 is ideal and above 0.8 is acceptable. Anything below 0.6 is likely to be a suggestion of poor classification.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">##in box similar to RSME for regression tree</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>entropy <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">sum</span>(<span class="sc">-</span>p<span class="sc">*</span><span class="fu">log</span>(p))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>error_prior <span class="ot">&lt;-</span> <span class="fu">entropy</span>(LCA_model<span class="sc">$</span>P)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>error_post <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">apply</span>(LCA_model<span class="sc">$</span>posterior, <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), entropy), <span class="at">na.rm=</span>T)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>LCA_entropy <span class="ot">&lt;-</span> (error_prior <span class="sc">-</span> error_post) <span class="sc">/</span> error_prior</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>LCA_entropy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9777623</code></pre>
+</div>
+</div>
+</section>
+<section id="visualising-results" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-results">Visualising Results</h3>
+<ul>
+<li>The model classification is appended to the original data set for plotting of the variables to compare across the classes.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_clustering<span class="sc">$</span>class <span class="ot">&lt;-</span> LCA_model<span class="sc">$</span>predclass</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df_clustering<span class="sc">$</span>class <span class="ot">&lt;-</span> <span class="fu">factor</span>(df_clustering<span class="sc">$</span>class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">##plotting results - change of x only</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>plot_table <span class="ot">&lt;-</span> df_clustering <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(purpose, class) <span class="sc">%&gt;%</span> <span class="do">##input x to be charted</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">counts =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  ungroup</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_table, <span class="fu">aes</span>(<span class="at">fill =</span> purpose, <span class="at">y =</span> counts, <span class="at">x =</span> class)) <span class="sc">+</span> </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"fill"</span>, <span class="at">stat =</span> <span class="st">"identity"</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>fig1 <span class="ot">&lt;-</span> <span class="fu">ggplotly</span>(p1)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>fig1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-40843bf5cd745aa8dfb0" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-40843bf5cd745aa8dfb0">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9,0.9],"base":[0.0117073170731707,0.0485232067510548,0,0.703893442622951,0.238875878220141,0.263247863247863,0.489451476793249],"x":[1,2,3,4,5,6,7],"y":[0.988292682926829,0.951476793248945,1,0.296106557377049,0.761124121779859,0.736752136752137,0.510548523206751],"text":["class: 1<br />counts: 0.98829268<br />purpose: Leisure","class: 2<br />counts: 0.95147679<br />purpose: Leisure","class: 3<br />counts: 1.00000000<br />purpose: Leisure","class: 4<br />counts: 0.29610656<br />purpose: Leisure","class: 5<br />counts: 0.76112412<br />purpose: Leisure","class: 6<br />counts: 0.73675214<br />purpose: Leisure","class: 7<br />counts: 0.51054852<br />purpose: Leisure"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"Leisure","legendgroup":"Leisure","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9],"base":[0,0,0,0,0,0],"x":[1,2,4,5,6,7],"y":[0.0117073170731707,0.0485232067510548,0.703893442622951,0.238875878220141,0.263247863247863,0.489451476793249],"text":["class: 1<br />counts: 0.01170732<br />purpose: Non-Leisure","class: 2<br />counts: 0.04852321<br />purpose: Non-Leisure","class: 4<br />counts: 0.70389344<br />purpose: Non-Leisure","class: 5<br />counts: 0.23887588<br />purpose: Non-Leisure","class: 6<br />counts: 0.26324786<br />purpose: Non-Leisure","class: 7<br />counts: 0.48945148<br />purpose: Non-Leisure"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"Non-Leisure","legendgroup":"Non-Leisure","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":48.9497716894977},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,7.6],"tickmode":"array","ticktext":["1","2","3","4","5","6","7"],"tickvals":[1,2,3,4,5,6,7],"categoryorder":"array","categoryarray":["1","2","3","4","5","6","7"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"class","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"counts","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"title":{"text":"purpose","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5b747c150a0":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"5b747c150a0","visdat":{"5b747c150a0":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">##alternative chart where x becomes the fill</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_table, <span class="fu">aes</span>(<span class="at">fill =</span> class, <span class="at">y =</span> counts, <span class="at">x =</span> purpose)) <span class="sc">+</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"fill"</span>, <span class="at">stat =</span> <span class="st">"identity"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>fig2 <span class="ot">&lt;-</span> <span class="fu">ggplotly</span>(p2)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>fig2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-6988bc478680ad369e7f" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-6988bc478680ad369e7f">{"x":{"data":[{"orientation":"v","width":[0.9,0.9],"base":[0.704319906596614,0.989966555183946],"x":[1,2],"y":[0.295680093403386,0.0100334448160535],"text":["purpose: Leisure<br />counts: 0.29568009<br />class: 1","purpose: Non-Leisure<br />counts: 0.01003344<br />class: 1"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"1","legendgroup":"1","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9],"base":[0.572679509632224,0.970735785953177],"x":[1,2],"y":[0.13164039696439,0.0192307692307693],"text":["purpose: Leisure<br />counts: 0.13164040<br />class: 2","purpose: Non-Leisure<br />counts: 0.01923077<br />class: 2"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(196,154,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2","legendgroup":"2","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0.435201401050788,"x":[1],"y":[0.137478108581436],"text":"purpose: Leisure<br />counts: 0.13747811<br />class: 3","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(83,180,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"3","legendgroup":"3","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9],"base":[0.350846468184472,0.396321070234114],"x":[1,2],"y":[0.0843549328663164,0.574414715719064],"text":["purpose: Leisure<br />counts: 0.08435493<br />class: 4","purpose: Non-Leisure<br />counts: 0.57441472<br />class: 4"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,192,148,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"4","legendgroup":"4","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9],"base":[0.161120840630473,0.225752508361204],"x":[1,2],"y":[0.189725627553999,0.17056856187291],"text":["purpose: Leisure<br />counts: 0.18972563<br />class: 5","purpose: Non-Leisure<br />counts: 0.17056856<br />class: 5"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,182,235,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"5","legendgroup":"5","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9],"base":[0.035318155283129,0.096989966555184],"x":[1,2],"y":[0.125802685347344,0.12876254180602],"text":["purpose: Leisure<br />counts: 0.12580269<br />class: 6","purpose: Non-Leisure<br />counts: 0.12876254<br />class: 6"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(165,138,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"6","legendgroup":"6","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9],"base":[0,0],"x":[1,2],"y":[0.035318155283129,0.096989966555184],"text":["purpose: Leisure<br />counts: 0.03531816<br />class: 7","purpose: Non-Leisure<br />counts: 0.09698997<br />class: 7"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(251,97,215,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"7","legendgroup":"7","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":48.9497716894977},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,2.6],"tickmode":"array","ticktext":["Leisure","Non-Leisure"],"tickvals":[1,2],"categoryorder":"array","categoryarray":["Leisure","Non-Leisure"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"purpose","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"counts","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"title":{"text":"class","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"5b744796c0f":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"5b744796c0f","visdat":{"5b744796c0f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

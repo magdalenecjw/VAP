@@ -1,39 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://habaritanzania.netlify.app/index.html</loc>
-    <lastmod>2023-03-14T15:01:49.099Z</lastmod>
-  </url>
-  <url>
     <loc>https://habaritanzania.netlify.app/about.html</loc>
-    <lastmod>2023-03-11T05:23:14.962Z</lastmod>
-  </url>
-  <url>
-    <loc>https://habaritanzania.netlify.app/DataPrep/DataPrep.html</loc>
-    <lastmod>2023-03-15T14:38:55.197Z</lastmod>
-  </url>
-  <url>
-    <loc>https://habaritanzania.netlify.app/EDA/EDA.html</loc>
-    <lastmod>2023-03-18T10:04:10.032Z</lastmod>
-  </url>
-  <url>
-    <loc>https://habaritanzania.netlify.app/EDA/CDA.html</loc>
-    <lastmod>2023-03-15T14:41:48.382Z</lastmod>
+    <lastmod>2023-03-25T13:39:33.654Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/Analysis/Clustering.html</loc>
-    <lastmod>2023-03-11T07:48:59.234Z</lastmod>
-  </url>
-  <url>
-    <loc>https://habaritanzania.netlify.app/Analysis/Regression.html</loc>
-    <lastmod>2023-03-18T04:24:43.425Z</lastmod>
+    <lastmod>2023-03-25T16:43:17.069Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/Analysis/Decision_Tree.html</loc>
-    <lastmod>2023-03-21T01:50:23.078Z</lastmod>
+    <lastmod>2023-03-25T16:42:41.689Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/DataPrep/DataPrep.html</loc>
+    <lastmod>2023-03-25T13:40:41.545Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/EDA/CDA.html</loc>
+    <lastmod>2023-03-25T13:45:55.769Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/EDA/EDA.html</loc>
+    <lastmod>2023-03-25T13:43:05.013Z</lastmod>
+  </url>
+  <url>
+    <loc>https://habaritanzania.netlify.app/index.html</loc>
+    <lastmod>2023-03-25T13:43:05.556Z</lastmod>
   </url>
   <url>
     <loc>https://habaritanzania.netlify.app/minutes.html</loc>
-    <lastmod>2023-03-24T11:17:31.778Z</lastmod>
+    <lastmod>2023-03-25T13:51:14.914Z</lastmod>
   </url>
 </urlset>

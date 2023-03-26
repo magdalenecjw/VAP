@@ -16,5 +16,14 @@
   },
   "minutes.qmd": {
     "minutes.html": "2c4973fa"
+  },
+  "about.qmd": {
+    "about.html": "3d30bf7c"
+  },
+  "Analysis/Clustering.qmd": {
+    "Clustering.html": "e76a80d7"
+  },
+  "Analysis/Decision_Tree.qmd": {
+    "Decision_Tree.html": "66309c0a"
   }
 }
