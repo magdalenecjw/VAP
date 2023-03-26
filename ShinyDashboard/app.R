@@ -2196,7 +2196,7 @@ server <- function(input, output) {
         mutate(class = clust_LCA_model()$predclass) %>%
         mutate(class = as.factor(class)) %>%
         mutate(across(package_transport_int:package_insurance, convertbinary2)) %>%
-        mutate(across(first_trip_tz, convertbinary2))
+        mutate(across(first_trip_tz, convertbinary2)) 
     })
   
   ##Preparation to plot individual plot
