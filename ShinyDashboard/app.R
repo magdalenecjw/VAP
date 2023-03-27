@@ -2169,8 +2169,8 @@ server <- function(input, output) {
   clust_plot_reactive <- eventReactive(
     input$clust_action_, {
       ggplot(df_clustering_prob(),
-             aes(x = Class, y = Prop, fill = Factor_level)) + 
-        geom_bar(stat = "identity", position = "stack") + 
+             aes(x = Class, y = Prop, group = desc(Factor_level))) + 
+        geom_bar(stat = "identity", position = "stack", aes(fill = Factor_level)) + 
         facet_wrap(~ Category) + 
         coord_flip() +
         labs(fill = "Factor Level") +
@@ -2221,14 +2221,15 @@ server <- function(input, output) {
       left_join(clust_grouped_table(), clust_class_table()) %>%
         mutate(perc = round(counts*100/sum_count, 1)) %>%
         rename(cluster = class)
-    })
+      })
   
   ##Plotting Individual Plot
   clust_ind_plot_reactive <- eventReactive(
     input$clust_var_action_, {
-      ggplot(clust_plot_table(), aes(x = cluster, y = counts, fill = !!sym(input$clust_var))) + 
+      ggplot(clust_plot_table(), aes(x = cluster, y = counts, group = desc(!!sym(input$clust_var)))) + 
         geom_bar(
-          aes(text = paste0("prop: ",perc,"%")),
+          aes(fill = !!sym(input$clust_var), 
+              text = paste0("prop: ",perc,"%")),
           color = "black", 
           stat = "identity", 
           position = "fill") +
