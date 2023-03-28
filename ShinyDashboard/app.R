@@ -3,7 +3,7 @@
 ###### Importing Packages ######
 #==============================#
 
-pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "ranger", "poLCA", "patchwork", "reshape2", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
+pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "ggrepel", "plotly", "DT", "scales", "caret", "rpart", "rpart.plot", "sparkline", "visNetwork", "ranger", "poLCA", "patchwork", "reshape2", "shiny", "shinydashboard", "shinyWidgets", "fresh", "shinyjs", "tidyverse")
 
 #==============================#
 ###### Data Manipulation ######
@@ -300,6 +300,7 @@ body <- dashboardBody(
   tags$style(".box { font-size: 90%}"),
   tags$style(".box.bg-aqua { color: #2A2D34 !important; }"),
   tags$style(".nav-tabs-custom .nav-tabs li.active { border-top-color: #E9D758 !important; }"),
+  tags$style(".nav-tabs-custom .nav-tabs li { font-weight: bold !important; }"),
   tags$style(".fa-dollar-sign {font-size:80%}"),
   tags$style(".fa-people-group {font-size:80%}"),
   tags$style(".fa-bed {font-size:80%}"),
@@ -529,110 +530,126 @@ body <- dashboardBody(
               
               ### Analysis_Spending Second Column  ----------------------------------------------------
               column(width = 10,
-                     div(style = "padding = 0em; margin-left: -2em",
-                         tabBox(
-                           #title = h3("Hypothesis Testing"),
-                           title = htmlOutput("spend_title_"),
-                           width = 12,
-                           height = "80vh",
-                           
-                           #### Analysis_Spending Scatter ----------------------------------------------------
-                           tabPanel(
-                             title = tags$p("Ind. Spending vs Night Spent by Category", style = "font-weight: bold;"),
-                             fluidRow(
-                               
-                               #### Analysis_Spending Scatterplot Control Panel ----------------------------------------------------
-                               column(width = 3,
-                                      box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                                        status = "primary",
-                                        background = "aqua",
-                                        solidHeader = TRUE,
-                                        collapsible = FALSE,
-                                        width = 12,
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            actionButton(inputId = "spend_scatter_action_", 
-                                                         label = "Update plot"))
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em",
+                           tabBox(
+                             #title = h3("Hypothesis Testing"),
+                             id = "spend_tabbox_", 
+                             title = htmlOutput("spend_title_"),
+                             width = 12,
+                             height = "60vh",
+                             
+                             #### Analysis_Spending Scatter ----------------------------------------------------
+                             tabPanel(
+                               title = "Ind. Spending vs Night Spent by Category",
+                               fluidRow(
+                                 
+                                 #### Analysis_Spending Scatterplot Control Panel ----------------------------------------------------
+                                 column(width = 3,
+                                        box(
+                                          title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                                          status = "primary",
+                                          background = "aqua",
+                                          solidHeader = TRUE,
+                                          collapsible = FALSE,
+                                          width = 12,
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              actionButton(inputId = "spend_scatter_action_", 
+                                                           label = "Update plot"))
+                                          
+                                        )
                                         
-                                      )
-                                      
-                               ),
-                               
-                               #### Analysis_Spending Scatterplot Plot ----------------------------------------------------
-                               column(width = 9,
-                                      plotOutput("spend_scatter_plot_",
-                                                 height = "65vh")
+                                 ),
+                                 
+                                 #### Analysis_Spending Scatterplot Plot ----------------------------------------------------
+                                 column(width = 9,
+                                        plotOutput("spend_scatter_plot_",
+                                                   height = "55vh")
+                                 )
+                                 
+                                 
                                )
                                
-                               
+                             ),
+                             
+                             #### Analysis_Spending Box ----------------------------------------------------
+                             tabPanel(
+                               title = "Spending by Category",
+                               fluidRow(
+                                 
+                                 #### Analysis_Spending Boxviolin Control Panel ----------------------------------------------------
+                                 column(width = 3,
+                                        box(
+                                          title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                                          status = "primary",
+                                          background = "aqua",
+                                          solidHeader = TRUE,
+                                          collapsible = FALSE,
+                                          width = 12,
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              selectInput(inputId = "spend_yaxis_",
+                                                          label = "Select y-axis:",
+                                                          choices = list("Spending per Trip" = "total_cost", 
+                                                                         "Individual Spending per Trip" = "cost_per_pax", 
+                                                                         "Spending per Night" = "cost_per_night",
+                                                                         "Individual Spending per Night" = "cost_per_pax_night"),
+                                                          selected = "cost_per_pax")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              selectInput(inputId = "spend_plottype_",
+                                                          label = "Plot type:",
+                                                          choices = list("Box" = "box", 
+                                                                         "Violin" = "violin", 
+                                                                         "Box Violin" = "boxviolin"),
+                                                          selected = "boxviolin")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              checkboxInput(inputId = "spend_compare_", 
+                                                            label = "Show pairwise comparison",
+                                                            value = TRUE)),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              radioButtons(inputId = "spend_w_compare_", 
+                                                           label = "Display comparison:", 
+                                                           choices = c("significant" = "s",
+                                                                       "non-significant" = "ns"),
+                                                           selected = "ns")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              actionButton(inputId = "spend_boxplot_action_", 
+                                                           label = "Update plot"))
+                                          
+                                        )
+                                 ),
+                                 
+                                 
+                                 #### Analysis_Spending Boxviolin Plot ----------------------------------------------------
+                                 column(width = 9,
+                                        plotOutput("spend_box_plot_",
+                                                   height = "55vh"))
+                                 
+                                 
+                                 
+                               )
                              )
                              
-                           ),
-                           
-                           #### Analysis_Spending Box ----------------------------------------------------
-                           tabPanel(
-                             title = tags$p("Spending by Category", style = "font-weight: bold;"),
-                             fluidRow(
-                               
-                               #### Analysis_Spending Boxviolin Control Panel ----------------------------------------------------
-                               column(width = 3,
-                                      box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                                        status = "primary",
-                                        background = "aqua",
-                                        solidHeader = TRUE,
-                                        collapsible = FALSE,
-                                        width = 12,
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            selectInput(inputId = "spend_yaxis_",
-                                                        label = "Select y-axis:",
-                                                        choices = list("Spending per Trip" = "total_cost", 
-                                                                       "Individual Spending per Trip" = "cost_per_pax", 
-                                                                       "Spending per Night" = "cost_per_night",
-                                                                       "Individual Spending per Night" = "cost_per_pax_night"),
-                                                        selected = "cost_per_pax")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            selectInput(inputId = "spend_plottype_",
-                                                        label = "Plot type:",
-                                                        choices = list("Box" = "box", 
-                                                                       "Violin" = "violin", 
-                                                                       "Box Violin" = "boxviolin"),
-                                                        selected = "boxviolin")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            checkboxInput(inputId = "spend_compare_", 
-                                                          label = "Show pairwise comparison",
-                                                          value = TRUE)),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            radioButtons(inputId = "spend_w_compare_", 
-                                                         label = "Display comparison:", 
-                                                         choices = c("significant" = "s",
-                                                                     "non-significant" = "ns"),
-                                                         selected = "ns")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            actionButton(inputId = "spend_boxplot_action_", 
-                                                         label = "Update plot"))
-                                        
-                                      )
-                               ),
-                               
-                               
-                               #### Analysis_Spending Boxviolin Plot ----------------------------------------------------
-                               column(width = 9,
-                                      plotOutput("spend_box_plot_",
-                                                 height = "65vh"))
-                               
-                               
-                               
-                             )
+                             
                            )
                            
-                           
-                         )
-                         
+                       )
+                     ),
+                     
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em; margin-top: 1em",
+                           box(
+                             title = tags$p("Insights", style = "color: #030708; font-weight: bold; font-size: 80%;"),
+                             status = "warning",
+                             width = 12,
+                             collapsible = F,
+                             div(style = "padding = 0em; margin-top: -1.5em",
+                                 htmlOutput("spend_insight_text"))
+                           )
+                       )
                      )
               )
               
@@ -1774,7 +1791,7 @@ server <- function(input, output) {
                      type = input$spend_test_, pairwise.comparisons = input$spend_compare_, pairwise.display = input$spend_w_compare_, 
                      mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_)) +
         scale_color_manual(values = colorset) +
-        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6))
+        scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) 
     })
   
   ## Render the scatter plot
@@ -1786,6 +1803,48 @@ server <- function(input, output) {
   output$spend_box_plot_ <- renderPlot({
     spend_box_plotreact()
   })
+  
+  ## Show Insights Text for Scatter Plot
+  
+  spend_scatter_text = function(){
+    output$spend_insight_text = renderText(
+      paste0(
+        "Comparing the correlation between spending and nights spent across different categories reveal determining factors that affect tourists spending, for instance:",
+        "<br>","<b>Tour Arrangement:</b>",
+        " Tourists who travel independently have a higher positive correlation between spending and nights spent, while tourists who travel with a package (especially with arrangements) have a lower correlation.",
+        "<br>","<b>Trip Purpose:</b>",
+        " Scientific and academic tourists show a moderate positive correlation (spearman coeff >0.5) between spending and nights spent, while leisure and holiday tourists show almost no correlation. Volunteer tourists also have no significant correlation (spearman coeff : -0.02) between spending and nights spent."
+      )
+    )
+  }
+  
+  spend_box_text = function(){
+    output$spend_insight_text = renderText(
+      paste0(
+        "Comparing tourist spending across different categories can help identify which tourist categories tend to spend more or less, allowing for more targeted marketing to those who are more likely to spend more:",
+        "<br>","<b>Tour Arrangement:</b>",
+        " Tourists who travel on packaged tours tend to have a higher median spending and more spending on the higher end of the spending range.",
+        "<br>","<b>Age Group:</b>",
+        " Older tourist group tend to spend more than younger ones,",
+        "<br>","<b>Travelling with:</b>",
+        " When comparing spending per trip and spending per night, tourists traveling with their spouse and children tend to spend more. However, when it comes to spending per individual per night, those traveling with their spouses tend to spend the most.",
+        "<br>","<b>Trip purpose:</b>",
+        " When comparing individual spending per night, tourists traveling for scientific and academic purposes tend to have a capped spending, with a median that is even lower than those who are here for volunteering work. On the other hand, tourists who are here for leisure and holidays tend to spend the most per night."
+      )
+    )
+  }
+  
+  observeEvent(input$spend_tabbox_, 
+               if(input$spend_tabbox_ == "Ind. Spending vs Night Spent by Category"){
+                 spend_scatter_text()
+               } else {
+                 spend_box_text()
+               }
+  )
+  
+  
+  #observeEvent(input$spend_scatter_action_, spend_scatter_text())
+  #observeEvent(input$spend_boxplot_action_, spend_box_text())
   
   # Analysis_Country Data Manipulation  ----------------------------------------------------
   
@@ -2221,7 +2280,7 @@ server <- function(input, output) {
       left_join(clust_grouped_table(), clust_class_table()) %>%
         mutate(perc = round(counts*100/sum_count, 1)) %>%
         rename(cluster = class)
-      })
+    })
   
   ##Plotting Individual Plot
   clust_ind_plot_reactive <- eventReactive(
