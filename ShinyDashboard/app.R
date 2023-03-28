@@ -661,6 +661,7 @@ body <- dashboardBody(
     tabItem(tabName = "tab_country",
             #h3("Comparison among Regions and Countries"),
             fluidRow(
+              
               ### Analysis_Country First Column  ----------------------------------------------------
               column(width = 2,
                      div(style = "padding = 0em; margin-right: -0.5em",
@@ -710,135 +711,155 @@ body <- dashboardBody(
               
               ### Analysis_Country Second Column  ----------------------------------------------------
               column(width = 10,
-                     div(style = "padding = 0em; margin-left: -2em",
-                         tabBox(
-                           title = h3("Hypothesis Testing"),
-                           width = 12,
-                           height = "80vh",  
-                           
-                           #### Analysis_Country Numerical ----------------------------------------------------
-                           tabPanel(
-                             title = tags$p("Numerical Variables", style = "font-weight: bold;"),
-                             fluidRow(
-                               
-                               #### Analysis_Country Numerical Control Panel ----------------------------------------------------
-                               column(width = 3,
-                                      box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                                        status = "primary",
-                                        background = "aqua",
-                                        solidHeader = TRUE,
-                                        collapsible = FALSE,
-                                        width = 12,
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            selectInput(inputId = "acou_numvar_",
-                                                        label = "Select y-axis:",
-                                                        choices = list("Spending per Trip" = "total_cost", 
-                                                                       "Individual Spending per Trip" = "cost_per_pax", 
-                                                                       "Spending per Night" = "cost_per_night",
-                                                                       "Individual Spending per Night" = "cost_per_pax_night",
-                                                                       "Night Spent per Trip" = "total_night_spent",
-                                                                       "Prop Night Spent in Mainland" = "prop_night_spent_mainland"),
-                                                        selected = "total_cost")),
-                                        div(style = "padding = 0em; margin-top: -0em",
-                                            selectInput(inputId = "acou_plottype_",
-                                                        label = "Plot type:",
-                                                        choices = list("Box" = "box", 
-                                                                       "Violin" = "violin", 
-                                                                       "Box Violin" = "boxviolin"),
-                                                        selected = "boxviolin")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            checkboxInput(inputId = "acou_compare_", 
-                                                          label = "Show pairwise comparison",
-                                                          value = TRUE)),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            radioButtons(inputId = "acou_w_compare_", 
-                                                         label = "Display comparison:", 
-                                                         choices = c("significant" = "s",
-                                                                     "non-significant" = "ns"),
-                                                         selected = "ns")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            checkboxInput(inputId = "acou_outliers_", 
-                                                          label = "Treat outliers",
-                                                          value = TRUE)),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            actionButton(inputId = "acou_action_", 
-                                                         label = "Update plot"))
-                                      )
-                               ),
-                               
-                               #### Analysis_Country Numerical Plot ----------------------------------------------------
-                               column(width = 9,
-                                      plotOutput("acou_num_plot_",
-                                                 height = "65vh"
-                                      )
-                               ),
-                               
-                             )
-                           ),
-                           
-                           tabPanel(
-                             title = tags$p("Categorical Variables", style = "font-weight: bold;"),
-                             fluidRow(
-                               
-                               #### Analysis_Country Categorical Control Panel ----------------------------------------------------
-                               column(width = 3,
-                                      box(
-                                        title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
-                                        status = "primary",
-                                        background = "aqua",
-                                        solidHeader = TRUE,
-                                        collapsible = FALSE,
-                                        width = 12,
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            selectInput(inputId = "acou_catvar_",
-                                                        label = "Select y-axis:",
-                                                        choices = list("Age group" = "age_group", 
-                                                                       "Travelling with" = "travel_with", 
-                                                                       "Trip purpose" = "purpose",
-                                                                       "Main activity" = "main_activity",
-                                                                       "Source of information" = "info_source",
-                                                                       "Tour arrangement" = "tour_arrangement",
-                                                                       "Incl. int'l. transport?" = "package_transport_int",
-                                                                       "Incl. accom?" = "package_accomodation",
-                                                                       "Incl. food?" = "package_food",
-                                                                       "Incl. dom. transport?" = "package_transport_tz",
-                                                                       "Incl. sightseeing?" = "package_sightseeing",
-                                                                       "Incl. guided tour?" = "package_guided_tour",
-                                                                       "Incl. insurance?" = "package_insurance",
-                                                                       "Mode of payment" = "payment_mode",
-                                                                       "First trip to TZA?" = "first_trip_tz",
-                                                                       "Most impressive attr." = "most_impressing"),
-                                                        selected = "age_group")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            selectInput(inputId = "acou_catlabel_",
-                                                        label = "Select label:",
-                                                        choices = list("Percentage" = "percentage", 
-                                                                       "Counts" = "counts"),
-                                                        selected = "percentage")),
-                                        div(style = "padding = 0em; margin-top: 0em",
-                                            tags$p("Press button below to update graph", style = "font-style: italic;")),
-                                        div(style = "padding = 0em; margin-top: -0.5em",
-                                            actionButton(inputId = "acou_cat_action_", 
-                                                         label = "Update plot"))
-                                        
-                                      )
-                               ),
-                               
-                               #### Analysis_Country Categorical Plot ----------------------------------------------------
-                               column(width = 9,
-                                      plotOutput("acou_cat_plot_",
-                                                 height = "65vh"
-                                      )
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em",
+                           tabBox(
+                             id = "acou_tabbox_",
+                             title = h3("Hypothesis Testing"),
+                             width = 12,
+                             height = "60vh",  
+                             
+                             #### Analysis_Country Numerical ----------------------------------------------------
+                             tabPanel(
+                               title = "Numerical Variables",
+                               fluidRow(
+                                 
+                                 #### Analysis_Country Numerical Control Panel ----------------------------------------------------
+                                 column(width = 3,
+                                        box(
+                                          title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                                          status = "primary",
+                                          background = "aqua",
+                                          solidHeader = TRUE,
+                                          collapsible = FALSE,
+                                          width = 12,
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              selectInput(inputId = "acou_numvar_",
+                                                          label = "Select y-axis:",
+                                                          choices = list("Spending per Trip" = "total_cost", 
+                                                                         "Individual Spending per Trip" = "cost_per_pax", 
+                                                                         "Spending per Night" = "cost_per_night",
+                                                                         "Individual Spending per Night" = "cost_per_pax_night",
+                                                                         "Night Spent per Trip" = "total_night_spent",
+                                                                         "Prop Night Spent in Mainland" = "prop_night_spent_mainland"),
+                                                          selected = "total_cost")),
+                                          div(style = "padding = 0em; margin-top: -0em",
+                                              selectInput(inputId = "acou_plottype_",
+                                                          label = "Plot type:",
+                                                          choices = list("Box" = "box", 
+                                                                         "Violin" = "violin", 
+                                                                         "Box Violin" = "boxviolin"),
+                                                          selected = "boxviolin")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              checkboxInput(inputId = "acou_compare_", 
+                                                            label = "Show pairwise comparison",
+                                                            value = TRUE)),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              radioButtons(inputId = "acou_w_compare_", 
+                                                           label = "Display comparison:", 
+                                                           choices = c("significant" = "s",
+                                                                       "non-significant" = "ns"),
+                                                           selected = "ns")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              checkboxInput(inputId = "acou_outliers_", 
+                                                            label = "Treat outliers",
+                                                            value = TRUE)),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              actionButton(inputId = "acou_action_", 
+                                                           label = "Update plot"))
+                                        )
+                                 ),
+                                 
+                                 #### Analysis_Country Numerical Plot ----------------------------------------------------
+                                 column(width = 9,
+                                        plotOutput("acou_num_plot_",
+                                                   height = "55vh"
+                                        )
+                                 ),
+                                 
+                               )
+                             ),
+                             
+                             tabPanel(
+                               title = "Categorical Variables",
+                               fluidRow(
+                                 
+                                 #### Analysis_Country Categorical Control Panel ----------------------------------------------------
+                                 column(width = 3,
+                                        box(
+                                          title = tags$p("Second Panel", style = "color: #FFF; font-weight: bold; font-size: 80%;"),
+                                          status = "primary",
+                                          background = "aqua",
+                                          solidHeader = TRUE,
+                                          collapsible = FALSE,
+                                          width = 12,
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              selectInput(inputId = "acou_catvar_",
+                                                          label = "Select y-axis:",
+                                                          choices = list("Age group" = "age_group", 
+                                                                         "Travelling with" = "travel_with", 
+                                                                         "Trip purpose" = "purpose",
+                                                                         "Main activity" = "main_activity",
+                                                                         "Source of information" = "info_source",
+                                                                         "Tour arrangement" = "tour_arrangement",
+                                                                         "Incl. int'l. transport?" = "package_transport_int",
+                                                                         "Incl. accom?" = "package_accomodation",
+                                                                         "Incl. food?" = "package_food",
+                                                                         "Incl. dom. transport?" = "package_transport_tz",
+                                                                         "Incl. sightseeing?" = "package_sightseeing",
+                                                                         "Incl. guided tour?" = "package_guided_tour",
+                                                                         "Incl. insurance?" = "package_insurance",
+                                                                         "Mode of payment" = "payment_mode",
+                                                                         "First trip to TZA?" = "first_trip_tz",
+                                                                         "Most impressive attr." = "most_impressing"),
+                                                          selected = "age_group")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              selectInput(inputId = "acou_catlabel_",
+                                                          label = "Select label:",
+                                                          choices = list("Percentage" = "percentage", 
+                                                                         "Counts" = "counts"),
+                                                          selected = "percentage")),
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              tags$p("Press button below to update graph", style = "font-style: italic;")),
+                                          div(style = "padding = 0em; margin-top: -0.5em",
+                                              actionButton(inputId = "acou_cat_action_", 
+                                                           label = "Update plot"))
+                                          
+                                        )
+                                 ),
+                                 
+                                 #### Analysis_Country Categorical Plot ----------------------------------------------------
+                                 column(width = 9,
+                                        plotOutput("acou_cat_plot_",
+                                                   height = "55vh"
+                                        )
+                                 )
                                )
                              )
                            )
-                         )
-                         
-                         
+                           
+                           
+                       )
+                     ),
+                     
+                     
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em; margin-top: 1em",
+                           box(
+                             title = tags$p("Insights", style = "color: #030708; font-weight: bold; font-size: 80%;"),
+                             status = "warning",
+                             width = 12,
+                             collapsible = F,
+                             div(style = "padding = 0em; margin-top: -1.5em",
+                                 htmlOutput("acou_insight_text"))
+                           )
+                       )
                      )
+                     
+                     
+                     
                      
               )
               
@@ -851,6 +872,7 @@ body <- dashboardBody(
     tabItem(tabName = "tab_country_compare",
             #h3("Spending between Two Countries"),
             fluidRow(
+              
               ### Analysis_Compare First Column  ----------------------------------------------------
               column(width = 2,
                      div(style = "padding = 0em; margin-right: -0.5em",
@@ -900,60 +922,72 @@ body <- dashboardBody(
                                             label = "Update plot"))
                          )
                      )
+                     
               ),
               
               ### Analysis_Compare Second Column  ----------------------------------------------------
               column(width = 10,
-                     div(style = "padding = 0em; margin-left: -2em",
-                         box(
-                           status = "warning",
-                           width = 12,
-                           collapsible = FALSE,
-                           fluidRow(
-                             ##### Analysis_Compare EDA First Country ----------------------------------------------------
-                             column(width = 6,
-                                    align = "center",
-                                    fluidRow(
-                                      selectizeInput(inputId = "acomp_country1_",
-                                                     width = "60%",
-                                                     label = "Select country:",
-                                                     choices = unique(top_world_data_tourist$country),
-                                                     selected = "GERMANY"),
-                                      div(style = "padding = 0em; margin-top: -1.5em",
-                                          tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
-                                    ),
-                                    fluidRow(
-                                      plotlyOutput("acomp_eda_country1_",
-                                                   height = "65vh",
-                                                   width = "90%")
-                                    )
-                             ),
-                             
-                             ##### Analysis_Compare EDA Second Country ----------------------------------------------------
-                             column(width = 6,
-                                    align = "center",
-                                    fluidRow(
-                                      selectizeInput(inputId = "acomp_country2_",
-                                                     width = "60%",
-                                                     label = "Select country:",
-                                                     choices = unique(top_world_data_tourist$country),
-                                                     selected = "AUSTRALIA"),
-                                      div(style = "padding = 0em; margin-top: -1.5em",
-                                          tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
-                                    ),
-                                    fluidRow(
-                                      plotlyOutput("acomp_eda_country2_",
-                                                   height = "65vh",
-                                                   width = "90%")
-                                    )
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em;",
+                           box(
+                             status = "warning",
+                             width = 12,
+                             collapsible = FALSE,
+                             fluidRow(
+                               ##### Analysis_Compare EDA First Country ----------------------------------------------------
+                               column(width = 6,
+                                      align = "center",
+                                      fluidRow(
+                                        selectizeInput(inputId = "acomp_country1_",
+                                                       width = "60%",
+                                                       label = "Select country:",
+                                                       choices = unique(top_world_data_tourist$country),
+                                                       selected = "GERMANY"),
+                                        div(style = "padding = 0em; margin-top: -1.5em",
+                                            tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
+                                      ),
+                                      fluidRow(
+                                        plotlyOutput("acomp_eda_country1_",
+                                                     height = "55vh",
+                                                     width = "90%")
+                                      )
+                               ),
+                               
+                               ##### Analysis_Compare EDA Second Country ----------------------------------------------------
+                               column(width = 6,
+                                      align = "center",
+                                      fluidRow(
+                                        selectizeInput(inputId = "acomp_country2_",
+                                                       width = "60%",
+                                                       label = "Select country:",
+                                                       choices = unique(top_world_data_tourist$country),
+                                                       selected = "AUSTRALIA"),
+                                        div(style = "padding = 0em; margin-top: -1.5em",
+                                            tags$p("only countries with at least 30 visitors are shown", style = "font-style: italic;"))
+                                      ),
+                                      fluidRow(
+                                        plotlyOutput("acomp_eda_country2_",
+                                                     height = "55vh",
+                                                     width = "90%")
+                                      )
+                               )
                              )
                            )
-                         )
-                         
-                         
-                         
-                     )
+                       )
+                     ),
                      
+                     fluidRow(
+                       div(style = "padding = 0em; margin-left: -2em;",
+                           box(
+                             title = tags$p("Insights", style = "color: #030708; font-weight: bold; font-size: 80%;"),
+                             status = "warning",
+                             width = 12,
+                             collapsible = F,
+                             div(style = "padding = 0em; margin-top: -1.5em",
+                                 htmlOutput("acomp_insight_text"))
+                           )
+                       )
+                     )
               )
               
             )
@@ -1804,8 +1838,7 @@ server <- function(input, output) {
     spend_box_plotreact()
   })
   
-  ## Show Insights Text for Scatter Plot
-  
+  ## Show Insights Text 
   spend_scatter_text = function(){
     output$spend_insight_text = renderText(
       paste0(
@@ -1825,7 +1858,7 @@ server <- function(input, output) {
         "<br>","<b>Tour Arrangement:</b>",
         " Tourists who travel on packaged tours tend to have a higher median spending and more spending on the higher end of the spending range.",
         "<br>","<b>Age Group:</b>",
-        " Older tourist group tend to spend more than younger ones,",
+        " Older tourist group tend to spend more than younger ones.",
         "<br>","<b>Travelling with:</b>",
         " When comparing spending per trip and spending per night, tourists traveling with their spouse and children tend to spend more. However, when it comes to spending per individual per night, those traveling with their spouses tend to spend the most.",
         "<br>","<b>Trip purpose:</b>",
@@ -2043,6 +2076,45 @@ server <- function(input, output) {
            "first_trip_tz" = "First trip to TZA?")
   })
   
+  ## Show Insights Text 
+  acou_num_text = function(){
+    output$acou_insight_text = renderText(
+      paste0(
+        "Users can compare tourist spending of those coming from different regions and top countries of each region. Key highlights can be found in:",
+        "<br>","<b>Region:</b>",
+        " There is statistically significant spending difference between travellers from all regions except those from Oceania and Americas.",
+        "<br>","<b>Top (World):</b>",
+        " Travellers from the UK spends significantly lower than those in the top 4.",
+        "<br>","<b>Top (Asia):</b>",
+        " Israel has a great interquartile range indicating a huge range for spending by tourists from that origin even though the median is not significantly different from the rest of the top 4. India is the 5th top country in Asia but has the most number of travellers.",
+        "<br>","<b>Top (Africa):</b>",
+        " There is a huge difference between the top spenders and the median."
+      )
+    )
+  }
+  
+  acou_cat_text = function(){
+    output$acou_insight_text = renderText(
+      paste0(
+        "Users can compare the demographics of tourists coming from different regions and top countries of each region. Key highlights can be found in:",
+        "<br>","<b>Top (World) & (Asia) – Age Group:</b>",
+        " UK has a significantly higher proportion (33%) of tourists who are aged 24 and below. The only other country that come close are the those from Israel of 31% aged below 24.",
+        "<br>","<b>Region & Top(Europe) & (Africa) – Travelling with:</b>",
+        " About 50% of travellers who come to Tanzania travels alone. Italy is the lowest with only 16% of travellers travelling alone and have more travellers coming with their spouse. On the other hand, travellers from Africa (>50%) generally travel alone.",
+        "<br>","<b>Region & Top(Africa) – Trip Purpose:</b>",
+        " Only 18% of tourists from Africa travel for Leisure. A higher percentage of them travel for Business. This could be the reason why a higher percentage of travellers from Africa travel alone."
+      )
+    )
+  }
+  
+  observeEvent(input$acou_tabbox_, 
+               if(input$acou_tabbox_ == "Numerical Variables"){
+                 acou_num_text()
+               } else {
+                 acou_cat_text()
+               }
+  )
+  
   # Analysis_Compare Server  ----------------------------------------------------
   
   acomp_boxplot1 <- eventReactive(
@@ -2115,6 +2187,18 @@ server <- function(input, output) {
                            yanchor = "top",
                            y = 1.15)) 
   })
+  
+  output$acomp_insight_text <- renderText({
+    paste0(
+      "Users can compare between 2 specific country of their interest. Suggested plots:",
+      "<br>","<b>Compare between any Top 5 Countries:</b>",
+      " Compare age, travel with, first trip? or tour arrangement",
+      "<br>","<b>Compare between countries within specific region:</b>",
+      " Compare trip purpose, travel with, first trip? or tour arrangement"
+    )
+    
+  })
+  
   
   # Clustering Data Manipulation  ----------------------------------------------------
   
