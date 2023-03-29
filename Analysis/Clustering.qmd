@@ -122,7 +122,7 @@ sapply(df_clustering, function(x) sum(is.na(x)))
 
 ```
 
-We can then proceed to run the model by specifying the the number of classes we want and the number of repeats we will run for the model. If the number of repeats \> 1 (i.e. more than 1 run of the model is done), it means that a global search was done to obtain the lowest BIC score.
+We can then proceed to run the model by specifying the number of classes we want and the number of repeats we will run for the model. If the number of repeats \> 1 (i.e. more than 1 run of the model is done), it means that a global search was done to obtain the lowest BIC score.
 
 ```{r}
 set.seed(1234)
@@ -176,6 +176,21 @@ LCA_entropy
 ```{r}
 df_clustering$class <- LCA_model$predclass
 df_clustering$class <- factor(df_clustering$class)
+```
+
+```{r}
+##plot % of sample falling within each cluster
+df_clustering_prop <- df_clustering %>%
+  group_by(class) %>%
+  summarise(counts = n()) %>%
+  mutate(class_pct = counts / sum(counts)) %>%
+  ungroup()
+
+fig_pct <- ggplot(df_clustering_prop, aes(y = class, x = class_pct)) + 
+  geom_bar(aes(text = paste0("prop: ",round(class_pct, 2)*100,"%")), stat = "identity") +
+  labs(x = "Percentage of data in class", y = "Class")
+
+ggplotly(fig_pct, tooltip = "text")
 ```
 
 ```{r}
