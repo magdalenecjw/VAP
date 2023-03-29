@@ -188,3 +188,11 @@ ggplot(df = rsquared_plot) +
   labs(x = "Number of trees", y = "R-squared values", 
        title = "R-squared vs. Number of Trees Plot")
 ```
+
+# Insights for Shiny App
+
+-   Random Forest will likely always produce a better baseline model than Decision Tree, even with hyperparameter tuning.
+
+-   Given the same parameters, the model generally hits a performance plateau as the number of trees increases in the forest.
+
+-   (Repeated) kfold Cross Validation seems to perform slightly better than Bootstrap Resampling across all diagnostic statistics when there are less trees, but difference is marginal as the number of trees increase.
