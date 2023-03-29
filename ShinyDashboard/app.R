@@ -721,7 +721,7 @@ body <- dashboardBody(
                              
                              #### Analysis_Country Numerical ----------------------------------------------------
                              tabPanel(
-                               title = "Numerical Variables",
+                               title = "Compare Spending",
                                fluidRow(
                                  
                                  #### Analysis_Country Numerical Control Panel ----------------------------------------------------
@@ -783,7 +783,7 @@ body <- dashboardBody(
                              ),
                              
                              tabPanel(
-                               title = "Categorical Variables",
+                               title = "Compare Demographics",
                                fluidRow(
                                  
                                  #### Analysis_Country Categorical Control Panel ----------------------------------------------------
@@ -2137,7 +2137,7 @@ server <- function(input, output) {
   }
   
   observeEvent(input$acou_tabbox_, 
-               if(input$acou_tabbox_ == "Numerical Variables"){
+               if(input$acou_tabbox_ == "Compare Spending"){
                  acou_num_text()
                } else {
                  acou_cat_text()
