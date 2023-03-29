@@ -223,3 +223,41 @@ p_overall <- ggplot(df_clustering_prob,
 
 ggplotly(p_overall, tooltip = text_levels)
 ```
+
+```{r}
+for (i in names(df_clustering)) {
+  df_clustering[[i]] %>%
+    append(unique())
+}
+```
+
+```{r}
+tooltiplabels <- data.frame(matrix(ncol = 2, nrow = 0))
+colnames(tooltiplabels) <- c('values', 'factor')
+```
+
+```{r}
+names(df_clustering[-1])
+```
+
+```{r}
+for (n in names(df_clustering[-1])) {
+  factor_level <- df_clustering %>% 
+    select(n) %>%
+    distinct() %>%
+    mutate(factor = ) %>%
+    setNames(., c('values', 'factor'))
+  
+  tooltiplabels <- rbind(tooltiplabels, factor_level)
+}
+```
+
+```{r}
+tooltip_levels$region
+```
+
+```{r}
+df_clustering_prob <- reshape2::melt(LCA_model$probs, level = 2) %>%
+  rename(Class = Var1, Factor_level = Var2, Prop = value, Category = L2) %>%
+  mutate(Prop = round(Prop*100,2))
+```
