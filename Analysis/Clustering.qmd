@@ -218,6 +218,7 @@ fig1 <- ggplotly(p1)
 
 fig1
 ```
+
 ```{r}
 tooltip_levels <- df_clustering %>% 
   sapply(levels)
@@ -276,3 +277,11 @@ df_clustering_prob <- reshape2::melt(LCA_model$probs, level = 2) %>%
   rename(Class = Var1, Factor_level = Var2, Prop = value, Category = L2) %>%
   mutate(Prop = round(Prop*100,2))
 ```
+
+# Insights for Shiny App
+
+-   Impact of repetition more apparent when the number of classes exceeds 5.
+
+-   Trend for AIC and Likelihood Ratio mirrors BIC, but not for Entropy i.e. lowest BIC model does not always give best Entropy.
+
+-   May be valuable to review the number of members in each class when identifying the best solution; suggestion to have at least 5% of sample in the smallest class.
