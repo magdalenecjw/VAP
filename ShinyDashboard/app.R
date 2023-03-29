@@ -2438,8 +2438,8 @@ server <- function(input, output) {
              aes(y = class, x = class_pct)) + 
         geom_bar(aes(text = paste0("prop: ",round(class_pct, 2)*100,"%")), 
                  stat = "identity",
-                 fill = "#E9D758") +
-        labs(x = "Percentage of data in class", y = "Cluster") +
+                 fill = "#5C946E") +
+        labs(x = "Percentage of data in cluster", y = "Cluster") +
         scale_x_continuous(labels = scales::percent) +
         theme_minimal(base_size = 11) 
     })
