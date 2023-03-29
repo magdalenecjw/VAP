@@ -1044,9 +1044,17 @@ body <- dashboardBody(
                              width = 12,
                              height = "65vh",
                              
-                             #### Clustering Plots ----------------------------------------------------
+                             #### Clustering Bar Chart ----------------------------------------------------
                              tabPanel(
-                               title = tags$p("LCA Result Overall Plot", style = "font-weight: bold;"),
+                               title = tags$p("Cluster Proportion", style = "font-weight: bold;"),
+                               plotlyOutput("clust_bar",
+                                            width = "100%",
+                                            height = "50vh")
+                             ),
+                             
+                             #### Clustering Overall Plot ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("Cluster Characteristics", style = "font-weight: bold;"),
                                plotlyOutput("clust_plot",
                                             width = "100%",
                                             height = "50vh")
@@ -1054,7 +1062,7 @@ body <- dashboardBody(
                              
                              #### Clustering Individual Plot ----------------------------------------------------
                              tabPanel(
-                               title = tags$p("LCA Result Individual Plot", style = "font-weight: bold;"),
+                               title = tags$p("Cluster Characteristic - Ind.", style = "font-weight: bold;"),
                                fluidRow(
                                  column(width = 4),
                                  column(width = 4,
@@ -1096,22 +1104,34 @@ body <- dashboardBody(
                                                      width = "90%",
                                                      height = "45vh"))
                                )
+                             ),
+                             
+                             #### Insights ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("Insights", style = "font-weight: bold;"),
+                               div(style = "padding = 0em; margin-top: 0em",
+                               htmlOutput("clust_insight_text",
+                                            width = "100%",
+                                            height = "50vh"))
                              )
+                             
+                             
+                             
                            )
                        )
                      ),
                      
                      fluidRow(
-                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                       div(style = "padding = 0em; margin-top: 0em; margin-left: -2em;",
                            valueBoxOutput("clust_aic_", width = 3)
                        ),
-                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                       div(style = "padding = 0em; margin-top: 0em; margin-left: -2em;",
                            valueBoxOutput("clust_bic_", width = 3)
                        ),
-                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                       div(style = "padding = 0em; margin-top: 0em; margin-left: -2em;",
                            valueBoxOutput("clust_gsq_", width = 3)
                        ),
-                       div(style = "padding = 0em; margin-top: -1em; margin-left: -2em;",
+                       div(style = "padding = 0em; margin-top: 0em; margin-left: -2em;",
                            valueBoxOutput("clust_entropy_", width = 3)
                        )
                      )
@@ -1450,6 +1470,15 @@ body <- dashboardBody(
                                           width = "100%",
                                           height = "50vh")
                              ),
+                             
+                             #### Insights ----------------------------------------------------
+                             tabPanel(
+                               title = tags$p("Insights", style = "font-weight: bold;"),
+                               div(style = "padding = 0em; margin-top: 0em",
+                                   htmlOutput("rf_insight_text",
+                                              width = "100%",
+                                              height = "50vh"))
+                             )
                              
                              #### Random Forest R-squared value vs trees  ----------------------------------------------------
                              # tabPanel(
@@ -2392,6 +2421,52 @@ server <- function(input, output) {
                            y = 1.15))
   })
   
+  ## Create df_clustering_prop to plot cluster proportion
+  df_clustering_prop <- eventReactive(
+    input$clust_action_, {
+      df_clustering_mod() %>%
+        group_by(class) %>%
+        summarise(counts = n()) %>%
+        mutate(class_pct = round(counts/ sum(counts), 2)) %>%
+        ungroup()
+    })
+  
+  ##Plotting Cluster Proportion
+  clust_cluster_prop_reactive <- eventReactive(
+    input$clust_action_, {
+      ggplot(df_clustering_prop(), 
+             aes(y = class, x = class_pct)) + 
+        geom_bar(aes(text = paste0("prop: ",round(class_pct, 2)*100,"%")), 
+                 stat = "identity",
+                 fill = "#E9D758") +
+        labs(x = "Percentage of data in class", y = "Cluster") +
+        scale_x_continuous(labels = scales::percent) +
+        theme_minimal(base_size = 11) 
+    })
+  
+  output$clust_bar <- renderPlotly({
+    ggplotly(clust_cluster_prop_reactive(), tooltip = c("text")) %>%
+      layout(autosize = TRUE)
+  })
+  
+  ## Show Insights Text 
+  clust_text = function(){
+    output$clust_insight_text = renderText(
+      paste0(
+        "User can manipulate the number of clusters and number of repetitions to find the best cluster.",
+        "<br>", "Note that when the number of repetition is greater than 1, a global search was done to obtain the lowest Bayesian Information Criterion (BIC) score.",
+        "<br>","<br>","<b>Interesting Insights:</b>",
+        "<br>","<b>1. Impact of repetition</b>",
+        " is more apparent when the number of classes exceeds 5",
+        "<br>","<b>2.</b>"," Trend for ", "<b>AIC</b>" ," and ", "<b>Likelihood Ratio</b>"," mirrors ","<b>BIC</b>", " but not for ", "<b>Entropy</b>", 
+        " as the lowest ", "<b>BIC</b>", " model does not always give best ", "<b>Entropy.</b>",
+        "<br>","<b>3.</b>",
+        " It may be valuable to review the number of members in each class when identifying the best solution; suggestion to have at least 5% of sample in the smallest class."
+      )
+    )
+  }
+  
+  observeEvent(input$clust_action_, clust_text())
   
   
   # DT Data Manipulation  ----------------------------------------------------
@@ -2861,6 +2936,23 @@ server <- function(input, output) {
   output$rf_varimp_ <- renderPlot({
     rf_varimp()
   })
+  
+  ## Show Insights Text 
+  rf_text = function(){
+    output$rf_insight_text = renderText(
+      paste0(
+        "Random Forest will likely always produce a better baseline model than Decision Tree, even with hyperparameter tuning.",
+        "<br>","<br>","<b>Interesting Insights:</b>",
+        "<br>","<b>1. Performance Plateau</b>",
+        " is generally hit as the numbre of trees increases in the forest at the same given parameters",
+        "<br>","<b>2. (Repeated) k-fold Cross Validation</b>",
+        " seems to perform slightly better than ",
+        "<b>Bootstrap Resampling</b>", " across all diagnostic statistics when there are less trees, but difference is marginal as the number of trees increase"
+      )
+    )
+  }
+  
+  observeEvent(input$rf_action_, rf_text())
   
   #tree_range_var <- reactive({5:100})
   
