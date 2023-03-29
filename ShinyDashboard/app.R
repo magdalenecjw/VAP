@@ -721,7 +721,7 @@ body <- dashboardBody(
                              
                              #### Analysis_Country Numerical ----------------------------------------------------
                              tabPanel(
-                               title = "Compare Spending",
+                               title = "Numerical Variables",
                                fluidRow(
                                  
                                  #### Analysis_Country Numerical Control Panel ----------------------------------------------------
@@ -783,7 +783,7 @@ body <- dashboardBody(
                              ),
                              
                              tabPanel(
-                               title = "Compare Demographics",
+                               title = "Categorical Variables",
                                fluidRow(
                                  
                                  #### Analysis_Country Categorical Control Panel ----------------------------------------------------
@@ -1110,9 +1110,9 @@ body <- dashboardBody(
                              tabPanel(
                                title = tags$p("Insights", style = "font-weight: bold;"),
                                div(style = "padding = 0em; margin-top: 0em",
-                               htmlOutput("clust_insight_text",
-                                            width = "100%",
-                                            height = "50vh"))
+                                   htmlOutput("clust_insight_text",
+                                              width = "100%",
+                                              height = "50vh"))
                              )
                              
                              
@@ -1540,6 +1540,15 @@ body <- dashboardBody(
     ## Information  ----------------------------------------------------
     tabItem(tabName = "tab_about",
             #h3("About the app")
+            tags$a(
+              href = "https://thehabaritanzania.netlify.app/",
+              tags$figure(
+                align = "center",
+                tags$img(src = "userguide.png",
+                         width = "70%",
+                         deleteFile = FALSE)
+              )
+            )
     )
     
   )
@@ -2137,7 +2146,7 @@ server <- function(input, output) {
   }
   
   observeEvent(input$acou_tabbox_, 
-               if(input$acou_tabbox_ == "Compare Spending"){
+               if(input$acou_tabbox_ == "Numerical Variables"){
                  acou_num_text()
                } else {
                  acou_cat_text()
