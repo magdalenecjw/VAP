@@ -631,20 +631,4 @@ ggplot(touristdata_clean, aes(x = cost_per_pax, y = total_night_spent)) +
   labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
 ```
 
-```{r}
-filter_list <- touristdata_clean %>%
-  select(tour_arrangement) %>%
-  distinct()
-  
-numrows <- as.numeric(length(filter_list[[1]]))
-  
-filter_char <- as.character(filter_list[1,])
 
-filter_df <- touristdata_clean %>%
-  filter(tour_arrangement == filter_char)
-
-a <-cor.test(filter_df$cost_per_pax, filter_df$total_night_spent, 
-             alternative = "t", method = 'spearman', exact = F, conf.level = 0.95)
-
-a$p.value
-```
