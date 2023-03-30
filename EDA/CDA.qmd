@@ -574,15 +574,18 @@ plot_barstats(xaxis = "main_activity", yaxis = "tour_arrangement", regionlist = 
 
 ## 7. Exploring alternative plotting of scatterplot
 
+Due to issues with plots using the ggscatterstats function not appearing on the app correctly, we explored an alternative way of plotting the chart without using the ggstatsplot package. This alternative method makes use of geom_smooth to draw the trend line and the stats package to compute the correlation estimates and p-values.
+
 ```{r}
-scatter_labeller <- function(col_name, test_type) {
+scatter_labeller <- function(col_name, test_type, conf_level) {
   filter_list <- touristdata_clean %>%
   select(!!sym(col_name)) %>%
   distinct()
   
   numrows <- as.numeric(length(filter_list[[1]]))
   
-  labeller <- c()
+  est <- c()
+  p <- c()
   
   for (n in range(1:numrows)){
     filter_char <-  as.character(filter_list[n,])
@@ -590,20 +593,24 @@ scatter_labeller <- function(col_name, test_type) {
     filter_df <- touristdata_clean %>%
       filter(!!sym(col_name) == filter_char)
   
-    corscore <- cor(filter_df$cost_per_pax,
+    corscore <- cor.test(filter_df$cost_per_pax,
                     filter_df$total_night_spent,
-                    method = test_type)
-   
-    labeller <- append(labeller, corscore)
+                    method = test_type, exact = F, 
+                    conf.level = conf_level)
+    
+    est_score <- append(est, corscore$estimate)
+    p_score <- append(p, corscore$p.value)
   }
   
-  new_df <- data.frame(matrix(ncol=2,nrow=0, 
-                              dimnames=list(NULL, c(col_name, "labeller"))))
+  new_df <- data.frame(matrix(ncol=3,nrow=0, 
+                              dimnames=list(NULL, 
+                                            c(col_name, "est_score", "p_score"))))
   
-  new_df <- cbind(filter_list, data.frame(labeller))
+  new_df <- cbind(filter_list, data.frame(est_score), data.frame(p_score))
   
-  correl_label <- paste0(" (", test_type, " correlation:", 
-                         round(new_df[[2]],3),")")
+  correl_label <- paste0("\n", " ", test_type, " correlation: ", 
+                         round(new_df[[2]],3),
+                         "\n", " p-value: ", round(new_df[[3]],3))
 
   appender <- function(string, suffix = correl_label) paste0(string, suffix)
   
@@ -613,10 +620,31 @@ scatter_labeller <- function(col_name, test_type) {
 ```
 
 ```{r}
-facet_labels <- scatter_labeller("tour_arrangement", "spearman")
+facet_labels <- scatter_labeller("tour_arrangement", "spearman", 0.95)
 ```
 
 ```{r}
-ggplot(touristdata_clean, aes(x = cost_per_pax, y = total_night_spent)) + geom_point() + geom_smooth(method = "lm") + facet_grid(~tour_arrangement, labeller = as_labeller(facet_labels))
+options(scipen = 999)
+ggplot(touristdata_clean, aes(x = cost_per_pax, y = total_night_spent)) +
+  geom_point() + geom_smooth(method = "lm") + 
+  facet_grid(~tour_arrangement, labeller = as_labeller(facet_labels)) + 
+  labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
+```
 
+```{r}
+filter_list <- touristdata_clean %>%
+  select(tour_arrangement) %>%
+  distinct()
+  
+numrows <- as.numeric(length(filter_list[[1]]))
+  
+filter_char <- as.character(filter_list[1,])
+
+filter_df <- touristdata_clean %>%
+  filter(tour_arrangement == filter_char)
+
+a <-cor.test(filter_df$cost_per_pax, filter_df$total_night_spent, 
+             alternative = "t", method = 'spearman', exact = F, conf.level = 0.95)
+
+a$p.value
 ```
