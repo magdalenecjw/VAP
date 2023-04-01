@@ -584,8 +584,8 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
   
   numrows <- as.numeric(length(filter_list[[1]]))
   
-  est <- c()
-  p <- c()
+  est_score <- c()
+  p_score <- c()
   
   for (n in range(1:numrows)){
     filter_char <-  as.character(filter_list[n,])
@@ -598,19 +598,20 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
                     method = test_type, exact = F, 
                     conf.level = conf_level)
     
-    est_score <- append(est, corscore$estimate)
-    p_score <- append(p, corscore$p.value)
+    est_score <- append(est_score, corscore$estimate)
+    p_score <- append(p_score, corscore$p.value)
   }
   
   new_df <- data.frame(matrix(ncol=3,nrow=0, 
                               dimnames=list(NULL, 
                                             c(col_name, "est_score", "p_score"))))
   
-  new_df <- cbind(filter_list, data.frame(est_score), data.frame(p_score))
+  new_df <- cbind(filter_list, data.frame(est_score), data.frame(p_score), 
+                  row.names = NULL)
   
-  correl_label <- paste0("\n", " ", test_type, " correlation: ", 
+  correl_label <- paste0("\n ", test_type, " correlation: ", 
                          round(new_df[[2]],3),
-                         "\n", " p-value: ", round(new_df[[3]],3))
+                         "\np-value: ", round(new_df[[3]],3))
 
   appender <- function(string, suffix = correl_label) paste0(string, suffix)
   
@@ -630,5 +631,3 @@ ggplot(touristdata_clean, aes(x = cost_per_pax, y = total_night_spent)) +
   facet_grid(~tour_arrangement, labeller = as_labeller(facet_labels)) + 
   labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
 ```
-
-
