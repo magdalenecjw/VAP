@@ -228,8 +228,8 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
   
   numrows <- as.numeric(length(filter_list[[1]]))
   
-  est <- c()
-  p <- c()
+  est_score <- c()
+  p_score <- c()
   
   for (n in range(1:numrows)){
     filter_char <-  as.character(filter_list[n,])
@@ -242,8 +242,8 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
                          method = test_type, exact = F, 
                          conf.level = conf_level)
     
-    est_score <- append(est, corscore$estimate)
-    p_score <- append(p, corscore$p.value)
+    est_score <- append(est_score, corscore$estimate)
+    p_score <- append(p_score, corscore$p.value)
   }
   
   new_df <- data.frame(matrix(ncol=3,nrow=0, 
@@ -294,6 +294,7 @@ mytheme <- create_theme(
 
 # Title Logo ----------------------------------------------------
 titlelogo <- tags$a(
+  href = "https://thehabaritanzania.netlify.app/",
   tags$img(
     src="tanzanialogo.jpg",
     height = '49.5',
@@ -1909,6 +1910,17 @@ server <- function(input, output) {
       scatter_labeller(input$spend_cat_, input$spend_scatter_test_, as.numeric(input$spend_cf_))
     })
   
+  spend_scatter_plotreact <- eventReactive(
+    input$spend_scatter_action_, {
+      ggplot(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()}, 
+             aes(x = cost_per_pax, y = total_night_spent)) +
+        geom_point() + geom_smooth(method = "lm") + 
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        facet_wrap(vars(!!sym(input$spend_cat_)), labeller = as_labeller(spend_scatter_facet_labels())) +
+        labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent") +
+        theme(strip.text.x = element_text(size = 12))
+    })
+  
   
   ## Wrap the box plot in eventReactive based on Update Plot Button
   spend_box_plotreact <- eventReactive(
@@ -1923,18 +1935,6 @@ server <- function(input, output) {
                      mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_)) +
         scale_color_manual(values = colorset) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) 
-    })
-  
-
-  
-  spend_scatter_plotreact <- eventReactive(
-    input$spend_scatter_action_, {
-      ggplot(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()}, 
-             aes(x = cost_per_pax, y = total_night_spent)) +
-        geom_point() + geom_smooth(method = "lm") + 
-        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
-        facet_wrap(vars(!!sym(input$spend_cat_)), labeller = as_labeller(spend_scatter_facet_labels())) +
-        labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
     })
   
   ## Render the scatter plot

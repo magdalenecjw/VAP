@@ -621,13 +621,13 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
 ```
 
 ```{r}
-facet_labels <- scatter_labeller("tour_arrangement", "spearman", 0.95)
+facet_labels <- scatter_labeller("travel_with", "spearman", 0.95)
 ```
 
 ```{r}
 options(scipen = 999)
 ggplot(touristdata_clean, aes(x = cost_per_pax, y = total_night_spent)) +
   geom_point() + geom_smooth(method = "lm") + 
-  facet_grid(~tour_arrangement, labeller = as_labeller(facet_labels)) + 
+  facet_grid(~travel_with, labeller = as_labeller(facet_labels)) + 
   labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
 ```
