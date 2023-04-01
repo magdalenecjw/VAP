@@ -222,11 +222,7 @@ fig1
 ### Create labels for tooltips in clustering overview table
 
 ```{r}
-df_clustering_prob <- reshape2::melt(LCA_model$probs, level = 2) %>%
-  rename(Class = Var1, Factor_level = Var2, Prop = value, Category = L2) %>% 
-  mutate(Prop = round(Prop*100,2))
 
-df_clustering_prob$Level <- df_clustering_prob$Factor_level
 ```
 
 ```{r}
@@ -252,7 +248,16 @@ clusterlabels <- df_clustering_labels %>%
   }, .id = "VarName")
 
 clusterlabels_table <- df_clustering_prob2 %>%
-  inner_join(clusterlabels, by = c('Category' = 'VarName', 'Level' = 'Number'))
+  inner_join(clusterlabels, by = c('Category' = 'VarName', 'Level' = 'Number')) %>%
+  select(!Level) %>%
+  rename(Level = Level.y) %>%
+  select(!Class) %>%
+  select(!Prop) %>%
+  distinct()
+```
+
+```{r}
+write.csv(clusterlabels_table, "C:/magdalenecjw/VAP/ShinyDashboard/data/clusterlabels.csv", row.names=F)
 ```
 
 # Insights for Shiny App
