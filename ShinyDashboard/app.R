@@ -12,6 +12,8 @@ pacman::p_load("sf", "tmap", "ExPanDaR", "kableExtra", "ggstatsplot", "ggrepel",
 # Base Data and Modification ----------------------------------------------------
 touristdata <- read_csv("data/touristdata_clean.csv")
 
+clustertootliplabel <- read_csv("data/clusterlabels.csv")
+
 touristdata_clean <- touristdata %>%
   filter(total_cost > 0,
          total_tourist > 0,
@@ -216,6 +218,47 @@ convertbinary2 <- function(x){
 # Calculate clustering entropy function  ----------------------------------------------------
 entropy <- function(p) {
   sum(-p*log(p))
+}
+
+#new function to plot scatter plots
+scatter_labeller <- function(col_name, test_type, conf_level) {
+  filter_list <- touristdata_clean %>%
+    select(!!sym(col_name)) %>%
+    distinct()
+  
+  numrows <- as.numeric(length(filter_list[[1]]))
+  
+  est <- c()
+  p <- c()
+  
+  for (n in range(1:numrows)){
+    filter_char <-  as.character(filter_list[n,])
+    
+    filter_df <- touristdata_clean %>%
+      filter(!!sym(col_name) == filter_char)
+    
+    corscore <- cor.test(filter_df$cost_per_pax,
+                         filter_df$total_night_spent,
+                         method = test_type, exact = F, 
+                         conf.level = conf_level)
+    
+    est_score <- append(est, corscore$estimate)
+    p_score <- append(p, corscore$p.value)
+  }
+  
+  new_df <- data.frame(matrix(ncol=3,nrow=0, 
+                              dimnames=list(NULL, 
+                                            c(col_name, "est_score", "p_score"))))
+  
+  new_df <- cbind(filter_list, data.frame(est_score), data.frame(p_score))
+  
+  correl_label <- paste0("\n", " ", test_type, " correlation: ", 
+                         round(new_df[[2]],3),
+                         "\n", " p-value: ", round(new_df[[3]],3))
+  
+  appender <- function(string, suffix = correl_label) paste0(string, suffix)
+  
+  return(appender)
 }
 
 #colorset
@@ -503,14 +546,6 @@ body <- dashboardBody(
                                                           "First trip to TZA?" = "first_trip_tz",
                                                           "Most impressive attr." = "most_impressing"),
                                            selected = "tour_arrangement")),
-                           div(style = "padding = 0em; margin-top: -1em",
-                               selectInput(inputId = "spend_test_",
-                                           label = "Test type:",
-                                           choices = list("parametric" = "p", 
-                                                          "non-parametric" = "np", 
-                                                          "robust" = "r", 
-                                                          "Bayes Factor" = "bf"),
-                                           selected = "np")),
                            div(style = "padding = 0em; margin-top: 0em",
                                radioButtons(inputId = "spend_cf_",
                                             label = "Confidence level:",
@@ -553,6 +588,13 @@ body <- dashboardBody(
                                           solidHeader = TRUE,
                                           collapsible = FALSE,
                                           width = 12,
+                                          div(style = "padding = 0em; margin-top: 0em",
+                                              selectInput(inputId = "spend_scatter_test_",
+                                                          label = "Test type:",
+                                                          choices = list("Pearson" = "pearson", 
+                                                                         "Spearman" = "spearman", 
+                                                                         "Kendall" = "kendall"),
+                                                          selected = "spearman")),
                                           div(style = "padding = 0em; margin-top: -0.5em",
                                               tags$p("Press button below to update graph", style = "font-style: italic;")),
                                           div(style = "padding = 0em; margin-top: -0.5em",
@@ -597,22 +639,30 @@ body <- dashboardBody(
                                                                          "Individual Spending per Night" = "cost_per_pax_night"),
                                                           selected = "cost_per_pax")),
                                           div(style = "padding = 0em; margin-top: 0em",
+                                              selectInput(inputId = "spend_test_",
+                                                          label = "Test type:",
+                                                          choices = list("parametric" = "p", 
+                                                                         "non-parametric" = "np", 
+                                                                         "robust" = "r", 
+                                                                         "Bayes Factor" = "bf"),
+                                                          selected = "np")),
+                                          div(style = "padding = 0em; margin-top: 0em",
                                               selectInput(inputId = "spend_plottype_",
                                                           label = "Plot type:",
                                                           choices = list("Box" = "box", 
                                                                          "Violin" = "violin", 
                                                                          "Box Violin" = "boxviolin"),
                                                           selected = "boxviolin")),
-                                          div(style = "padding = 0em; margin-top: 0em",
-                                              checkboxInput(inputId = "spend_compare_", 
-                                                            label = "Show pairwise comparison",
-                                                            value = TRUE)),
-                                          div(style = "padding = 0em; margin-top: 0em",
-                                              radioButtons(inputId = "spend_w_compare_", 
-                                                           label = "Display comparison:", 
-                                                           choices = c("significant" = "s",
-                                                                       "non-significant" = "ns"),
-                                                           selected = "ns")),
+                                          #div(style = "padding = 0em; margin-top: 0em",
+                                          #    checkboxInput(inputId = "spend_compare_", 
+                                          #                  label = "Show pairwise comparison",
+                                          #                  value = TRUE)),
+                                          #div(style = "padding = 0em; margin-top: 0em",
+                                          #    radioButtons(inputId = "spend_w_compare_", 
+                                          #                 label = "Display comparison:", 
+                                          #                 choices = c("significant" = "s",
+                                          #                             "non-significant" = "ns"),
+                                          #                 selected = "ns")),
                                           div(style = "padding = 0em; margin-top: 0em",
                                               tags$p("Press button below to update graph", style = "font-style: italic;")),
                                           div(style = "padding = 0em; margin-top: -0.5em",
@@ -721,7 +771,7 @@ body <- dashboardBody(
                              
                              #### Analysis_Country Numerical ----------------------------------------------------
                              tabPanel(
-                               title = "Numerical Variables",
+                               title = "Spending Analysis",
                                fluidRow(
                                  
                                  #### Analysis_Country Numerical Control Panel ----------------------------------------------------
@@ -750,16 +800,16 @@ body <- dashboardBody(
                                                                          "Violin" = "violin", 
                                                                          "Box Violin" = "boxviolin"),
                                                           selected = "boxviolin")),
-                                          div(style = "padding = 0em; margin-top: 0em",
-                                              checkboxInput(inputId = "acou_compare_", 
-                                                            label = "Show pairwise comparison",
-                                                            value = TRUE)),
-                                          div(style = "padding = 0em; margin-top: 0em",
-                                              radioButtons(inputId = "acou_w_compare_", 
-                                                           label = "Display comparison:", 
-                                                           choices = c("significant" = "s",
-                                                                       "non-significant" = "ns"),
-                                                           selected = "ns")),
+                                          #div(style = "padding = 0em; margin-top: 0em",
+                                          #    checkboxInput(inputId = "acou_compare_", 
+                                          #                  label = "Show pairwise comparison",
+                                          #                  value = TRUE)),
+                                          #div(style = "padding = 0em; margin-top: 0em",
+                                          #    radioButtons(inputId = "acou_w_compare_", 
+                                          #                 label = "Display comparison:", 
+                                          #                 choices = c("significant" = "s",
+                                          #                             "non-significant" = "ns"),
+                                          #                 selected = "ns")),
                                           div(style = "padding = 0em; margin-top: 0em",
                                               checkboxInput(inputId = "acou_outliers_", 
                                                             label = "Treat outliers",
@@ -783,7 +833,7 @@ body <- dashboardBody(
                              ),
                              
                              tabPanel(
-                               title = "Categorical Variables",
+                               title = "Demographics Analysis",
                                fluidRow(
                                  
                                  #### Analysis_Country Categorical Control Panel ----------------------------------------------------
@@ -1840,18 +1890,25 @@ server <- function(input, output) {
   })
   
   ## Wrap the scatter plot in eventReactive based on Update Plot Button
-  spend_scatter_plotreact <- eventReactive(
+  #spend_scatter_plotreact <- eventReactive(
+  #  input$spend_scatter_action_, {
+  #    grouped_ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
+  #                           x = cost_per_pax, y = total_night_spent,
+  #                           xlab = "Individual Spending per Trip (TZS)", ylab = "Total Nights Spent",
+  #                           grouping.var = !!sym(input$spend_cat_),
+  #                           results.subtitle = TRUE,
+  #                           type = input$spend_test_,
+  #                           conf.level = as.numeric(input$spend_cf_),
+  #                           ggplot.component = scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
+  #facet_wrap(vars(!!sym(input$spend_cat_)))
+  #  })
+  
+  ## Wrap the scatter plot in eventReactive based on Update Plot Button
+  spend_scatter_facet_labels <- eventReactive(
     input$spend_scatter_action_, {
-      grouped_ggscatterstats(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()},
-                             x = cost_per_pax, y = total_night_spent,
-                             xlab = "Individual Spending per Trip (TZS)", ylab = "Total Nights Spent",
-                             grouping.var = !!sym(input$spend_cat_),
-                             results.subtitle = TRUE,
-                             type = input$spend_test_,
-                             conf.level = as.numeric(input$spend_cf_),
-                             ggplot.component = scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6))) #+ 
-      #facet_wrap(vars(!!sym(input$spend_cat_)))
+      scatter_labeller(input$spend_cat_, input$spend_scatter_test_, as.numeric(input$spend_cf_))
     })
+  
   
   ## Wrap the box plot in eventReactive based on Update Plot Button
   spend_box_plotreact <- eventReactive(
@@ -1860,10 +1917,24 @@ server <- function(input, output) {
                      x = !!sym(input$spend_cat_), y = !!sym(input$spend_yaxis_),
                      plot.type = input$spend_plottype_,
                      xlab = spend_category_text(), ylab = spend_yaxis_text(),
-                     type = input$spend_test_, pairwise.comparisons = input$spend_compare_, pairwise.display = input$spend_w_compare_, 
+                     type = input$spend_test_, 
+                     pairwise.comparisons = FALSE, 
+                     #pairwise.display = input$spend_w_compare_, 
                      mean.ci = T, p.adjust.method = "fdr",  conf.level = as.numeric(input$spend_cf_)) +
         scale_color_manual(values = colorset) +
         scale_y_continuous(labels = label_number(suffix = " M", scale = 1e-6)) 
+    })
+  
+
+  
+  spend_scatter_plotreact <- eventReactive(
+    input$spend_scatter_action_, {
+      ggplot(data = if(input$spend_outliers_){spend_data_nooutlier()}else{spend_data()}, 
+             aes(x = cost_per_pax, y = total_night_spent)) +
+        geom_point() + geom_smooth(method = "lm") + 
+        scale_x_continuous(labels = label_number(suffix = " M", scale = 1e-6)) +
+        facet_wrap(vars(!!sym(input$spend_cat_)), labeller = as_labeller(spend_scatter_facet_labels())) +
+        labs(x = "Cost per Pax (TZS)", y = "Total Nights Spent")
     })
   
   ## Render the scatter plot
@@ -2015,7 +2086,9 @@ server <- function(input, output) {
                      x = !!sym(input$acou_reg_cou_), y = !!sym(input$acou_numvar_),
                      plot.type = input$acou_plottype_,
                      xlab = str_to_title(input$acou_reg_cou_), ylab = acou_ANOVA_metrics_text(),
-                     type = input$acou_test_, pairwise.comparisons = input$acou_compare_, pairwise.display = input$acou_w_compare_, 
+                     type = input$acou_test_, 
+                     pairwise.comparisons = FALSE, 
+                     #pairwise.display = input$acou_w_compare_, 
                      mean.ci = T, p.adjust.method = "fdr",  
                      conf.level = as.numeric(input$acou_cf_)) +
         scale_color_manual(values = colorset) +
@@ -2146,7 +2219,7 @@ server <- function(input, output) {
   }
   
   observeEvent(input$acou_tabbox_, 
-               if(input$acou_tabbox_ == "Numerical Variables"){
+               if(input$acou_tabbox_ == "Spending Analysis"){
                  acou_num_text()
                } else {
                  acou_cat_text()
@@ -2346,12 +2419,22 @@ server <- function(input, output) {
         mutate(Prop = round(Prop*100,2))
     })
   
+  df_clustering_final <- eventReactive(
+    input$clust_action_, {
+      left_join(df_clustering_prob(), clustertootliplabel,
+                by = c("Factor_level" = "Factor_level",
+                       "Category" = "Category"))
+    })
+  
   ##Plotting OVerall Plot
   clust_plot_reactive <- eventReactive(
     input$clust_action_, {
-      ggplot(df_clustering_prob(),
+      ggplot(df_clustering_final(),
              aes(x = Class, y = Prop, group = desc(Factor_level))) + 
-        geom_bar(stat = "identity", position = "stack", aes(fill = Factor_level)) + 
+        geom_bar(stat = "identity", position = "stack", 
+                 aes(fill = Factor_level,
+                     text = paste0("Prop: ", Prop,"%","\n",
+                                   "Category: ", Level))) + 
         facet_wrap(~ Category) + 
         coord_flip() +
         labs(fill = "Factor Level") +
@@ -2361,12 +2444,12 @@ server <- function(input, output) {
     })
   
   output$clust_plot <- renderPlotly({
-    ggplotly(clust_plot_reactive()) %>%
+    ggplotly(clust_plot_reactive(), tooltip = c("text", "x")) %>%
       layout(legend = list(orientation = 'h',
                            xanchor = "center",
                            x = 0.5,
                            yanchor = "top",
-                           y = 1.15))
+                           y = 1.15)) 
   })
   
   
