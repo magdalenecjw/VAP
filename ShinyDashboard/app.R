@@ -231,7 +231,7 @@ scatter_labeller <- function(col_name, test_type, conf_level) {
   est_score <- c()
   p_score <- c()
   
-  for (n in range(1:numrows)){
+  for (n in seq(1, numrows, 1)){
     filter_char <-  as.character(filter_list[n,])
     
     filter_df <- touristdata_clean %>%
@@ -1592,7 +1592,7 @@ body <- dashboardBody(
     tabItem(tabName = "tab_about",
             #h3("About the app")
             tags$a(
-              href = "https://thehabaritanzania.netlify.app/",
+              href = "https://thehabaritanzania.netlify.app/doc/Detailed-User-Guide.pdf",
               tags$figure(
                 align = "center",
                 tags$img(src = "userguide.png",
